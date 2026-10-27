@@ -278,7 +278,7 @@ function MobileGroup({ group, label, move }) {
 function HomePage({ navigate, openProject, t }) {
   const [slide, setSlide] = useState(0)
   return <>
-    <section className="hero home-hero" style={{ '--hero-image': `url(${images.hero})` }}>
+    <section className="hero home-hero" style={{ '--hero-image': `url(${images.portada})` }}>
       <div className="hero-shade"></div><div className="container hero-content">
         <Eyebrow>KND PADEL · SISTEMAS COMPLETOS</Eyebrow>
         <h1>Construido<br/><em>para jugar.</em></h1>

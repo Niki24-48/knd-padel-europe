@@ -20,6 +20,7 @@ export const brand = {
 // configuration references until KND supplies a render-to-model mapping.
 export const media = {
   courts: {
+    portada: '/media/knd/courts/portada.jpg',
     straight: '/media/knd/courts/open-court-straight.jpg',
     curvedLighting: '/media/knd/courts/open-court-curved-lighting.jpg',
     structural: '/media/knd/courts/open-court-structural.jpg',
@@ -41,6 +42,7 @@ export const media = {
 }
 
 export const images = {
+  portada: media.courts.portada,
   hero: media.courts.curvedLighting,
   courtBlue: media.courts.structural,
   courtSun: media.courts.straight,
