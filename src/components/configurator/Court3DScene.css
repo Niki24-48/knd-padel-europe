@@ -1,0 +1,217 @@
+.knd-court3d {
+  --knd-3d-accent: #d3f605;
+  --knd-3d-navy: #002f63;
+  --knd-3d-ink: #07131f;
+  position: relative;
+  width: 100%;
+  min-height: 34rem;
+  overflow: hidden;
+  isolation: isolate;
+  background: #dbe7e7;
+  color: #fff;
+}
+
+.knd-court3d--evening {
+  background: #6f7889;
+}
+
+.knd-court3d--night {
+  background: #07111e;
+}
+
+.knd-court3d-canvas {
+  position: absolute;
+  inset: 0;
+  min-height: inherit;
+}
+
+.knd-court3d-canvas canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  outline: none;
+  touch-action: none;
+  cursor: grab;
+}
+
+.knd-court3d-canvas canvas:active {
+  cursor: grabbing;
+}
+
+.knd-court3d-toolbar {
+  position: absolute;
+  z-index: 5;
+  top: 1rem;
+  left: 50%;
+  display: flex;
+  max-width: calc(100% - 2rem);
+  padding: 0.25rem;
+  overflow-x: auto;
+  border: 1px solid rgb(255 255 255 / 18%);
+  border-radius: 999px;
+  background: rgb(4 16 27 / 84%);
+  box-shadow: 0 0.8rem 2.4rem rgb(0 0 0 / 18%);
+  backdrop-filter: blur(14px);
+  transform: translateX(-50%);
+  scrollbar-width: none;
+}
+
+.knd-court3d-toolbar::-webkit-scrollbar {
+  display: none;
+}
+
+.knd-court3d-toolbar button {
+  flex: 0 0 auto;
+  min-height: 2.25rem;
+  padding: 0.55rem 0.82rem;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: rgb(255 255 255 / 72%);
+  font: inherit;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.055em;
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color 180ms ease, background-color 180ms ease, transform 180ms ease;
+}
+
+.knd-court3d-toolbar button:hover,
+.knd-court3d-toolbar button:focus-visible {
+  color: #fff;
+  outline: none;
+  background: rgb(255 255 255 / 10%);
+}
+
+.knd-court3d-toolbar button:focus-visible {
+  box-shadow: 0 0 0 2px var(--knd-3d-accent);
+}
+
+.knd-court3d-toolbar button.is-active {
+  background: var(--knd-3d-accent);
+  color: var(--knd-3d-ink);
+}
+
+.knd-court3d-toolbar button:disabled {
+  cursor: wait;
+  opacity: 0.5;
+}
+
+.knd-court3d-meta {
+  position: absolute;
+  z-index: 4;
+  right: 1rem;
+  bottom: 2.75rem;
+  display: flex;
+  gap: 0.45rem;
+  pointer-events: none;
+}
+
+.knd-court3d-meta span {
+  padding: 0.42rem 0.62rem;
+  border: 1px solid rgb(255 255 255 / 18%);
+  border-radius: 999px;
+  background: rgb(4 16 27 / 72%);
+  color: rgb(255 255 255 / 84%);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  backdrop-filter: blur(10px);
+}
+
+.knd-court3d-disclaimer {
+  position: absolute;
+  z-index: 4;
+  right: 1rem;
+  bottom: 0.8rem;
+  left: 1rem;
+  margin: 0;
+  color: rgb(255 255 255 / 70%);
+  font-size: 0.68rem;
+  line-height: 1.35;
+  text-align: right;
+  text-shadow: 0 1px 10px rgb(0 0 0 / 60%);
+  pointer-events: none;
+}
+
+.knd-court3d-fallback {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  min-height: inherit;
+  padding: 2rem;
+  background:
+    radial-gradient(circle at 50% 42%, rgb(211 246 5 / 12%), transparent 25rem),
+    linear-gradient(145deg, #09213a, #04101d);
+  color: #fff;
+  text-align: center;
+}
+
+.knd-court3d-fallback > span {
+  display: grid;
+  place-items: center;
+  width: 3.6rem;
+  height: 3.6rem;
+  margin-bottom: 1.2rem;
+  border: 1px solid rgb(211 246 5 / 42%);
+  border-radius: 50%;
+  color: var(--knd-3d-accent);
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+.knd-court3d-fallback strong {
+  font-size: clamp(1.2rem, 3vw, 1.8rem);
+}
+
+.knd-court3d-fallback p {
+  max-width: 34rem;
+  margin: 0.65rem 0 0;
+  color: rgb(255 255 255 / 68%);
+  line-height: 1.6;
+}
+
+@media (max-width: 720px) {
+  .knd-court3d {
+    min-height: min(72svh, 36rem);
+  }
+
+  .knd-court3d-toolbar {
+    top: 0.7rem;
+    left: 0.7rem;
+    max-width: calc(100% - 1.4rem);
+    transform: none;
+  }
+
+  .knd-court3d-toolbar button {
+    min-height: 2.5rem;
+    padding-inline: 0.72rem;
+    font-size: 0.64rem;
+  }
+
+  .knd-court3d-meta {
+    right: 0.7rem;
+    bottom: 3.25rem;
+  }
+
+  .knd-court3d-disclaimer {
+    right: 0.7rem;
+    bottom: 0.65rem;
+    left: 0.7rem;
+    font-size: 0.62rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .knd-court3d-toolbar button {
+    transition: none;
+  }
+}

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { lazy, Suspense, useEffect, useState } from 'react'
 import {
   articles,
   brand,
@@ -10,6 +10,13 @@ import {
   roofSystems,
   turfSystems,
 } from './data/site.js'
+import ProductGallery from './components/ProductGallery.jsx'
+import { ProjectDetail as ProjectDetailPage, ProjectsPage as ProjectsPortfolioPage, ProjectsPreview as ProjectsPortfolioPreview } from './components/projects/Projects.jsx'
+import EnquiryFormComponent from './components/EnquiryForm.jsx'
+import ProjectDialogComponent from './components/ProjectDialog.jsx'
+import SeoManager from './components/SeoManager.jsx'
+
+const ConfiguratorPage = lazy(() => import('./components/configurator/Configurator.jsx'))
 
 const Arrow = () => <span aria-hidden="true" className="arrow">→</span>
 const Chevron = ({ open = false }) => <span aria-hidden="true" className={`chevron ${open ? 'open' : ''}`}>⌄</span>
@@ -166,51 +173,38 @@ function localizeRenderedContent(locale) {
 }
 
 function useRouter() {
-  const [path, setPath] = useState(() => window.location.pathname || '/')
+  const readLocation = () => ({ path: window.location.pathname || '/', search: window.location.search || '', hash: window.location.hash || '' })
+  const [location, setLocation] = useState(readLocation)
   useEffect(() => {
-    const onPop = () => setPath(window.location.pathname || '/')
+    const onPop = () => setLocation(readLocation())
     window.addEventListener('popstate', onPop)
     return () => window.removeEventListener('popstate', onPop)
   }, [])
   const navigate = (to) => {
-    if (to === window.location.pathname) return window.scrollTo({ top: 0, behavior: 'smooth' })
+    const target = new URL(to, window.location.origin)
+    const current = `${window.location.pathname}${window.location.search}${window.location.hash}`
+    const next = `${target.pathname}${target.search}${target.hash}`
+    if (next === current) return window.scrollTo({ top: 0, behavior: 'smooth' })
     window.history.pushState({}, '', to)
-    setPath(to)
+    setLocation(readLocation())
     window.scrollTo({ top: 0, behavior: 'instant' })
   }
-  return { path, navigate }
+  return { ...location, navigate }
 }
 
 function App() {
-  const { path, navigate } = useRouter()
+  const { path, search, hash, navigate } = useRouter()
   const [locale, setLocale] = useState('es')
   const [projectOpen, setProjectOpen] = useState(false)
   const [projectContext, setProjectContext] = useState('')
   const t = copy[locale]
-
-  useEffect(() => {
-    document.documentElement.lang = locale
-    const homeTitle = locale === 'en' ? 'KND Padel — Built to play' : 'KND Padel — Construido para jugar'
-    const title = path === '/' ? homeTitle : `KND Padel — ${path.split('/').filter(Boolean).pop()?.replaceAll('-', ' ') || 'Padel'}`
-    document.title = title
-  }, [path, locale])
-
-  useEffect(() => {
-    localizeRenderedContent(locale)
-    if (locale !== 'en') return undefined
-    const root = document.getElementById('root')
-    if (!root) return undefined
-    const observer = new MutationObserver(() => localizeRenderedContent(locale))
-    observer.observe(root, { childList: true, subtree: true, characterData: true })
-    return () => observer.disconnect()
-  }, [locale])
 
   const openProject = (context = '') => {
     setProjectContext(context)
     setProjectOpen(true)
   }
 
-  const pageProps = { navigate, t, locale, openProject }
+  const pageProps = { navigate, t, locale, openProject, search, hash }
   let page
   if (path === '/') page = <HomePage {...pageProps} />
   else if (path === '/courts') page = <CourtsIndex {...pageProps} />
@@ -219,9 +213,10 @@ function App() {
   else if (path.startsWith('/turf/')) page = <SystemDetail {...pageProps} type="turf" item={turfSystems.find((item) => item.id === path.split('/').pop())} />
   else if (path === '/roof') page = <RoofIndex {...pageProps} />
   else if (path.startsWith('/roof/')) page = <SystemDetail {...pageProps} type="roof" item={roofSystems.find((item) => item.id === path.split('/').pop())} />
-  else if (path === '/configurator') page = <Configurator {...pageProps} />
+  else if (path === '/configurator') page = <Suspense fallback={<section className="configurator-loading" role="status"><span>3D</span><p>Cargando el estudio de configuración…</p></section>}><ConfiguratorPage {...pageProps} /></Suspense>
   else if (path === '/why' || path === '/about') page = <WhyPage {...pageProps} />
-  else if (path === '/projects') page = <ProjectsPage {...pageProps} />
+  else if (path === '/projects') page = <ProjectsPortfolioPage {...pageProps} />
+  else if (path.startsWith('/projects/')) page = <ProjectDetailPage {...pageProps} project={projects.find((project) => project.slug === path.split('/').pop())} />
   else if (path === '/news') page = <NewsPage {...pageProps} />
   else if (path.startsWith('/news/')) page = <ArticlePage {...pageProps} article={articles.find((article) => article.slug === path.split('/').pop())} />
   else if (path === '/faq') page = <FaqPage {...pageProps} />
@@ -229,10 +224,11 @@ function App() {
   else page = <NotFound {...pageProps} />
 
   return <>
+    <SeoManager path={path} locale={locale} />
     <Header navigate={navigate} locale={locale} setLocale={setLocale} t={t} openProject={openProject} />
     <main>{page}</main>
     <Footer navigate={navigate} t={t} />
-    {projectOpen && <ProjectDialog context={projectContext} onClose={() => setProjectOpen(false)} />}
+    {projectOpen && <ProjectDialogComponent context={projectContext} onClose={() => setProjectOpen(false)} />}
   </>
 }
 
@@ -304,10 +300,10 @@ function HomePage({ navigate, openProject, t }) {
       <div className="container carousel-window"><div className="court-carousel" style={{ transform: `translateX(calc(-${slide} * (min(74vw, 580px) + 22px)))` }}>{courts.map((court) => <SystemCard key={court.id} item={court} path="/courts" navigate={navigate} />)}</div></div>
     </section>
     <section className="section why-section"><div className="container section-top"><SectionHead eyebrow="POR QUÉ KND" title={<>Construido por gente de pádel,<br/><em>para proyectos reales.</em></>} text="Equilibramos experiencia de competición, fabricación atenta y un soporte de proyecto claro para hacer cada entrega más fácil de definir y operar."/></div><div className="container why-grid"><article className="image-story"><img src={images.courtNight} alt="Pista iluminada al anochecer"/><div><span>01 · PROBADO EN JUEGO</span><h3>Proyectos que se ven<br/>y se viven bien.</h3><p>Detalles de juego, luz y perspectiva pensados para público, jugadores y operación.</p></div></article><article className="image-story"><img src={images.manufacture} alt="Proceso industrial de fabricación"/><div><span>02 · HECHO CON CONTROL</span><h3>Fabricar importa.</h3><p>Menos interpretaciones, más trazabilidad y una especificación que se mantiene íntegra.</p></div></article><div className="why-points">{['Diseño y coordinación completos', 'Sistemas realmente personalizables', 'Logística conectada al proyecto', 'Instalación respaldada'].map((point, index) => <article key={point}><span>0{index + 1}</span><h3>{point}</h3><Arrow /></article>)}</div></div></section>
-    <ProjectsPreview navigate={navigate} />
+    <ProjectsPortfolioPreview navigate={navigate} />
     <ProjectProcess openProject={openProject} />
     <NewsPreview navigate={navigate} />
-    <Partners />
+    <Capabilities />
     <FaqBlock />
     <ContactCta openProject={openProject} />
   </>
@@ -319,17 +315,16 @@ function SectionHead({ eyebrow, title, text }) { return <div className="section-
 function Eyebrow({ children }) { return <span className="eyebrow">{children}</span> }
 function SystemCard({ item, path, navigate }) { return <article className="system-card"><img src={item.image} alt={`${item.name} — sistema KND Padel`}/><div className="system-card-shade"></div><div className="system-card-content"><span>{item.code}</span><h3>{item.name}</h3><p>{item.strap || item.role}</p><button onClick={() => navigate(`${path}/${item.id}`)}>Explorar <Arrow /></button></div></article> }
 
-function ProjectsPreview({ navigate }) { return <section className="section projects-preview"><div className="container section-top"><SectionHead eyebrow="APLICACIONES" title={<>Pensadas para lugares<br/><em>que la gente recuerda.</em></>} text="Composiciones de aplicación para orientar la conversación. Sustituiremos esta selección por proyectos KND publicados y verificados." /><button className="text-link" onClick={() => navigate('/projects')}>Ver aplicaciones <Arrow /></button></div><div className="project-strip">{projects.slice(0, 3).map((project) => <article key={project.name}><img src={project.image} alt={`Aplicación visual: ${project.name}`}/><div><span>{project.model}</span><h3>{project.name}</h3><p>{project.location}</p></div></article>)}</div></section> }
 function ProjectProcess({ openProject }) { const steps = [['01', 'Entender el lugar', 'Ubicación, uso, calendario y los datos que cambian la solución.'], ['02', 'Definir el sistema', 'Pista, césped, iluminación, color y cubierta reunidos en una propuesta clara.'], ['03', 'Coordinar la entrega', 'Documentación, fabricación, logística e instalación alineadas con el proyecto.'], ['04', 'Preparar la apertura', 'Una revisión final orientada a que el espacio llegue listo para jugar.']]; return <section className="section process-section"><div className="container"><div className="section-top"><SectionHead eyebrow="DE BRIEF A PRIMER PARTIDO" title={<>Un proceso que<br/><em>mantiene unido el proyecto.</em></>} text="No hay dos ubicaciones iguales. Por eso empezamos con las decisiones que de verdad definen cómo se jugará y se operará la pista."/><button className="button accent" onClick={() => openProject('Brief de proyecto')}>Cuéntanos el proyecto <Arrow /></button></div><div className="process-grid">{steps.map(([number, title, text]) => <article key={number}><span>{number}</span><h3>{title}</h3><p>{text}</p><i>↓</i></article>)}</div></div></section> }
 function NewsPreview({ navigate }) { return <section className="section news-preview"><div className="container section-top"><SectionHead eyebrow="KND JOURNAL" title={<>Ideas que dan forma<br/><em>a la pista moderna.</em></>} /><button className="text-link" onClick={() => navigate('/news')}>Ver historias <Arrow /></button></div><div className="container news-grid">{articles.map((article, index) => <button className="article-card" key={article.slug} onClick={() => navigate(`/news/${article.slug}`)}><img src={article.image} alt=""/><span>0{index + 1} · {article.type.toUpperCase()} · {article.date}</span><h3>{article.title}</h3><i>Leer historia <Arrow /></i></button>)}</div></section> }
-function Partners() { return <section className="partners"><div className="container"><Eyebrow>TECNOLOGÍA Y COLABORACIÓN</Eyebrow><div>{['AURORA', 'PACE /', 'NOVA', 'STUDIO 10', 'KOR', 'OUTSIDE', 'FWD.', 'THE COURT CO.'].map((partner) => <span key={partner}>{partner}</span>)}</div></div></section> }
+function Capabilities() { return <section className="partners capabilities"><div className="container"><Eyebrow>UN SISTEMA · UNA CONVERSACIÓN</Eyebrow><div>{['PISTAS', 'CÉSPED', 'ILUMINACIÓN', 'CUBIERTAS', 'LOGÍSTICA', 'INSTALACIÓN'].map((capability, index) => <span key={capability}><small>0{index + 1}</small>{capability}</span>)}</div></div></section> }
 function FaqBlock() { const [open, setOpen] = useState(0); return <section className="section faq-block"><div className="container faq-layout"><SectionHead eyebrow="PREGUNTAS FRECUENTES" title={<>Todo lo que necesitas<br/><em>para avanzar.</em></>} text="¿Necesitas una respuesta específica? Nuestro equipo puede revisar tu ubicación, calendario y necesidades del proyecto."/><div className="accordion">{faqs.map(([question, answer], index) => <article key={question} className={open === index ? 'active' : ''}><button onClick={() => setOpen(open === index ? -1 : index)} aria-expanded={open === index}><span>0{index + 1}</span>{question}<b>{open === index ? '−' : '+'}</b></button>{open === index && <p>{answer}</p>}</article>)}</div></div></section> }
 function ContactCta({ openProject }) { return <section className="contact-cta"><div className="container"><Eyebrow>TU PRÓXIMA PISTA EMPIEZA AQUÍ</Eyebrow><h2>Hagamos un lugar<br/><em>que dé ganas de jugar.</em></h2><button className="button light" onClick={() => openProject()}>Iniciar proyecto <Arrow /></button></div></section> }
 
 function CourtsIndex({ navigate, openProject }) { return <>
-  <section className="catalogue-hero hero-short" style={{ '--hero-image': `url(${images.courtBlue})` }}><div className="hero-shade"></div><div className="container"><Eyebrow>SISTEMAS DE PISTA · KND-01—KND-07</Eyebrow><h1>La pista correcta<br/><em>empieza con el proyecto.</em></h1><p>Siete sistemas completos, diseñados alrededor de distintas formas de mirar, jugar, operar e invertir.</p><div className="hero-actions"><button className="button accent" onClick={() => document.getElementById('court-systems')?.scrollIntoView({ behavior: 'smooth' })}>Explorar sistemas <Arrow /></button><button className="button outline" onClick={() => navigate('/configurator')}>Configurar una pista <Arrow /></button></div></div></section>
+  <section className="catalogue-hero hero-short" style={{ '--hero-image': `url(${images.courtBlue})` }}><div className="hero-shade"></div><div className="container"><Eyebrow>SISTEMAS DE PISTA · OP-01—OP-07</Eyebrow><h1>La pista correcta<br/><em>empieza con el proyecto.</em></h1><p>Siete sistemas completos, diseñados alrededor de distintas formas de mirar, jugar, operar e invertir.</p><div className="hero-actions"><button className="button accent" onClick={() => document.getElementById('court-systems')?.scrollIntoView({ behavior: 'smooth' })}>Explorar sistemas <Arrow /></button><button className="button outline" onClick={() => navigate('/configurator')}>Configurar una pista <Arrow /></button></div></div></section>
   <section className="jump-nav"><div className="container"><span>ELIGE UN MODELO</span>{courts.map((court, index) => <button key={court.id} onClick={() => document.getElementById(court.id)?.scrollIntoView({ behavior: 'smooth' })}>0{index + 1}</button>)}</div></section>
-  <section className="section catalogue-section" id="court-systems"><div className="container"><SectionHead eyebrow="01 · SIETE SISTEMAS DE PISTA" title={<>Compara los formatos.<br/><em>Encuentra tu punto de partida.</em></>} text="Cada sistema parte de un paquete completo y se adapta al lugar. Empieza por el modelo; después, afina superficie, iluminación, acabado y protección."/><div className="catalogue-list">{courts.map((court, index) => <article id={court.id} key={court.id} className="catalogue-card"><div className="catalogue-image"><img src={court.image} alt={court.name}/><span>0{index + 1}</span></div><div><Eyebrow>{court.code} · SISTEMA DE PISTA</Eyebrow><h2>{court.name}</h2><p className="catalogue-lead">{court.strap}</p><p>{court.description}</p><dl><dt>MEJOR PARA</dt><dd>{court.best}</dd><dt>FORMATO</dt><dd>{court.facts[0]}</dd></dl><div className="inline-actions"><button className="button dark" onClick={() => navigate(`/courts/${court.id}`)}>Ver sistema <Arrow /></button><button className="text-link" onClick={() => navigate(`/configurator?model=${court.id}`)}>Configurar <Arrow /></button></div></div></article>)}</div></div></section>
+  <section className="section catalogue-section" id="court-systems"><div className="container"><SectionHead eyebrow="01 · SIETE SISTEMAS DE PISTA" title={<>Compara los formatos.<br/><em>Encuentra tu punto de partida.</em></>} text="Cada sistema parte de un paquete completo y se adapta al lugar. Empieza por el modelo; después, afina superficie, iluminación, acabado y protección."/><div className="catalogue-list">{courts.map((court, index) => <article id={court.id} key={court.id} className="catalogue-card"><div className="catalogue-image"><img src={court.image} alt={`Render estructural provisional para ${court.name}`} loading="lazy" decoding="async"/><span>0{index + 1}</span><em>MAPEO DE MODELO PENDIENTE</em></div><div><Eyebrow>{court.code} · SISTEMA DE PISTA</Eyebrow><h2>{court.name}</h2><p className="catalogue-lead">{court.strap}</p><p>{court.description}</p><dl><dt>MEJOR PARA</dt><dd>{court.best}</dd><dt>FORMATO</dt><dd>{court.facts[0]}</dd></dl><div className="inline-actions"><button className="button dark" onClick={() => navigate(`/courts/${court.id}`)}>Ver sistema <Arrow /></button><button className="text-link" onClick={() => navigate(`/configurator?model=${court.id}`)}>Configurar <Arrow /></button></div></div></article>)}</div></div></section>
   <ContactCta openProject={() => openProject('Sistema de pista')} />
 </> }
 
@@ -340,8 +335,8 @@ function TurfIndex({ navigate, openProject }) { return <>
 </> }
 
 function RoofIndex({ navigate, openProject }) { return <>
-  <section className="catalogue-hero roof-hero" style={{ '--hero-image': `url(${images.roof})` }}><div className="hero-shade"></div><div className="container"><Eyebrow>PROTECCIÓN CLIMÁTICA · OP R1—R4</Eyebrow><h1>Mantén las pistas<br/><em>en juego.</em></h1><p>Soluciones para proteger del clima y ampliar la operación durante todo el año, desde una cubierta única hasta una estructura retráctil.</p><div className="hero-actions"><button className="button accent" onClick={() => navigate('/configurator')}>Configurar cubierta <Arrow /></button><button className="button outline" onClick={() => document.getElementById('roof-systems')?.scrollIntoView({ behavior: 'smooth' })}>Explorar la gama <Arrow /></button></div></div></section>
-  <section className="section roof-section" id="roof-systems"><div className="container"><SectionHead eyebrow="PROTECCIÓN A LA ALTURA DEL PROYECTO" title={<>Del canopy a una<br/><em>cubierta que se mueve.</em></>} text="Empieza por el nivel de protección y flexibilidad que necesitas. La estructura final se coordina después con las condiciones reales de la ubicación."/><div className="roof-list">{roofSystems.map((roof, index) => <article key={roof.id}><img src={roof.image} alt={roof.name}/><div><span>0{index + 1} / 04</span><Eyebrow>{roof.code} · {roof.role}</Eyebrow><h3>{roof.name}</h3><p>{roof.description}</p><dl><div><dt>COBERTURA</dt><dd>{roof.coverage}</dd></div><div><dt>OPERACIÓN</dt><dd>{roof.operation}</dd></div></dl><div className="inline-actions"><button className="button dark" onClick={() => navigate(`/roof/${roof.id}`)}>Explorar <Arrow /></button><button className="text-link" onClick={() => navigate('/configurator')}>Configurar <Arrow /></button></div></div></article>)}</div></div></section><ComparisonTable type="roof" /><section className="planning-section"><div className="container"><SectionHead eyebrow="ANTES DE PRESUPUESTAR" title={<>Una cubierta empieza<br/><em>por el lugar.</em></>} text="Dimensiones y requisitos estructurales no se separan del entorno. Estos son los datos que necesitamos conectar antes de definir una propuesta."/><div className="planning-grid">{[['01', 'Sitio y distribución', 'Ciudad, número de pistas, planos y superficie disponible.'], ['02', 'Condiciones locales', 'Uso interior o exterior, clima, viento y normativa aplicable.'], ['03', 'Operación prevista', 'Cobertura deseada, estrategia de apertura y calendario.']].map(([n, title, description]) => <article key={n}><span>{n}</span><h3>{title}</h3><p>{description}</p></article>)}</div><button className="button accent" onClick={() => openProject('Cubierta KND')}>Hablar de tu ubicación <Arrow /></button></div></section>
+  <section className="catalogue-hero roof-hero" style={{ '--hero-image': `url(${images.roof})` }}><div className="hero-shade"></div><div className="container"><Eyebrow>PROTECCIÓN CLIMÁTICA · OP R1—R4</Eyebrow><h1>Mantén las pistas<br/><em>en juego.</em></h1><p>Soluciones para proteger del clima y ampliar la operación durante todo el año, desde una cubierta única hasta una estructura retráctil.</p><div className="hero-actions"><button className="button accent" onClick={() => navigate('/configurator?roof=canopy-roof')}>Configurar cubierta <Arrow /></button><button className="button outline" onClick={() => document.getElementById('roof-systems')?.scrollIntoView({ behavior: 'smooth' })}>Explorar la gama <Arrow /></button></div></div></section>
+  <section className="section roof-section" id="roof-systems"><div className="container"><SectionHead eyebrow="PROTECCIÓN A LA ALTURA DEL PROYECTO" title={<>Del canopy a una<br/><em>cubierta que se mueve.</em></>} text="Empieza por el nivel de protección y flexibilidad que necesitas. La estructura final se coordina después con las condiciones reales de la ubicación."/><div className="roof-list">{roofSystems.map((roof, index) => <article key={roof.id}><img src={roof.image} alt={`Render de referencia ${roof.name}`} loading="lazy" decoding="async"/><div><span>0{index + 1} / 04</span><Eyebrow>{roof.code} · {roof.role}</Eyebrow><h3>{roof.name}</h3><p>{roof.description}</p><p className="asset-status">RENDER DE REFERENCIA · VALIDACIÓN FINAL POR PROYECTO</p><dl><div><dt>COBERTURA</dt><dd>{roof.coverage}</dd></div><div><dt>OPERACIÓN</dt><dd>{roof.operation}</dd></div></dl><div className="inline-actions"><button className="button dark" onClick={() => navigate(`/roof/${roof.id}`)}>Explorar <Arrow /></button><button className="text-link" onClick={() => navigate(`/configurator?roof=${roof.id}`)}>Configurar <Arrow /></button></div></div></article>)}</div></div></section><ComparisonTable type="roof" /><section className="planning-section"><div className="container"><SectionHead eyebrow="ANTES DE PRESUPUESTAR" title={<>Una cubierta empieza<br/><em>por el lugar.</em></>} text="Dimensiones y requisitos estructurales no se separan del entorno. Estos son los datos que necesitamos conectar antes de definir una propuesta."/><div className="planning-grid">{[['01', 'Sitio y distribución', 'Ciudad, número de pistas, planos y superficie disponible.'], ['02', 'Condiciones locales', 'Uso interior o exterior, clima, viento y normativa aplicable.'], ['03', 'Operación prevista', 'Cobertura deseada, estrategia de apertura y calendario.']].map(([n, title, description]) => <article key={n}><span>{n}</span><h3>{title}</h3><p>{description}</p></article>)}</div><button className="button accent" onClick={() => openProject('Cubierta KND')}>Hablar de tu ubicación <Arrow /></button></div></section>
 </> }
 
 function ComparisonTable({ type }) { const isTurf = type === 'turf'; const items = isTurf ? turfSystems : roofSystems; const rows = isTurf ? [['MEJOR PARA', ...items.map((item) => item.role)], ['RITMO', ...items.map((item) => item.pace)], ['COMODIDAD', ...items.map((item) => '●'.repeat(item.comfort) + '○'.repeat(5 - item.comfort))], ['DURABILIDAD', ...items.map((item) => '●'.repeat(item.durability) + '○'.repeat(5 - item.durability))]] : [['APLICACIÓN', ...items.map((item) => item.role)], ['COBERTURA', ...items.map((item) => item.coverage)], ['OPERACIÓN', ...items.map((item) => item.operation)], ['ALTURA', ...items.map((_, i) => i === 0 ? 'Según proyecto' : 'A definir con el sitio')]]; return <section className="section comparison"><div className="container"><SectionHead eyebrow="02 · LADO A LADO" title={isTurf ? <>Compara lo que cambia<br/><em>dentro de la pista.</em></> : <>Compara los formatos<br/><em>de partida.</em></>} text="La tabla ayuda a orientar la conversación. La especificación final se confirma siempre con las condiciones del proyecto."/><div className="table-scroll"><table><thead><tr><th>{isTurf ? 'GUÍA DE RENDIMIENTO' : 'GUÍA DE SISTEMAS'}</th>{items.map((item) => <th key={item.id}>{item.code}<br/><em>{item.name}</em></th>)}</tr></thead><tbody>{rows.map((row) => <tr key={row[0]}>{row.map((cell, index) => <td key={`${row[0]}-${index}`}>{cell}</td>)}</tr>)}</tbody></table></div></div></section> }
@@ -352,18 +347,18 @@ function SystemDetail({ item, type, navigate, openProject }) {
   const config = types[type]
   const facts = item.facts || (type === 'turf' ? [item.pace, item.role, 'Color a medida'] : [item.coverage, item.operation, 'Ingeniería de sitio'])
   return <>
-    <section className="product-hero" style={{ '--hero-image': `url(${item.image})` }}><div className="hero-shade"></div><div className="container"><Eyebrow>{item.code} · {config.label}</Eyebrow><h1>{item.name}<em>.</em></h1><h2>{config.heading}</h2><p>{item.description}</p><div className="product-actions"><button className="button light" onClick={() => openProject(`${item.code} ${item.name}`)}>Pedir propuesta <Arrow /></button>{type === 'court' && <button className="button outline" onClick={() => navigate('/configurator')}>Configurar sistema <Arrow /></button>}</div><button className="spec-scroll" onClick={() => document.getElementById('detail-overview')?.scrollIntoView({ behavior: 'smooth' })}>Explorar especificaciones ↓</button></div></section>
-    <div className="detail-nav"><div className="container"><span>{item.code}</span>{['Resumen', 'Por qué', 'Estructura', type === 'turf' ? 'Fibra' : 'Acabados', 'Iluminación'].map((anchor) => <a href="#detail-overview" key={anchor}>{anchor}</a>)}</div></div>
+    <section className="product-hero" style={{ '--hero-image': `url(${item.image})` }}><div className="hero-shade"></div><div className="container"><Eyebrow>{item.code} · {config.label}</Eyebrow><h1>{item.name}<em>.</em></h1><h2>{config.heading}</h2><p>{item.description}</p><span className="visual-status">VISUAL PROVISIONAL · FICHA TÉCNICA VERIFICADA</span><div className="product-actions"><button className="button light" onClick={() => openProject(`${item.code} ${item.name}`)}>Pedir propuesta <Arrow /></button>{type === 'court' && <button className="button outline" onClick={() => navigate(`/configurator?model=${item.id}`)}>Configurar sistema <Arrow /></button>}</div><button className="spec-scroll" onClick={() => document.getElementById('detail-overview')?.scrollIntoView({ behavior: 'smooth' })}>Explorar especificaciones ↓</button></div></section>
+    <div className="detail-nav"><div className="container"><span>{item.code}</span><a href="#detail-overview">Resumen</a><a href="#gallery">Galería</a><a href="#materials-and-structure">Materiales</a>{item.sheet && <a href="#technical-documentation">Documentación</a>}<a href="#personalisation">Personalización</a></div></div>
     <section className="section detail-overview" id="detail-overview"><div className="container"><div className="detail-intro"><Eyebrow>RESUMEN DEL SISTEMA</Eyebrow><h2>Un punto de partida claro.<br/><em>Un resultado singular.</em></h2><p>{config.summary} La propuesta final acompaña la realidad del lugar, no una ficha genérica.</p></div><dl className="spec-grid">{facts.map((fact, index) => <div key={fact}><dt>0{index + 1} · {['FORMATO', 'DESEMPEÑO', 'OPCIONES'][index]}</dt><dd>{fact}</dd></div>)}</dl></div></section>
-    {type === 'court' && item.sheet && <section className="brandbook-sheet section"><div className="container"><div><Eyebrow>FICHA TÉCNICA KND</Eyebrow><h2>Una base clara<br/><em>para decidir mejor.</em></h2><p>Consulta la ficha del sistema con una vista de sus componentes y especificaciones de partida. La configuración final se valida contra el proyecto real.</p><a className="button accent" href={item.sheet} target="_blank" rel="noreferrer">Abrir ficha técnica <Arrow /></a></div><a href={item.sheet} target="_blank" rel="noreferrer" aria-label={`Abrir ficha ${item.name}`}><img src={item.sheet} alt={`Ficha técnica KND Padel ${item.name}`}/></a></div></section>}
-    <section className="section narrative"><div className="container"><img src={type === 'turf' ? images.turf : images.manufacture} alt="Detalle del sistema KND"/><div><Eyebrow>HECHO PARA EL PROYECTO</Eyebrow><h2>Una especificación que<br/><em>responde al entorno.</em></h2><p>La selección de materiales, acabados y componentes se coordina desde la fase de definición. Por eso podemos conversar con claridad sobre rendimiento, mantenimiento y presencia final.</p><div className="tick-list">{['Diseño y documentación de proyecto', 'Acabados y colores configurables', 'Apoyo técnico para instalación'].map((line) => <p key={line}>✓ <span>{line}</span></p>)}</div><button className="button dark" onClick={() => openProject(`${item.code} ${item.name}`)}>Hablar con KND <Arrow /></button></div></div></section>
-    <section className="section configuration-band"><div className="container"><Eyebrow>PERSONALIZACIÓN</Eyebrow><h2>La base es solo<br/><em>el comienzo.</em></h2><p>Color de estructura, superficie, iluminación, branding y protección se configuran para que el sistema se sienta propio.</p>{type === 'court' && <button className="button accent" onClick={() => navigate('/configurator')}>Abrir configurador <Arrow /></button>}</div></section>
+    <ProductGallery item={item} type={type} />
+    {type === 'court' && item.sheet && <section className="brandbook-sheet section" id="technical-documentation"><div className="container"><div><Eyebrow>FICHA TÉCNICA KND</Eyebrow><h2>Una base clara<br/><em>para decidir mejor.</em></h2><p>Consulta la ficha del sistema con una vista de sus componentes y especificaciones de partida. La configuración final se valida contra el proyecto real.</p><a className="button accent" href={item.sheet} target="_blank" rel="noreferrer">Abrir ficha técnica <Arrow /></a></div><a href={item.sheet} target="_blank" rel="noreferrer" aria-label={`Abrir ficha ${item.name}`}><img src={item.sheet} alt={`Ficha técnica KND Padel ${item.name}`}/></a></div></section>}
+    <section className="section narrative" id="materials-and-structure"><div className="container"><img src={type === 'turf' ? item.image : images.manufacture} alt={`Detalle visual de ${item.name}`} loading="lazy" decoding="async"/><div><Eyebrow>HECHO PARA EL PROYECTO</Eyebrow><h2>Una especificación que<br/><em>responde al entorno.</em></h2><p>La selección de materiales, acabados y componentes se coordina desde la fase de definición. Por eso podemos conversar con claridad sobre rendimiento, mantenimiento y presencia final.</p><div className="tick-list">{['Diseño y documentación de proyecto', 'Acabados y colores configurables', 'Apoyo técnico para instalación'].map((line) => <p key={line}>✓ <span>{line}</span></p>)}</div><button className="button dark" onClick={() => openProject(`${item.code} ${item.name}`)}>Hablar con KND <Arrow /></button></div></div></section>
+    <section className="section configuration-band" id="personalisation"><div className="container"><Eyebrow>PERSONALIZACIÓN</Eyebrow><h2>La base es solo<br/><em>el comienzo.</em></h2><p>Color de estructura, superficie, iluminación, branding y protección se configuran para que el sistema se sienta propio.</p>{type === 'court' && <button className="button accent" onClick={() => navigate(`/configurator?model=${item.id}`)}>Abrir configurador <Arrow /></button>}</div></section>
   </>
 }
 
 function WhyPage({ openProject }) { return <><section className="about-hero"><div className="container"><Eyebrow>POR QUÉ KND</Eyebrow><h1>Detalles que hacen<br/><em>que jugar sea fácil.</em></h1><p>KND conecta ingeniería y experiencia de jugador para dar a cada proyecto una base más clara desde el principio.</p></div></section><section className="section belief-section"><div className="container"><div><Eyebrow>LA FORMA DE TRABAJAR</Eyebrow><h2>Un partner que<br/><em>piensa en la pista<br/>completa.</em></h2></div><div className="belief-list">{[['01', 'Diseñar para las decisiones reales', 'El lugar, el clima, el público y la operación cambian lo que significa una buena pista.'], ['02', 'Llevar el detalle hasta la obra', 'La fabricación y la documentación se conectan para evitar sorpresas cuando más cuestan.'], ['03', 'Hacer que el siguiente proyecto sea más fácil', 'Cada entrega alimenta cómo especificamos, coordinamos y acompañamos la siguiente.']].map(([n, h, p]) => <article key={n}><span>{n}</span><h3>{h}</h3><p>{p}</p></article>)}</div></div></section><section className="full-bleed-image"><img src={images.projectOne} alt="Pista de pádel KND"/></section><ContactCta openProject={() => openProject('Proyecto KND')} /></> }
 
-function ProjectsPage({ openProject }) { return <><section className="plain-hero"><div className="container"><Eyebrow>APLICACIONES · EUROPA Y MÁS ALLÁ</Eyebrow><h1>Pistas hechas<br/><em>para pertenecer.</em></h1><p>Una estructura de portfolio para club, competición y hospitality. Los casos publicados se incorporan solo cuando KND los valide.</p></div></section><section className="section projects-page"><div className="container projects-disclaimer"><p><strong>Nota:</strong> estas composiciones visuales ilustran tipologías de proyecto; no se presentan como instalaciones KND realizadas.</p></div><div className="container projects-grid">{projects.map((project) => <article key={project.name}><img src={project.image} alt={`Aplicación visual: ${project.name}`}/><div><Eyebrow>{project.model}</Eyebrow><h2>{project.name}</h2><p>{project.location}</p></div></article>)}</div></section><section className="page-cta"><div><h2>¿Estás imaginando<br/>una sede?</h2><button className="button accent" onClick={() => openProject('Nuevo proyecto')}>Iniciar proyecto <Arrow /></button></div><p>{brand.email}{brand.phone && <><br/>{brand.phone}</>}</p></section></> }
 
 function NewsPage({ navigate }) { return <><section className="plain-hero news-hero"><div className="container"><Eyebrow>KND PADEL · JOURNAL</Eyebrow><h1>Ideas alrededor<br/><em>de la pista.</em></h1><p>Notas de proyecto, producto y juego de las personas que desarrollan KND Padel.</p></div></section><section className="section news-index"><div className="container"><span className="story-count">TODAS LAS HISTORIAS · {articles.length.toString().padStart(2, '0')}</span><div className="news-list">{articles.map((article, index) => <button key={article.slug} onClick={() => navigate(`/news/${article.slug}`)}><img src={article.image} alt=""/><div><span>0{index + 1} · {article.type.toUpperCase()} · {article.date}</span><h2>{article.title}</h2><p>{article.excerpt}</p><i>Leer historia <Arrow /></i></div></button>)}</div></div></section></> }
 
@@ -371,7 +366,7 @@ function ArticlePage({ article, navigate }) { if (!article) return <NotFound nav
 
 function FaqPage({ openProject }) { return <><section className="plain-hero faq-hero"><div className="container"><Eyebrow>PREGUNTAS FRECUENTES</Eyebrow><h1>Las respuestas<br/><em>para mover el proyecto.</em></h1><p>El punto de partida para elegir sistema, plantear un presupuesto y entender cómo trabajamos.</p></div></section><FaqBlock/><ContactCta openProject={() => openProject()} /></> }
 
-function ContactPage({ openProject }) { return <><section className="contact-page"><div className="container"><div><Eyebrow>PROYECTO KND</Eyebrow><h1>Cuéntanos qué<br/><em>quieres poner en juego.</em></h1><p>Comparte las bases de la ubicación y te ayudaremos a ordenar los siguientes pasos.</p><dl><div><dt>EMAIL</dt><dd>{brand.email}</dd></div>{brand.phone && <div><dt>TELÉFONO</dt><dd>{brand.phone}</dd></div>}<div><dt>WEB</dt><dd>{brand.website}</dd></div><div><dt>ESTUDIO</dt><dd>{brand.office}</dd></div></dl></div><EnquiryForm context="Contacto web" compact={false}/></div></section></> }
+function ContactPage({ openProject }) { return <><section className="contact-page"><div className="container"><div><Eyebrow>PROYECTO KND</Eyebrow><h1>Cuéntanos qué<br/><em>quieres poner en juego.</em></h1><p>Comparte las bases de la ubicación y te ayudaremos a ordenar los siguientes pasos.</p><dl><div><dt>EMAIL</dt><dd>{brand.email}</dd></div>{brand.phone && <div><dt>TELÉFONO</dt><dd>{brand.phone}</dd></div>}<div><dt>WEB</dt><dd>{brand.website}</dd></div><div><dt>ESTUDIO</dt><dd>{brand.office}</dd></div></dl></div><EnquiryFormComponent context="Contacto web" compact={false}/></div></section></> }
 
 function Configurator({ navigate, openProject }) {
   const [config, setConfig] = useState({ model: courts[0].id, turf: 'Azul Court', frame: 'Grafito', pole: 'Curva', light: 'Lineal 4 × 300 W', kit: 'Sin kit', installation: 'Anclada', roof: 'Sin cubierta', night: false })
