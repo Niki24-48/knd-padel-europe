@@ -19,11 +19,12 @@ const UI = {
     title: 'Tu pista. Tu sistema.',
     intro: 'Configura una propuesta preliminar y comprueba cada cambio en la escena 3D. Las opciones sujetas a ingeniería están identificadas.',
     model: 'Modelo de pista', turf: 'Sistema de césped', finish: 'Color de césped', frame: 'Acabado de estructura',
-    lighting: 'Iluminación', scale: 'Escala del proyecto', roof: 'Cubierta', accessories: 'Protección e instalación',
+    pole: 'Poste de iluminación', lighting: 'Luminaria LED', glass: 'Vidrio', protection: 'Protecciones', installationLabel: 'Instalación',
+    scale: 'Número de pistas', roof: 'Cubierta', accessories: 'Protección e instalación',
     noRoof: 'Sin cubierta', protectionOff: 'Sin acolchado solicitado', protectionOn: 'Solicitar kit de protección',
     anchored: 'Instalación anclada', mobile: 'Solicitar estudio de base móvil', day: 'Día', evening: 'Atardecer', night: 'Noche',
     view: 'Entorno de visualización', summary: 'Resumen de configuración', quote: 'Solicitar presupuesto con esta configuración',
-    copy: 'Copiar enlace', json: 'Descargar configuración', print: 'Imprimir / guardar PDF', reset: 'Restablecer',
+    copy: 'Copiar enlace', json: 'Descargar configuración', png: 'Guardar imagen PNG', print: 'Imprimir / guardar PDF', reset: 'Restablecer',
     visualRequest: 'Opción visual sujeta a validación técnica y comercial.',
     roofRule: 'Esta cubierta requiere un proyecto de al menos 2 pistas.',
     disclaimer: 'Configuración preliminar. La ingeniería, normativa local, cimentación, colores, disponibilidad y especificación final se confirman para cada emplazamiento.',
@@ -37,11 +38,12 @@ const UI = {
     title: 'Your court. Your system.',
     intro: 'Build a preliminary proposal and see every change in the 3D scene. Options subject to engineering review are clearly identified.',
     model: 'Court model', turf: 'Turf system', finish: 'Turf colour', frame: 'Frame finish',
-    lighting: 'Lighting', scale: 'Project scale', roof: 'Canopy', accessories: 'Protection and installation',
+    pole: 'Lighting pole', lighting: 'LED lighting', glass: 'Glass', protection: 'Protection', installationLabel: 'Installation',
+    scale: 'Number of courts', roof: 'Canopy', accessories: 'Protection and installation',
     noRoof: 'No canopy', protectionOff: 'No padding requested', protectionOn: 'Request protection kit',
     anchored: 'Anchored installation', mobile: 'Request mobile-base study', day: 'Day', evening: 'Evening', night: 'Night',
     view: 'Preview environment', summary: 'Configuration summary', quote: 'Request a quote with this configuration',
-    copy: 'Copy link', json: 'Download configuration', print: 'Print / save PDF', reset: 'Reset',
+    copy: 'Copy link', json: 'Download configuration', png: 'Save PNG image', print: 'Print / save PDF', reset: 'Reset',
     visualRequest: 'Visual option subject to technical and commercial validation.',
     roofRule: 'This canopy requires a project with at least 2 courts.',
     disclaimer: 'Preliminary configuration. Engineering, local regulations, foundations, colours, availability and final specification are confirmed for each site.',
@@ -53,8 +55,10 @@ const UI = {
 }
 
 const VALID_ENVIRONMENTS = ['day', 'evening', 'night']
-const VALID_POLES = ['curved', 'straight', 'angled']
+const VALID_POLES = ['curved', 'signature-curved', 'straight', 'angled', 'z', 't']
 const VALID_INSTALLATIONS = ['anchored', 'mobile-request']
+const VALID_GLASS = ['10', '12']
+const HEX_COLOUR = /^#[0-9a-f]{6}$/i
 
 function findValid(items, id, fallback) {
   return items.some((item) => item.id === id) ? id : fallback
@@ -89,8 +93,11 @@ function readInitial(search) {
     protection: get('protection') === 'yes' || stored?.protection === true,
     installation: VALID_INSTALLATIONS.includes(get('installation')) ? get('installation') : 'anchored',
     poleStyle: VALID_POLES.includes(get('pole')) ? get('pole') : 'curved',
+    glassThickness: VALID_GLASS.includes(get('glass')) ? get('glass') : '12',
+    lightsOn: get('lights') !== 'off',
+    customFrameHex: HEX_COLOUR.test(get('hex')) ? get('hex') : '#385c4a',
     environment: VALID_ENVIRONMENTS.includes(get('env')) ? get('env') : 'day',
-    view: ['perspective', 'top', 'end'].includes(get('view')) ? get('view') : 'perspective',
+    view: ['perspective', 'top', 'end', 'side'].includes(get('view')) ? get('view') : 'perspective',
   }
 }
 
@@ -99,6 +106,7 @@ function toParams(config) {
     v: String(SCHEMA_VERSION), model: config.modelId, turf: config.turfSystemId, colour: config.turfFinishId,
     frame: config.frameId, light: config.lightingId, scale: config.projectScaleId, roof: config.roofId,
     protection: config.protection ? 'yes' : 'no', installation: config.installation, pole: config.poleStyle,
+    glass: config.glassThickness, lights: config.lightsOn ? 'on' : 'off', hex: config.customFrameHex,
     env: config.environment, view: config.view,
   })
 }
@@ -143,7 +151,10 @@ export default function Configurator({ navigate, openProject, search = '', local
   const court = courts.find((item) => item.id === config.modelId) || courts[0]
   const turf = turfSystems.find((item) => item.id === config.turfSystemId) || turfSystems[0]
   const turfFinish = turfFinishes.find((item) => item.id === config.turfFinishId) || turfFinishes[0]
-  const frame = frameFinishes.find((item) => item.id === config.frameId) || frameFinishes[0]
+  const frameBase = frameFinishes.find((item) => item.id === config.frameId) || frameFinishes[0]
+  const frame = frameBase.id === 'custom-ral'
+    ? { ...frameBase, color: HEX_COLOUR.test(config.customFrameHex) ? config.customFrameHex : '#385c4a' }
+    : frameBase
   const lighting = lightingPackages.find((item) => item.id === config.lightingId) || lightingFor(config.modelId)
   const scale = projectScales.find((item) => item.id === config.projectScaleId) || projectScales[0]
   const roof = roofSystems.find((item) => item.id === config.roofId) || null
@@ -167,14 +178,16 @@ export default function Configurator({ navigate, openProject, search = '', local
     turfFinish: { id: turfFinish.id, name: turfFinish.name, color: turfFinish.color },
     frameFinish: { id: frame.id, name: frame.name, color: frame.color },
     lighting: { id: lighting.id, name: lighting.name },
+    glass: { thickness: `${config.glassThickness} mm`, note: config.glassThickness === '10' ? text.visualRequest : undefined },
     projectScale: { id: scale.id, name: scale.name, minimumCourts: scale.courts },
     canopy: roof ? { id: roof.id, code: roof.code, name: roof.name } : null,
     protectionRequest: config.protection,
     installation: config.installation,
     poleVisual: config.poleStyle,
+    lightsOn: config.lightsOn,
     environment: config.environment,
     disclaimer: text.disclaimer,
-  }), [config.environment, config.installation, config.poleStyle, config.protection, court, frame, lighting, roof, scale, text.disclaimer, turf, turfFinish])
+  }), [config.environment, config.glassThickness, config.installation, config.lightsOn, config.poleStyle, config.protection, court, frame, lighting, roof, scale, text.disclaimer, text.visualRequest, turf, turfFinish])
 
   useEffect(() => {
     const params = toParams(config)
@@ -203,6 +216,15 @@ export default function Configurator({ navigate, openProject, search = '', local
     setStatus(locale === 'en' ? 'Configuration file downloaded.' : 'Archivo de configuración descargado.')
   }
 
+  const savePng = async () => {
+    try {
+      const image = await sceneRef.current?.capture({ download: true, filename: `knd-${court.code.toLowerCase()}-${config.view}.png` })
+      setStatus(image ? text.captured : text.captureError)
+    } catch {
+      setStatus(text.captureError)
+    }
+  }
+
   const reset = () => {
     const fresh = readInitial('?')
     setConfig(fresh)
@@ -215,11 +237,14 @@ export default function Configurator({ navigate, openProject, search = '', local
     [text.turf, `${turf.code} · ${turf.name}`],
     [text.finish, turfFinish.name],
     [text.frame, frame.name],
+    [text.pole, config.poleStyle],
     [text.lighting, lighting.name],
+    [text.glass, `${config.glassThickness} mm${config.glassThickness === '10' ? ` · ${text.visualRequest}` : ''}`],
     [text.scale, scale.name],
     [text.roof, roof ? `${roof.code} · ${roof.name}` : text.noRoof],
     [locale === 'en' ? 'Protection' : 'Protección', config.protection ? text.protectionOn : text.protectionOff],
     [locale === 'en' ? 'Installation' : 'Instalación', config.installation === 'anchored' ? text.anchored : text.mobile],
+    [locale === 'en' ? 'Lights' : 'Luces', config.lightsOn ? (locale === 'en' ? 'On' : 'Encendidas') : (locale === 'en' ? 'Off' : 'Apagadas')],
   ]
 
   return (
@@ -239,6 +264,7 @@ export default function Configurator({ navigate, openProject, search = '', local
           </div>
           <Court3DScene
             ref={sceneRef}
+            locale={locale}
             config={config}
             court={court}
             turfFinish={turfFinish}
@@ -270,25 +296,54 @@ export default function Configurator({ navigate, openProject, search = '', local
           </Step>
 
           <Step number="04" title={text.frame} detail={locale === 'en' ? 'Final RAL to confirm' : 'RAL final a confirmar'}>
-            {frameFinishes.map((item) => <Choice key={item.id} selected={item.id === config.frameId} onClick={() => update({ frameId: item.id })} swatch={item.color}>{item.name}</Choice>)}
+            {frameFinishes.map((item) => <Choice key={item.id} selected={item.id === config.frameId} onClick={() => update({ frameId: item.id })} swatch={item.id === 'custom-ral' ? config.customFrameHex : item.color} note={item.request ? text.visualRequest : ''}>{item.name}</Choice>)}
+            {config.frameId === 'custom-ral' && <label className="knd-config-hex">
+              <span>{locale === 'en' ? 'Custom HEX visual' : 'HEX visual personalizado'}</span>
+              <input value={config.customFrameHex} onChange={(event) => update({ customFrameHex: event.target.value })} onBlur={() => { if (!HEX_COLOUR.test(config.customFrameHex)) update({ customFrameHex: '#385c4a' }) }} pattern="#[0-9A-Fa-f]{6}" aria-invalid={!HEX_COLOUR.test(config.customFrameHex)} />
+              <small>{text.visualRequest}</small>
+            </label>}
           </Step>
 
-          <Step number="05" title={text.lighting} detail={text.compatible}>
+          <Step number="05" title={text.pole} detail={text.visualRequest}>
+            {[
+              ['curved', locale === 'en' ? 'Curved' : 'Curvo'],
+              ['signature-curved', 'Signature Curved'],
+              ['angled', locale === 'en' ? 'Angled' : 'Inclinado'],
+              ['straight', locale === 'en' ? 'Straight' : 'Recto'],
+              ['z', 'Z Pole'],
+              ['t', 'T Pole'],
+            ].map(([id, label]) => <Choice key={id} selected={id === config.poleStyle} onClick={() => update({ poleStyle: id })}>{label}</Choice>)}
+          </Step>
+
+          <Step number="06" title={text.lighting} detail={text.compatible}>
             {lightingPackages.map((item) => {
               const enabled = item.models.includes(config.modelId)
               return <Choice key={item.id} selected={item.id === config.lightingId} disabled={!enabled} onClick={() => update({ lightingId: item.id })} note={!enabled ? (locale === 'en' ? 'Not available for this model' : 'No disponible para este modelo') : ''}>{item.name}</Choice>
             })}
-            <div className="knd-pole-visual" role="group" aria-label={locale === 'en' ? 'Lighting post visual' : 'Visual del poste de iluminación'}>
-              <p>{locale === 'en' ? 'Post visual · request to validate' : 'Visual del poste · solicitud a validar'}</p>
-              {[['curved', locale === 'en' ? 'Curved' : 'Curvo'], ['straight', locale === 'en' ? 'Straight' : 'Recto'], ['angled', locale === 'en' ? 'Angled' : 'Angular']].map(([id, label]) => <Choice key={id} selected={id === config.poleStyle} onClick={() => update({ poleStyle: id })}>{label}</Choice>)}
-            </div>
+            <Choice selected={config.lightsOn} onClick={() => update({ lightsOn: true })}>{locale === 'en' ? 'Lights on' : 'Luces encendidas'}</Choice>
+            <Choice selected={!config.lightsOn} onClick={() => update({ lightsOn: false })}>{locale === 'en' ? 'Lights off' : 'Luces apagadas'}</Choice>
           </Step>
 
-          <Step number="06" title={text.scale} detail={scale.name}>
+          <Step number="07" title={text.glass} detail={locale === 'en' ? 'Visual thickness · final calculation required' : 'Espesor visual · requiere cálculo final'}>
+            <Choice selected={config.glassThickness === '12'} onClick={() => update({ glassThickness: '12' })}>12 mm</Choice>
+            <Choice selected={config.glassThickness === '10'} onClick={() => update({ glassThickness: '10' })} note={text.visualRequest}>10 mm</Choice>
+          </Step>
+
+          <Step number="08" title={text.protection} detail={text.visualRequest}>
+            <Choice selected={!config.protection} onClick={() => update({ protection: false })}>{text.protectionOff}</Choice>
+            <Choice selected={config.protection} onClick={() => update({ protection: true })}>{text.protectionOn}</Choice>
+          </Step>
+
+          <Step number="09" title={text.installationLabel} detail={text.visualRequest}>
+            <Choice selected={config.installation === 'anchored'} onClick={() => update({ installation: 'anchored' })}>{text.anchored}</Choice>
+            <Choice selected={config.installation === 'mobile-request'} onClick={() => update({ installation: 'mobile-request' })} note={text.visualRequest}>{text.mobile}</Choice>
+          </Step>
+
+          <Step number="10" title={text.scale} detail={scale.name}>
             {projectScales.map((item) => <Choice key={item.id} selected={item.id === config.projectScaleId} onClick={() => selectScale(item.id)}>{item.name}</Choice>)}
           </Step>
 
-          <Step number="07" title={text.roof} detail={roof?.code || text.noRoof}>
+          <Step number="11" title={text.roof} detail={roof?.code || text.noRoof}>
             <Choice selected={config.roofId === 'none'} onClick={() => update({ roofId: 'none' })}>{text.noRoof}</Choice>
             {roofSystems.map((item) => {
               const disabled = item.minCourts > scale.courts
@@ -296,19 +351,12 @@ export default function Configurator({ navigate, openProject, search = '', local
             })}
           </Step>
 
-          <Step number="08" title={text.accessories} detail={text.visualRequest}>
-            <Choice selected={!config.protection} onClick={() => update({ protection: false })}>{text.protectionOff}</Choice>
-            <Choice selected={config.protection} onClick={() => update({ protection: true })}>{text.protectionOn}</Choice>
-            <Choice selected={config.installation === 'anchored'} onClick={() => update({ installation: 'anchored' })}>{text.anchored}</Choice>
-            <Choice selected={config.installation === 'mobile-request'} onClick={() => update({ installation: 'mobile-request' })} note={text.visualRequest}>{text.mobile}</Choice>
-          </Step>
-
-          <Step number="09" title={text.view} detail={config.environment}>
+          <Step number="12" title={text.view} detail={config.environment}>
             {[['day', text.day], ['evening', text.evening], ['night', text.night]].map(([id, label]) => <Choice key={id} selected={id === config.environment} onClick={() => update({ environment: id })}>{label}</Choice>)}
           </Step>
 
           <section className="knd-config-summary" id="configuration-summary">
-            <span className="knd-config-summary-kicker">09 / 09 · {text.summary}</span>
+            <span className="knd-config-summary-kicker">12 / 12 · {text.summary}</span>
             <h2>{court.code}<br/><em>{court.name}</em></h2>
             <dl>{summaryRows.map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl>
             <p>{text.disclaimer}</p>
@@ -321,6 +369,7 @@ export default function Configurator({ navigate, openProject, search = '', local
             <div className="knd-config-actions">
               <button type="button" onClick={copyLink}>{text.copy}</button>
               <button type="button" onClick={downloadConfiguration}>{text.json}</button>
+              <button type="button" onClick={savePng}>{text.png}</button>
               <button type="button" onClick={() => window.print()}>{text.print}</button>
               <button type="button" onClick={reset}>{text.reset}</button>
             </div>

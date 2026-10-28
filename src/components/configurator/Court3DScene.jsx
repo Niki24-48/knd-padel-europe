@@ -11,9 +11,10 @@ import React, {
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { Line, OrbitControls } from '@react-three/drei'
 import * as THREE from 'three'
+import KndModularCourt from './KndModularCourt.jsx'
 import './Court3DScene.css'
 
-export const COURT_VIEW_KEYS = ['perspective', 'top', 'end']
+export const COURT_VIEW_KEYS = ['perspective', 'top', 'end', 'side']
 
 // These presets deliberately describe visual structure only. They are not a
 // replacement for KND's engineering drawings, fabrication files or a future
@@ -21,56 +22,64 @@ export const COURT_VIEW_KEYS = ['perspective', 'top', 'end']
 export const KND_MODEL_VISUALS = {
   'super-panoramic': {
     width: 10,
-    endPosts: 3,
-    sidePosts: [-10, -5, -2.3, 2.3, 5, 10],
+    endPostRatios: [-0.28, 0.28],
+    sidePosts: [-7.5, -5, -2.3, 2.3, 5, 7.5],
     profile: 0.11,
     topBeam: true,
+    rearSystem: 'open-corner-panoramic',
   },
   panoramic: {
     width: 10,
-    endPosts: 5,
+    endPostRatios: [-0.5, -0.25, 0, 0.25, 0.5],
     sidePosts: [-10, -7.5, -5, -2.3, 2.3, 5, 7.5, 10],
     profile: 0.11,
     topBeam: true,
+    rearSystem: 'supported-panoramic',
   },
   'signature-tournament': {
     width: 10,
-    endPosts: 3,
-    sidePosts: [-10, -5, -2.3, 2.3, 5, 10],
+    endPostRatios: [-0.34, 0, 0.34],
+    sidePosts: [-7.5, -5, -2.3, 2.3, 5, 7.5],
     profile: 0.13,
     topBeam: true,
     signature: true,
+    rearSystem: 'tournament',
   },
   'full-super-panoramic': {
     width: 10,
-    endPosts: 2,
-    sidePosts: [-10, -5, -2.3, 2.3, 5, 10],
+    endPostRatios: [],
+    sidePosts: [-7.5, -5, -2.3, 2.3, 5, 7.5],
     profile: 0.1,
     topBeam: true,
-    platform: true,
+    rearSystem: 'full-vision',
   },
   extreme: {
     width: 10,
-    endPosts: 5,
+    endPostRatios: [-0.5, -0.25, 0, 0.25, 0.5],
     sidePosts: [-10, -7.5, -5, -2.3, 2.3, 5, 7.5, 10],
     profile: 0.17,
     topBeam: true,
     braces: true,
+    reinforcedRails: true,
+    rearSystem: 'reinforced',
   },
   classic: {
     width: 10,
-    endPosts: 6,
+    endPostRatios: [-0.5, -0.3, -0.1, 0.1, 0.3, 0.5],
     sidePosts: [-10, -7.5, -5, -2.3, 2.3, 5, 7.5, 10],
     profile: 0.12,
     topBeam: false,
     braces: true,
+    reinforcedRails: true,
+    rearSystem: 'multi-post',
   },
   'single-court': {
     width: 6,
-    endPosts: 4,
+    endPostRatios: [-0.5, -0.17, 0.17, 0.5],
     sidePosts: [-10, -7.5, -5, -2.3, 2.3, 5, 7.5, 10],
     profile: 0.11,
     topBeam: true,
+    rearSystem: 'single',
   },
 }
 
@@ -113,12 +122,27 @@ const CAMERA_PRESETS = {
   perspective: { position: [15, 12, 18], target: [0, 1.5, 0], fov: 40 },
   top: { position: [0.01, 28, 0.01], target: [0, 0, 0], fov: 36 },
   end: { position: [0, 5.8, 23], target: [0, 1.6, 0], fov: 38 },
+  side: { position: [19, 5.8, 0.01], target: [0, 1.6, 0], fov: 38 },
 }
 
 const VIEW_LABELS = {
-  perspective: 'Perspectiva',
-  top: 'Vista superior',
-  end: 'Vista de fondo',
+  es: { perspective: 'Perspectiva', top: 'Vista superior', end: 'Vista de fondo', side: 'Vista lateral' },
+  en: { perspective: 'Perspective', top: 'Top view', end: 'End view', side: 'Side view' },
+}
+
+const SCENE_COPY = {
+  es: {
+    aria: (name, width) => `Configurador 3D de ${name}, pista de ${width} por 20 metros`,
+    toolbar: 'Controles de cámara 3D', reset: 'Reiniciar', saving: 'Guardando…', save: 'Guardar PNG',
+    glass: 'Vidrio', day: 'Día', evening: 'Atardecer', night: 'Noche', modular: 'GLB KND', fallback: 'Fallback paramétrico',
+    disclaimer: 'Se carga geometría modular propia de KND solo cuando su manifiesto está validado; mientras tanto se muestra el fallback paramétrico. Estructura, uniones y dimensiones finales requieren ingeniería KND.',
+  },
+  en: {
+    aria: (name, width) => `3D configurator for ${name}, ${width} by 20 metre court`,
+    toolbar: '3D camera controls', reset: 'Reset', saving: 'Saving…', save: 'Save PNG',
+    glass: 'Glass', day: 'Day', evening: 'Evening', night: 'Night', modular: 'KND GLB', fallback: 'Parametric fallback',
+    disclaimer: 'KND-owned modular geometry loads only after its manifest has been validated; until then the parametric fallback remains visible. Final structure, connections and dimensions require KND engineering.',
+  },
 }
 
 function valueId(value) {
@@ -155,7 +179,13 @@ function resolveLighting(lighting, config) {
   const raw = normalized(lighting || config?.light)
   return {
     lamps: raw.includes('8') ? 8 : 4,
-    style: raw.includes('pro') || raw.includes('400') ? 'pro' : raw.includes('compact') || raw.includes('200') ? 'compact' : 'linear',
+    style: raw.includes('suspend') || raw.includes('indoor')
+      ? 'suspended'
+      : raw.includes('pro') || raw.includes('400')
+        ? 'pro'
+        : raw.includes('compact') || raw.includes('200')
+          ? 'compact'
+          : 'linear',
     name: valueId(lighting || config?.light) || 'Iluminación seleccionada',
   }
 }
@@ -197,6 +227,17 @@ function resolvePoleStyle(poleStyle, config) {
   if (raw === 'z' || raw.includes('zig')) return 'z'
   if (raw === 't' || raw.includes('doble')) return 't'
   return 'curved'
+}
+
+function resolveGlassThickness(glassThickness, config) {
+  const raw = normalized(glassThickness || config?.glassThickness || config?.glass)
+  return raw.includes('12') ? 0.012 : 0.01
+}
+
+function resolveLightsOn(lightsOn, config, environment) {
+  const value = lightsOn ?? config?.lightsOn
+  if (typeof value === 'boolean') return value
+  return environment !== 'day'
 }
 
 function supportsWebGL() {
@@ -327,6 +368,26 @@ function GlassPanel({ size, position, rotation = [0, 0, 0] }) {
   )
 }
 
+function EndGlassAssembly({ width, z, postXs, thickness }) {
+  const divisions = useMemo(() => {
+    const usablePosts = postXs.filter((x) => x > -width / 2 + 0.08 && x < width / 2 - 0.08)
+    const edges = [-width / 2, ...usablePosts, width / 2]
+    return edges.slice(0, -1).map((start, index) => {
+      const end = edges[index + 1]
+      const panelWidth = Math.max(0.12, end - start - 0.026)
+      return { x: (start + end) / 2, panelWidth }
+    })
+  }, [postXs, width])
+
+  return divisions.map(({ x, panelWidth }, index) => (
+    <GlassPanel
+      key={`${z}-${index}`}
+      size={[panelWidth, 3, thickness]}
+      position={[x, 1.5, z]}
+    />
+  ))
+}
+
 function FrameBox({ args, position, rotation, color, emissive, emissiveIntensity = 0, castShadow = true }) {
   return (
     <mesh position={position} rotation={rotation} castShadow={castShadow} receiveShadow>
@@ -386,19 +447,21 @@ function TurfMaterial({ color, textureUrl }) {
   return <meshStandardMaterial color={tint} map={texture} roughness={0.94} metalness={0} />
 }
 
-function CourtFloor({ width, turfColor, turfTexture, mobileBase, frameColor }) {
+function CourtFloor({ width, turfColor, turfTexture, mobileBase, frameColor, renderBase = true }) {
   return (
     <group>
-      <mesh position={[0, mobileBase ? -0.14 : -0.08, 0]} receiveShadow castShadow={mobileBase}>
-        <boxGeometry args={[width + (mobileBase ? 0.72 : 0.22), mobileBase ? 0.28 : 0.16, 20.72]} />
-        <meshStandardMaterial color={mobileBase ? frameColor : '#5b5e5c'} roughness={0.78} metalness={mobileBase ? 0.5 : 0.08} />
-      </mesh>
+      {renderBase && (
+        <mesh position={[0, mobileBase ? -0.14 : -0.08, 0]} receiveShadow castShadow={mobileBase}>
+          <boxGeometry args={[width + (mobileBase ? 0.72 : 0.22), mobileBase ? 0.28 : 0.16, 20.72]} />
+          <meshStandardMaterial color={mobileBase ? frameColor : '#5b5e5c'} roughness={0.78} metalness={mobileBase ? 0.5 : 0.08} />
+        </mesh>
+      )}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.015, 0]} receiveShadow>
         <planeGeometry args={[width, 20, 1, 1]} />
         <TurfMaterial color={turfColor} textureUrl={turfTexture} />
       </mesh>
       <CourtLines width={width} />
-      {mobileBase && <MobileBaseDetails width={width} color={frameColor} />}
+      {mobileBase && renderBase && <MobileBaseDetails width={width} color={frameColor} />}
     </group>
   )
 }
@@ -433,21 +496,20 @@ function MobileBaseDetails({ width, color }) {
   )
 }
 
-function CourtEnvelope({ width, modelVisual, frameColor, protection }) {
+function CourtEnvelope({ width, modelVisual, frameColor, protection, glassThickness }) {
   const p = modelVisual.profile
   const endPostXs = useMemo(() => {
-    const count = Math.max(2, modelVisual.endPosts)
-    return Array.from({ length: count }, (_, index) => -width / 2 + (index / (count - 1)) * width)
-  }, [modelVisual.endPosts, width])
+    return modelVisual.endPostRatios.map((ratio) => ratio * width)
+  }, [modelVisual.endPostRatios, width])
 
   return (
     <group>
-      <GlassPanel size={[width - 0.14, 3, 0.045]} position={[0, 1.5, -9.96]} />
-      <GlassPanel size={[width - 0.14, 3, 0.045]} position={[0, 1.5, 9.96]} />
-      <GlassPanel size={[0.045, 3, 4.86]} position={[-width / 2 + 0.025, 1.5, -7.5]} />
-      <GlassPanel size={[0.045, 3, 4.86]} position={[-width / 2 + 0.025, 1.5, 7.5]} />
-      <GlassPanel size={[0.045, 3, 4.86]} position={[width / 2 - 0.025, 1.5, -7.5]} />
-      <GlassPanel size={[0.045, 3, 4.86]} position={[width / 2 - 0.025, 1.5, 7.5]} />
+      <EndGlassAssembly width={width} z={-9.96} postXs={endPostXs} thickness={glassThickness} />
+      <EndGlassAssembly width={width} z={9.96} postXs={endPostXs} thickness={glassThickness} />
+      <GlassPanel size={[glassThickness, 3, 4.86]} position={[-width / 2 + glassThickness / 2, 1.5, -7.5]} />
+      <GlassPanel size={[glassThickness, 3, 4.86]} position={[-width / 2 + glassThickness / 2, 1.5, 7.5]} />
+      <GlassPanel size={[glassThickness, 3, 4.86]} position={[width / 2 - glassThickness / 2, 1.5, -7.5]} />
+      <GlassPanel size={[glassThickness, 3, 4.86]} position={[width / 2 - glassThickness / 2, 1.5, 7.5]} />
 
       <GridPanel width={width} height={1} step={0.5} color={frameColor} position={[0, 3.5, -9.985]} />
       <GridPanel width={width} height={1} step={0.5} color={frameColor} position={[0, 3.5, 9.985]} />
@@ -481,8 +543,24 @@ function CourtEnvelope({ width, modelVisual, frameColor, protection }) {
 
       <CourtDoors width={width} frameColor={frameColor} profile={p} />
       {modelVisual.braces && <StructureBraces width={width} frameColor={frameColor} profile={p * 0.72} />}
+      {modelVisual.reinforcedRails && <ReinforcedRails width={width} frameColor={frameColor} profile={p * 0.72} />}
       {modelVisual.signature && <SignatureBand width={width} color={frameColor} />}
       {protection && <ProtectionPads width={width} />}
+    </group>
+  )
+}
+
+function ReinforcedRails({ width, frameColor, profile }) {
+  return (
+    <group>
+      {[-1, 1].flatMap((side) => [1.15, 2.35, 3.45].map((height) => (
+        <FrameBox
+          key={`${side}-${height}`}
+          args={[profile, profile, 19.7]}
+          position={[side * width / 2, height, 0]}
+          color={frameColor}
+        />
+      )))}
     </group>
   )
 }
@@ -578,71 +656,163 @@ function CourtNet({ width, frameColor, protection }) {
   )
 }
 
-function LightPole({ x, z, side, frameColor, poleStyle, fixtureStyle, environment, lightEnabled }) {
-  const height = poleStyle === 'straight' ? 6 : 5.75
-  const tubeGeometry = useMemo(() => {
-    let points
-    if (poleStyle === 'straight' || poleStyle === 't') {
-      points = [new THREE.Vector3(x, 0, z), new THREE.Vector3(x, height, z)]
-    } else if (poleStyle === 'angled') {
-      points = [new THREE.Vector3(x, 0, z), new THREE.Vector3(x, 3.6, z), new THREE.Vector3(x - side * 0.9, height, z)]
-    } else if (poleStyle === 'z') {
-      points = [
-        new THREE.Vector3(x, 0, z),
-        new THREE.Vector3(x, 2.4, z),
-        new THREE.Vector3(x - side * 0.65, 3.4, z),
-        new THREE.Vector3(x - side * 0.65, height, z),
-      ]
-    } else {
-      points = [
-        new THREE.Vector3(x, 0, z),
-        new THREE.Vector3(x, 2.7, z),
-        new THREE.Vector3(x - side * (poleStyle === 'signature' ? 0.34 : 0.62), 4.9, z),
-        new THREE.Vector3(x - side * (poleStyle === 'signature' ? 0.75 : 1.05), height, z),
+function BeamBetween({ start, end, radius, color }) {
+  const transform = useMemo(() => {
+    const from = new THREE.Vector3(...start)
+    const to = new THREE.Vector3(...end)
+    const direction = to.clone().sub(from)
+    const midpoint = from.clone().add(to).multiplyScalar(0.5)
+    const quaternion = new THREE.Quaternion().setFromUnitVectors(
+      new THREE.Vector3(0, 1, 0),
+      direction.clone().normalize(),
+    )
+    return { midpoint, quaternion, length: direction.length() }
+  }, [end, start])
+
+  return (
+    <mesh position={transform.midpoint} quaternion={transform.quaternion} castShadow>
+      <cylinderGeometry args={[radius, radius, transform.length, 10]} />
+      <meshStandardMaterial color={color} metalness={0.7} roughness={0.38} />
+    </mesh>
+  )
+}
+
+function LightPole({ x, z, side, frameColor, poleStyle, fixtureStyle, environment, lightEnabled, renderBody = true }) {
+  const height = poleStyle === 'signature' ? 6.15 : poleStyle === 'straight' || poleStyle === 't' ? 6 : 5.75
+  const isCurved = poleStyle === 'curved' || poleStyle === 'signature'
+  const pathPoints = useMemo(() => {
+    if (poleStyle === 'signature') {
+      return [
+        [x, 0, z],
+        [x, 2.25, z],
+        [x - side * 0.1, 3.75, z],
+        [x - side * 0.62, 5.35, z],
+        [x - side * 1.42, height, z],
       ]
     }
-    const curve = new THREE.CatmullRomCurve3(points)
-    return new THREE.TubeGeometry(curve, 22, poleStyle === 'signature' ? 0.065 : 0.055, 8, false)
+    if (poleStyle === 'curved') {
+      return [
+        [x, 0, z],
+        [x, 2.7, z],
+        [x - side * 0.62, 4.9, z],
+        [x - side * 1.05, height, z],
+      ]
+    }
+    if (poleStyle === 'angled') {
+      return [[x, 0, z], [x, 2.8, z], [x - side * 1.08, height, z]]
+    }
+    if (poleStyle === 'z') {
+      return [[x, 0, z], [x, 2.35, z], [x - side * 0.72, 3.55, z], [x - side * 0.72, height, z]]
+    }
+    return [[x, 0, z], [x, height, z]]
   }, [height, poleStyle, side, x, z])
 
-  const fixtureX = x - side * (poleStyle === 'straight' || poleStyle === 't' ? 0.45 : poleStyle === 'signature' ? 0.78 : 1.08)
+  const tubeGeometry = useMemo(() => {
+    if (!isCurved) return null
+    const curve = new THREE.CatmullRomCurve3(pathPoints.map((point) => new THREE.Vector3(...point)), false, 'chordal')
+    return new THREE.TubeGeometry(curve, poleStyle === 'signature' ? 32 : 24, poleStyle === 'signature' ? 0.067 : 0.055, 10, false)
+  }, [isCurved, pathPoints, poleStyle])
+
+  useEffect(() => () => tubeGeometry?.dispose(), [tubeGeometry])
+
+  const poleEnd = pathPoints[pathPoints.length - 1]
+  const fixtureX = poleEnd[0] - side * (poleStyle === 'straight' || poleStyle === 't' ? 0.42 : 0.08)
   const fixtureWidth = fixtureStyle === 'compact' ? 0.62 : fixtureStyle === 'pro' ? 1.42 : 1.05
   const fixtureDepth = fixtureStyle === 'pro' ? 0.22 : 0.16
   const lightColor = environment === 'evening' ? '#ffe1ad' : '#dcecff'
+  const tFixtureOffsets = poleStyle === 't' ? [-0.46, 0.46] : [0]
 
   return (
     <group>
-      <mesh geometry={tubeGeometry} castShadow>
-        <meshStandardMaterial color={frameColor} metalness={0.7} roughness={0.38} />
-      </mesh>
-      {poleStyle === 't' && <FrameBox args={[1.25, 0.08, 0.08]} position={[x - side * 0.05, height, z]} color={frameColor} />}
-      <FrameBox
-        args={[fixtureWidth, 0.11, fixtureDepth]}
-        position={[fixtureX, height + 0.02, z]}
-        rotation={[0, 0, side * 0.12]}
-        color="#161b1d"
-        emissive={lightColor}
-        emissiveIntensity={lightEnabled ? 3.2 : 0.08}
-      />
-      {lightEnabled && (
-        <pointLight
-          position={[fixtureX, height - 0.2, z]}
-          color={lightColor}
-          intensity={environment === 'night' ? 17 : 9}
-          distance={13}
-          decay={2}
+      {renderBody && (isCurved ? (
+        <mesh geometry={tubeGeometry} castShadow>
+          <meshStandardMaterial color={frameColor} metalness={0.7} roughness={0.38} />
+        </mesh>
+      ) : pathPoints.slice(0, -1).map((start, index) => (
+        <BeamBetween
+          key={`${poleStyle}-${index}`}
+          start={start}
+          end={pathPoints[index + 1]}
+          radius={poleStyle === 'z' ? 0.06 : 0.055}
+          color={frameColor}
+        />
+      )))}
+      {renderBody && (poleStyle === 'straight' || poleStyle === 't') && (
+        <BeamBetween
+          start={[x, height, z]}
+          end={[x - side * (poleStyle === 't' ? 0.48 : 0.82), height, z]}
+          radius={0.05}
+          color={frameColor}
         />
       )}
+      {renderBody && poleStyle === 't' && <FrameBox args={[0.08, 0.08, 1.45]} position={[fixtureX, height, z]} color={frameColor} />}
+      {tFixtureOffsets.map((zOffset) => (
+        <React.Fragment key={zOffset}>
+          <FrameBox
+            args={[poleStyle === 't' ? Math.min(fixtureWidth, 0.72) : fixtureWidth, 0.11, fixtureDepth]}
+            position={[fixtureX, height + 0.02, z + zOffset]}
+            rotation={[0, 0, side * 0.12]}
+            color="#161b1d"
+            emissive={lightColor}
+            emissiveIntensity={lightEnabled ? 3.2 : 0.08}
+          />
+          {lightEnabled && (
+            <pointLight
+              position={[fixtureX, height - 0.2, z + zOffset]}
+              color={lightColor}
+              intensity={environment === 'night' ? 17 / tFixtureOffsets.length : 9 / tFixtureOffsets.length}
+              distance={13}
+              decay={2}
+            />
+          )}
+        </React.Fragment>
+      ))}
     </group>
   )
 }
 
-function CourtLighting({ width, lighting, frameColor, poleStyle, environment }) {
-  const zPositions = lighting.lamps === 8 ? [-7.3, -2.45, 2.45, 7.3] : [-6.4, 6.4]
-  const lightEnabled = environment !== 'day'
+function SuspendedLighting({ width, frameColor, environment, lightsOn }) {
+  const lightColor = environment === 'evening' ? '#ffe1ad' : '#dcecff'
   return (
     <group>
-      {[-1, 1].flatMap((side) => zPositions.map((z, index) => (
+      {[-6.2, 6.2].map((z) => (
+        <group key={z}>
+          <FrameBox args={[width + 1.25, 0.08, 0.08]} position={[0, 7.05, z]} color={frameColor} />
+          {[-1.9, 1.9].map((x) => (
+            <group key={x}>
+              <BeamBetween start={[x, 7.05, z]} end={[x, 6.12, z]} radius={0.018} color="#5b6468" />
+              <FrameBox
+                args={[1.15, 0.1, 0.2]}
+                position={[x, 6.08, z]}
+                color="#161b1d"
+                emissive={lightColor}
+                emissiveIntensity={lightsOn ? 3.2 : 0.08}
+              />
+              {lightsOn && (
+                <pointLight
+                  position={[x, 5.8, z]}
+                  color={lightColor}
+                  intensity={environment === 'night' ? 11 : 7}
+                  distance={12}
+                  decay={2}
+                />
+              )}
+            </group>
+          ))}
+        </group>
+      ))}
+    </group>
+  )
+}
+
+function CourtLighting({ width, lighting, frameColor, poleStyle, environment, lightsOn, renderPoles = true }) {
+  if (lighting.style === 'suspended') {
+    return <SuspendedLighting width={width} frameColor={frameColor} environment={environment} lightsOn={lightsOn} />
+  }
+  const zPositions = lighting.lamps === 8 ? [-7.3, -2.45, 2.45, 7.3] : [-6.4, 6.4]
+  return (
+    <group>
+      {[-1, 1].flatMap((side) => zPositions.map((z) => (
         <LightPole
           key={`${side}-${z}`}
           x={side * (width / 2 + 0.28)}
@@ -652,7 +822,8 @@ function CourtLighting({ width, lighting, frameColor, poleStyle, environment }) 
           poleStyle={poleStyle}
           fixtureStyle={lighting.style}
           environment={environment}
-          lightEnabled={lightEnabled && (lighting.lamps === 4 || index % 2 === 0)}
+          lightEnabled={lightsOn}
+          renderBody={renderPoles}
         />
       )))}
     </group>
@@ -763,6 +934,7 @@ function RendererSettings({ environment }) {
 }
 
 function CourtWorld({
+  modelId,
   modelVisual,
   turfColor,
   turfTexture,
@@ -773,8 +945,21 @@ function CourtWorld({
   roofId,
   mobileBase,
   environment,
+  glassThickness,
+  lightsOn,
+  onModuleStatusChange,
 }) {
   const { width } = modelVisual
+  const [moduleStatus, setModuleStatus] = useState({ phase: 'checking', componentKeys: [] })
+  const handleModuleStatus = useCallback((next) => {
+    setModuleStatus(next)
+    onModuleStatusChange?.(next)
+  }, [onModuleStatusChange])
+  const moduleKeys = moduleStatus.componentKeys || []
+  const modularReady = moduleStatus.phase === 'ready'
+  const modularPoles = modularReady && moduleKeys.includes('poles')
+  const modularMobileBase = modularReady && mobileBase && moduleKeys.includes('mobileBase')
+  const modularProtection = modularReady && protection && moduleKeys.includes('protection')
   return (
     <group>
       <WorldLighting environment={environment} />
@@ -782,22 +967,49 @@ function CourtWorld({
         <planeGeometry args={[58, 58]} />
         <meshStandardMaterial color={environment === 'night' ? '#101c23' : environment === 'evening' ? '#5a6268' : '#bdc7bf'} roughness={1} />
       </mesh>
-      <CourtFloor width={width} turfColor={turfColor} turfTexture={turfTexture} mobileBase={mobileBase} frameColor={frameColor} />
-      <CourtEnvelope width={width} modelVisual={modelVisual} frameColor={frameColor} protection={protection} />
-      <CourtNet width={width} frameColor={frameColor} protection={protection} />
-      <CourtLighting width={width} lighting={lighting} frameColor={frameColor} poleStyle={poleStyle} environment={environment} />
+      <CourtFloor width={width} turfColor={turfColor} turfTexture={turfTexture} mobileBase={mobileBase} frameColor={frameColor} renderBase={!modularMobileBase} />
+      {!modularReady && (
+        <>
+          <CourtEnvelope
+            width={width}
+            modelVisual={modelVisual}
+            frameColor={frameColor}
+            protection={protection}
+            glassThickness={glassThickness}
+          />
+          <CourtNet width={width} frameColor={frameColor} protection={protection} />
+        </>
+      )}
+      <KndModularCourt
+        modelId={modelId}
+        frameColor={frameColor}
+        glassThickness={glassThickness}
+        mobileBase={mobileBase}
+        protection={protection}
+        onStatusChange={handleModuleStatus}
+      />
+      {modularReady && protection && !modularProtection && <ProtectionPads width={width} />}
+      <CourtLighting
+        width={width}
+        lighting={lighting}
+        frameColor={frameColor}
+        poleStyle={poleStyle}
+        environment={environment}
+        lightsOn={lightsOn}
+        renderPoles={!modularPoles}
+      />
       <RoofSystem roofId={roofId} width={width} frameColor={frameColor} />
-      {!mobileBase && <AnchorPlates width={width} frameColor={frameColor} />}
+      {!mobileBase && !modularReady && <AnchorPlates width={width} frameColor={frameColor} />}
     </group>
   )
 }
 
-function SceneContents({ sceneProps, view, resetToken, controlsRef }) {
+function SceneContents({ sceneProps, view, resetToken, controlsRef, onModuleStatusChange }) {
   return (
     <>
       <RendererSettings environment={sceneProps.environment} />
       <CameraRig view={view} resetToken={resetToken} controlsRef={controlsRef} />
-      <CourtWorld {...sceneProps} />
+      <CourtWorld {...sceneProps} onModuleStatusChange={onModuleStatusChange} />
       <OrbitControls
         ref={controlsRef}
         makeDefault
@@ -818,6 +1030,7 @@ function SceneContents({ sceneProps, view, resetToken, controlsRef }) {
 }
 
 const Court3DScene = forwardRef(function Court3DScene({
+  locale = 'es',
   config,
   court,
   model,
@@ -834,6 +1047,8 @@ const Court3DScene = forwardRef(function Court3DScene({
   roof,
   installation,
   environment,
+  glassThickness,
+  lightsOn,
   view: controlledView,
   onViewChange,
   captureRequest,
@@ -846,11 +1061,13 @@ const Court3DScene = forwardRef(function Court3DScene({
   const [internalView, setInternalView] = useState('perspective')
   const [resetToken, setResetToken] = useState(0)
   const [captureBusy, setCaptureBusy] = useState(false)
+  const [moduleStatus, setModuleStatus] = useState({ phase: 'checking', componentKeys: [] })
   const renderStateRef = useRef(null)
   const controlsRef = useRef(null)
   const previousCaptureRequest = useRef(captureRequest)
 
   const view = COURT_VIEW_KEYS.includes(controlledView) ? controlledView : internalView
+  const sceneText = locale === 'en' ? SCENE_COPY.en : SCENE_COPY.es
   const resolvedModelId = resolveModelId({ modelId, model, court, config })
   const modelVisual = KND_MODEL_VISUALS[resolvedModelId]
   const resolvedTurfColor = resolveNamedColor(turfColor, turfFinish, config?.turf, TURF_COLORS, '#1358ac')
@@ -861,6 +1078,8 @@ const Court3DScene = forwardRef(function Court3DScene({
   const resolvedRoof = resolveRoofId(roof, config)
   const resolvedMobileBase = resolveMobileBase(installation, config)
   const resolvedEnvironment = resolveEnvironment(environment, config)
+  const resolvedGlassThickness = resolveGlassThickness(glassThickness, config)
+  const resolvedLightsOn = resolveLightsOn(lightsOn, config, resolvedEnvironment)
   // Supplier swatch photography is not automatically treated as a seamless
   // tile. Pass turfTexture/turfImage explicitly when a tileable image exists.
   const resolvedTurfTexture = turfTexture || turfImage || turfFinish?.texture || ''
@@ -915,6 +1134,7 @@ const Court3DScene = forwardRef(function Court3DScene({
   }, [captureRequest, capture])
 
   const sceneProps = useMemo(() => ({
+    modelId: resolvedModelId,
     modelVisual,
     turfColor: resolvedTurfColor,
     turfTexture: resolvedTurfTexture,
@@ -925,11 +1145,16 @@ const Court3DScene = forwardRef(function Court3DScene({
     roofId: resolvedRoof,
     mobileBase: resolvedMobileBase,
     environment: resolvedEnvironment,
+    glassThickness: resolvedGlassThickness,
+    lightsOn: resolvedLightsOn,
   }), [
     modelVisual,
+    resolvedModelId,
     resolvedEnvironment,
     resolvedFrameColor,
+    resolvedGlassThickness,
     resolvedLighting,
+    resolvedLightsOn,
     resolvedMobileBase,
     resolvedPoleStyle,
     resolvedProtection,
@@ -939,7 +1164,7 @@ const Court3DScene = forwardRef(function Court3DScene({
   ])
 
   const modelName = court?.name || valueId(model) || resolvedModelId.replaceAll('-', ' ')
-  const label = ariaLabel || `Configurador 3D de ${modelName}, pista de ${modelVisual.width} por 20 metros`
+  const label = ariaLabel || sceneText.aria(modelName, modelVisual.width)
   const fallback = <WebGLFallback />
 
   if (!webGLAvailable) {
@@ -951,7 +1176,7 @@ const Court3DScene = forwardRef(function Court3DScene({
       <div className="knd-court3d-canvas" role="img" aria-label={label}>
         <SceneErrorBoundary fallback={fallback}>
           <Canvas
-            shadows
+            shadows={THREE.PCFShadowMap}
             dpr={[1, 1.65]}
             camera={{ position: CAMERA_PRESETS.perspective.position, fov: CAMERA_PRESETS.perspective.fov, near: 0.1, far: 120 }}
             gl={{ antialias: true, alpha: false, preserveDrawingBuffer: true, powerPreference: 'high-performance' }}
@@ -962,13 +1187,13 @@ const Court3DScene = forwardRef(function Court3DScene({
               renderStateRef.current = state
             }}
           >
-            <SceneContents sceneProps={sceneProps} view={view} resetToken={resetToken} controlsRef={controlsRef} />
+            <SceneContents sceneProps={sceneProps} view={view} resetToken={resetToken} controlsRef={controlsRef} onModuleStatusChange={setModuleStatus} />
           </Canvas>
         </SceneErrorBoundary>
       </div>
 
       {showToolbar && (
-        <div className="knd-court3d-toolbar" role="toolbar" aria-label="Controles de cámara 3D">
+        <div className="knd-court3d-toolbar" role="toolbar" aria-label={sceneText.toolbar}>
           {COURT_VIEW_KEYS.map((item) => (
             <button
               key={item}
@@ -977,22 +1202,24 @@ const Court3DScene = forwardRef(function Court3DScene({
               aria-pressed={view === item}
               onClick={() => changeView(item)}
             >
-              {VIEW_LABELS[item]}
+              {VIEW_LABELS[locale === 'en' ? 'en' : 'es'][item]}
             </button>
           ))}
-          <button type="button" onClick={resetCamera}>Reiniciar</button>
+          <button type="button" onClick={resetCamera}>{sceneText.reset}</button>
           <button type="button" disabled={captureBusy} onClick={() => capture({ download: true })}>
-            {captureBusy ? 'Guardando…' : 'Guardar PNG'}
+            {captureBusy ? sceneText.saving : sceneText.save}
           </button>
         </div>
       )}
 
       <div className="knd-court3d-meta" aria-hidden="true">
         <span>{modelVisual.width} × 20 m</span>
-        <span>{resolvedEnvironment === 'night' ? 'Noche' : resolvedEnvironment === 'evening' ? 'Atardecer' : 'Día'}</span>
+        <span>{sceneText.glass} {Math.round(resolvedGlassThickness * 1000)} mm</span>
+        <span>{resolvedEnvironment === 'night' ? sceneText.night : resolvedEnvironment === 'evening' ? sceneText.evening : sceneText.day}</span>
+        <span>{moduleStatus.phase === 'ready' ? sceneText.modular : sceneText.fallback}</span>
       </div>
       <p className="knd-court3d-disclaimer">
-        Vista paramétrica de configuración. La estructura, uniones y dimensiones finales se validan con ingeniería KND.
+        {sceneText.disclaimer}
       </p>
     </div>
   )

@@ -1,0 +1,109 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://www.kndpadel.com/models/knd/manifest.schema.json",
+  "title": "KND modular court manifest",
+  "type": "object",
+  "required": ["schemaVersion", "id", "code", "status", "units", "upAxis", "origin", "dimensions", "components", "validation"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "id": { "type": "string" },
+    "code": { "type": "string" },
+    "status": { "enum": ["pending", "ready"] },
+    "units": { "const": "metres" },
+    "upAxis": { "const": "Y" },
+    "origin": { "const": "court-centre" },
+    "dimensions": {
+      "type": "object",
+      "required": ["length", "width"],
+      "properties": {
+        "length": { "type": "number", "exclusiveMinimum": 0 },
+        "width": { "type": "number", "exclusiveMinimum": 0 }
+      }
+    },
+    "transform": { "$ref": "#/$defs/transform" },
+    "components": {
+      "type": "object",
+      "required": ["frame", "glass", "fence", "net"],
+      "properties": {
+        "frame": { "$ref": "#/$defs/component" },
+        "glass": { "$ref": "#/$defs/component" },
+        "fence": { "$ref": "#/$defs/component" },
+        "net": { "$ref": "#/$defs/component" },
+        "poles": { "$ref": "#/$defs/component" },
+        "protection": { "$ref": "#/$defs/component" },
+        "mobileBase": { "$ref": "#/$defs/component" }
+      },
+      "additionalProperties": false
+    },
+    "mounts": {
+      "type": "object",
+      "properties": {
+        "lighting": { "type": "array", "items": { "$ref": "#/$defs/mount" } },
+        "netPosts": { "type": "array", "items": { "$ref": "#/$defs/mount" } }
+      }
+    },
+    "camera": {
+      "type": "object",
+      "properties": {
+        "target": { "$ref": "#/$defs/vector3" },
+        "defaultPosition": { "$ref": "#/$defs/vector3" }
+      }
+    },
+    "validation": {
+      "type": "object",
+      "required": ["manufacturerDrawingRevision", "geometryVerified"],
+      "properties": {
+        "manufacturerDrawingRevision": { "type": ["string", "null"] },
+        "geometryVerified": { "type": "boolean" },
+        "verifiedAt": { "type": ["string", "null"], "format": "date" }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "status": { "const": "ready" } } },
+      "then": {
+        "properties": {
+          "validation": {
+            "properties": {
+              "manufacturerDrawingRevision": { "type": "string", "minLength": 1 },
+              "geometryVerified": { "const": true }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "vector3": { "type": "array", "prefixItems": [{ "type": "number" }, { "type": "number" }, { "type": "number" }], "minItems": 3, "maxItems": 3 },
+    "transform": {
+      "type": "object",
+      "properties": {
+        "position": { "$ref": "#/$defs/vector3" },
+        "rotation": { "$ref": "#/$defs/vector3" },
+        "scale": { "$ref": "#/$defs/vector3" }
+      }
+    },
+    "component": {
+      "type": "object",
+      "required": ["src", "materialRole"],
+      "properties": {
+        "src": { "type": "string", "pattern": "^[A-Za-z0-9_.\\/-]+\\.glb$" },
+        "materialRole": { "enum": ["structure", "glass", "net", "protection"] },
+        "optional": { "type": "boolean" },
+        "position": { "$ref": "#/$defs/vector3" },
+        "rotation": { "$ref": "#/$defs/vector3" },
+        "scale": { "$ref": "#/$defs/vector3" }
+      }
+    },
+    "mount": {
+      "type": "object",
+      "required": ["position"],
+      "properties": {
+        "position": { "$ref": "#/$defs/vector3" },
+        "rotation": { "$ref": "#/$defs/vector3" }
+      }
+    }
+  }
+}
+

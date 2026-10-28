@@ -1,6 +1,6 @@
 # Auditoría visual de KND Padel Europe
 
-Estado de auditoría: 2026-10-27  
+Estado de auditoría: 2026-10-28
 Alcance: activos locales disponibles para la web, materiales facilitados por KND y adjuntos descartados o pendientes de validación.
 
 ## Criterio de estados
@@ -25,10 +25,21 @@ Alcance: activos locales disponibles para la web, materiales facilitados por KND
 | `/brand/brandbook-06.png` | OP-05 Extreme | Verificada | Referencia técnica | La ficha identifica el modelo; se necesitan fotografías específicas. |
 | `/brand/brandbook-07.png` | OP-06 Classic | Verificada | Referencia técnica | La ficha identifica el modelo; se necesitan fotografías específicas. |
 | `/brand/brandbook-08.png` | OP-07 Single Court | Verificada | Referencia técnica | La ficha identifica el modelo; se necesitan fotografías específicas. |
-| `/media/knd/courts/open-court-straight.jpg` | Render genérico de pista | Provisional | Configurador y referencia genérica | **No existe mapeo verificado a OP-01…OP-07.** |
-| `/media/knd/courts/open-court-curved-lighting.jpg` | Render genérico de pista | Provisional | Configurador y referencia genérica | **No existe mapeo verificado a OP-01…OP-07.** |
-| `/media/knd/courts/open-court-structural.jpg` | Render genérico de pista | Provisional | Configurador y referencia genérica | **No existe mapeo verificado a OP-01…OP-07.** |
-| `/media/knd/courts/open-court-platform.jpg` | Render genérico de pista | Provisional | Configurador y referencia genérica | **No existe mapeo verificado a OP-01…OP-07.** |
+| `/media/knd/courts/superpanormamicrender.jpg` | OP-01 Super Panoramic | Provisional | Catálogo y megamenú | Nombre de archivo asociado al modelo; validar estructura contra planos. |
+| `/media/knd/courts/panoramicrender.jpg` | OP-02 Panoramic | Provisional | Catálogo y megamenú | Nombre de archivo asociado al modelo; validar estructura contra planos. |
+| `/media/knd/courts/tournamentrender.jpg` | OP-03 Signature Tournament | Provisional | Catálogo y megamenú | Nombre de archivo asociado al modelo; validar estructura contra planos. |
+| `/media/knd/courts/classicrender.jpg` | OP-06 Classic | Provisional | Catálogo y megamenú | Nombre de archivo asociado al modelo; validar estructura contra planos. |
+| `/media/knd/courts/singlecourtrender.jpg` | OP-07 Single Court | Provisional | Catálogo y megamenú | Nombre de archivo asociado al modelo; validar medidas 20 × 6 y estructura. |
+| `/brand/brandbook-05.png` | OP-04 Full Super Panoramic | Provisional | Placeholder de catálogo | Falta render/fotografía independiente de alta resolución. |
+| `/brand/brandbook-06.png` | OP-05 Extreme | Provisional | Placeholder de catálogo | Falta render/fotografía independiente de alta resolución. |
+| `/media/knd/courts/torneo.jpg` | HK Open 2026 | Provisional | Proyectos y home | Confirmar autoría, alcance exacto de KND y permiso de publicación. |
+| `/media/knd/courts/germanproject.webp` | GUtech University Sports Project | Provisional | Proyectos | Confirmar autoría, correspondencia de ubicación y permiso. |
+| `/media/knd/courts/newjersey.webp` | Indoor Padel Club · New Jersey | Provisional | Proyectos | Confirmar autoría y alcance exacto de KND. |
+| `/media/knd/courts/guangzhouproject.webp` | Covered Court · Guangzhou | Provisional | Proyectos | Confirmar autoría y alcance exacto de KND. |
+| `/media/knd/courts/indonesiaproject.webp` | In Construction · Batam | Provisional | Proyectos | Confirmar autoría y alcance exacto de KND. |
+| `/media/knd/courts/colombiaproject.webp` | Panoramic Club · Colombia | Provisional | Proyectos | Confirmar autoría y alcance exacto de KND. |
+| `/media/knd/courts/kenyaproject.webp` | Outdoor Club · Kenya | Provisional | Proyectos | Confirmar autoría y alcance exacto de KND. |
+| `/media/knd/courts/fabrica.png` | Fabricación KND | Provisional | Home y Por qué KND | Incluye identidad KND; archivar procedencia y permiso. |
 | `/media/knd/roofs/r1-canopy-reference.jpg` | Canopy Roof | Provisional | Sección de cubiertas y configurador | Tipología compatible; validar el producto exacto. |
 | `/media/knd/roofs/r2-semi-enclosed-reference.jpg` | Semi-Enclosed Roof | Provisional | Sección de cubiertas y configurador | Tipología probable; validar el producto exacto. |
 | `/media/knd/roofs/r3-enclosed-reference.jpg` | Fully Enclosed Roof | Provisional | Sección de cubiertas y configurador | Tipología compatible; validar el producto exacto. |
@@ -63,7 +74,7 @@ Estos archivos no forman parte de la biblioteca pública. Se conservaron fuera d
 - Una imagen visualmente adecuada no debe presentarse como proyecto KND si su autoría y ubicación no están confirmadas.
 - Las imágenes de competidores o proveedores con marca visible no deben reutilizarse, retocarse ni eliminarse de su contexto para aparentar propiedad.
 - La ausencia de marca de agua no demuestra que exista licencia de uso.
-- Los renders de pista actuales son recursos de interfaz genéricos. No deben nombrarse como OP-01, OP-02, OP-03, OP-04, OP-05, OP-06 u OP-07 hasta que KND entregue el mapeo.
+- Los renders OP-01, OP-02, OP-03, OP-06 y OP-07 se han asociado por su nomenclatura local, pero siguen siendo provisionales hasta contrastarlos con planos. OP-04 y OP-05 todavía usan fichas del brandbook como placeholders explícitos.
 - Las muestras de césped validan color y apariencia general, no especificaciones ni pertenencia a OP X10, R9, S12, S9 o S7.
 - Las páginas de proyecto deben usar un placeholder editorial claramente rotulado antes que reutilizar una pista genérica como si fuera la instalación real.
 

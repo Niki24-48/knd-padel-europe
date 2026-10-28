@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "description": "Registro de modelos 3D propios de KND. Ningún activo de terceros se distribuye desde esta carpeta.",
+  "models": {
+    "super-panoramic": { "code": "OP-01", "status": "pending", "manifest": "op-01/manifest.json" },
+    "panoramic": { "code": "OP-02", "status": "pending", "manifest": "op-02/manifest.json" },
+    "signature-tournament": { "code": "OP-03", "status": "pending", "manifest": "op-03/manifest.json" },
+    "full-super-panoramic": { "code": "OP-04", "status": "pending", "manifest": "op-04/manifest.json" },
+    "extreme": { "code": "OP-05", "status": "pending", "manifest": "op-05/manifest.json" },
+    "classic": { "code": "OP-06", "status": "pending", "manifest": "op-06/manifest.json" },
+    "single-court": { "code": "OP-07", "status": "pending", "manifest": "op-07/manifest.json" }
+  }
+}
+

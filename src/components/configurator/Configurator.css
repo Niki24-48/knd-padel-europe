@@ -32,6 +32,12 @@
 .knd-config-choice.is-selected small { color:#d3f605; }
 .knd-pole-visual { border-top:1px dashed #c3c9c3; display:flex; flex:1 0 100%; flex-wrap:wrap; gap:8px; margin-top:8px; padding-top:16px; }
 .knd-pole-visual p { color:#66716a; flex:1 0 100%; font:8px 'DM Mono',monospace; margin:0 0 3px; }
+.knd-config-hex { align-items:center; background:#fff; border:1px solid #bdc4be; display:grid; flex:1 0 100%; gap:6px; grid-template-columns:minmax(110px,.7fr) minmax(150px,1fr); margin-top:8px; padding:12px; }
+.knd-config-hex span { font-size:10px; font-weight:700; }
+.knd-config-hex input { background:#f4f5f0; border:1px solid #aeb7af; color:#102018; font:11px 'DM Mono',monospace; min-height:42px; padding:8px 10px; text-transform:uppercase; }
+.knd-config-hex input:focus-visible { border-color:#002f63; box-shadow:0 0 0 2px rgba(0,47,99,.16); outline:none; }
+.knd-config-hex input[aria-invalid="true"] { border-color:#a5392d; }
+.knd-config-hex small { color:#66716a; font:7px/1.4 'DM Mono',monospace; grid-column:1/-1; }
 .knd-config-summary { background:#081d30; color:#f6f8f4; margin-top:24px; padding:38px; }
 .knd-config-summary-kicker { color:#d3f605; font:9px 'DM Mono',monospace; letter-spacing:.1em; }
 .knd-config-summary h2 { font-size:clamp(40px,5vw,66px); line-height:.92; margin:19px 0 28px; }
@@ -56,19 +62,22 @@
   .knd-configurator-intro { align-items:start; grid-template-columns:1fr; padding:125px 20px 38px; }
   .knd-configurator-intro p,.knd-configurator-intro button { grid-column:1; }
   .knd-configurator-layout { display:block; }
-  .knd-configurator-visual { min-height:0; position:relative; top:auto; }
-  .knd-configurator-visual .knd-court3d { height:58vh; min-height:470px; }
+  .knd-configurator-layout { position:relative; }
+  .knd-configurator-visual { min-height:0; position:sticky; top:66px; z-index:8; }
+  .knd-configurator-visual .knd-court3d { height:min(52svh,440px); min-height:360px; }
   .knd-configurator-visual-head { left:20px; right:20px; top:20px; }
   .knd-configurator-visual-head small,.knd-configurator-keyline span:nth-child(n+2) { display:none; }
   .knd-configurator-keyline { left:20px; }
   .knd-configurator-controls { padding:28px 20px 65px; }
   .knd-config-choices { padding-left:0; }
   .knd-config-summary { padding:30px 22px; }
+  .knd-config-hex { grid-template-columns:1fr; }
+  .knd-config-hex small { grid-column:auto; }
 }
 
 @media (max-width:430px) {
   .knd-configurator-intro h1 { font-size:52px; }
-  .knd-configurator-visual .knd-court3d { height:52vh; min-height:430px; }
+  .knd-configurator-visual .knd-court3d { height:min(48svh,410px); min-height:340px; }
   .knd-config-choice { flex-basis:calc(50% - 4px); }
   .knd-config-actions { grid-template-columns:1fr; }
 }

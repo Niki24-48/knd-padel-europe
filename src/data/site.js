@@ -21,13 +21,24 @@ export const brand = {
 export const media = {
   courts: {
     partner: '/media/knd/courts/partner.jpg',
+    fabrica: '/media/knd/courts/fabrica.png',
     portada: '/media/knd/courts/portada.jpg',
-    singlecourts: '/media/knd/courts/open-court-structural.jpg',
-    extreme: '/media/knd/courts/open-court-platform.jpg',
-    straight: '/media/knd/courts/open-court-straight.jpg',
-    curvedLighting: '/media/knd/courts/open-court-curved-lighting.jpg',
-    structural: '/media/knd/courts/open-court-structural.jpg',
-    platform: '/media/knd/courts/open-court-platform.jpg',
+    panoramic: '/media/knd/courts/panoramicrender.jpg',
+    extreme: '/media/knd/courts/tournamentrender.jpg',
+    superpanoramic: '/media/knd/courts/superpanormamicrender.jpg',
+    signature: '/media/knd/courts/tournamentrender.jpg',
+    fullSuper: '/brand/brandbook-05.png',
+    extremeSheet: '/brand/brandbook-06.png',
+    classic: '/media/knd/courts/classicrender.jpg',
+    singlecourts: '/media/knd/courts/singlecourtrender.jpg',
+    torneo: '/media/knd/courts/torneo.jpg',
+    germanproject: '/media/knd/courts/germanproject.webp',
+    newjerseyproject: '/media/knd/courts/newjersey.webp',
+    guangzhouproject: '/media/knd/courts/guangzhouproject.webp',
+    colombiaproject: '/media/knd/courts/colombiaproject.webp',
+    kenyaproject: '/media/knd/courts/kenyaproject.webp',
+    indonesiaproject: '/media/knd/courts/indonesiaproject.webp',
+
   },
   roofs: {
     r1: '/media/knd/roofs/r1-canopy-reference.jpg',
@@ -45,40 +56,42 @@ export const media = {
 }
 
 export const images = {
+  torneo: media.courts.torneo,
+  fabrica: media.courts.fabrica,
   partner: media.courts.partner,
   portada: media.courts.portada,
-  hero: media.courts.curvedLighting,
-  courtBlue: media.courts.structural,
-  courtSun: media.courts.straight,
-  courtNight: media.courts.platform,
-  manufacture: media.courts.structural,
+  hero: media.courts.torneo,
+  courtBlue: media.courts.superpanoramic,
+  courtSun: media.courts.panoramic,
+  courtNight: media.courts.torneo,
+  manufacture: media.courts.fabrica,
   turf: media.turf.blue,
   roof: media.roofs.r1,
-  projectOne: media.courts.straight,
-  projectTwo: media.courts.curvedLighting,
-  projectThree: media.courts.platform,
-  player: media.courts.structural,
+  projectOne: media.courts.germanproject,
+  projectTwo: media.courts.newjerseyproject,
+  projectThree: media.courts.guangzhouproject,
+  player: media.courts.torneo,
 }
 
 const renderReference = 'Render de referencia aportado por KND. La correspondencia exacta con el modelo se valida en la especificación del proyecto.'
 const turfVisualReference = 'Muestra visual de césped aportada por KND. La disponibilidad de color por sistema se confirma en la propuesta.'
 
 export const courts = [
-  { id: 'super-panoramic', code: 'OP-01', name: 'Super Panoramic', strap: 'Visión total. Cero óxido.', best: 'Clubes premium, espacios interiores y complejos de élite', price: 'A consultar', image: media.courts.structural, visual: 'super-panoramic', imageNote: renderReference, sheet: '/brand/brandbook-02.png', description: 'Una envolvente panorámica de líneas limpias para proyectos donde la visibilidad manda.', facts: ['20 × 10 m', 'Vidrio templado 12 mm', '4 × 300 W LED'] },
-  { id: 'panoramic', code: 'OP-02', name: 'Panoramic', strap: 'Maduro, estable y práctico', best: 'Operación diaria de club', price: 'A consultar', image: media.courts.straight, visual: 'panoramic', imageNote: renderReference, sheet: '/brand/brandbook-03.png', description: 'La combinación precisa de presencia panorámica, mantenimiento práctico y consistencia de juego.', facts: ['20 × 10 m', 'Vidrio templado 12 mm', '4 × 300 W LED'] },
-  { id: 'signature-tournament', code: 'OP-03', name: 'Signature Tournament', strap: 'Modelo insignia de nivel torneo', best: 'Torneos y eventos', price: 'A consultar', image: media.courts.curvedLighting, visual: 'signature', imageNote: renderReference, sheet: '/brand/brandbook-04.png', description: 'Pensada para la presión de la competición: sightlines, detalle y una presencia que se recuerda.', facts: ['20 × 10 m', 'Vidrio templado 12 mm', '4 × 400 W Pro'] },
-  { id: 'full-super-panoramic', code: 'OP-04', name: 'Full Super Panoramic', strap: 'Presencia premium, refinada y emblemática', best: 'Destinos premium', price: 'A consultar', image: media.courts.platform, visual: 'full-super-panoramic', imageNote: renderReference, sheet: '/brand/brandbook-05.png', description: 'Una plataforma de juego abierta y refinada para los entornos que exigen máxima transparencia.', facts: ['20 × 10 m', 'S12 Endurance', 'Galvanizado opcional'] },
-  { id: 'extreme', code: 'OP-05', name: 'Extreme', strap: 'Modelo reforzado para entornos exigentes', best: 'Climas expuestos, costa y alta rotación', price: 'A consultar', image: media.courts.extreme, visual: 'extreme', imageNote: renderReference, sheet: '/brand/brandbook-06.png', description: 'Refuerzo, protección y especificación técnica para condiciones de viento, costa o uso exigente.', facts: ['20 × 10 m', 'Postes 150 × 150 mm', 'Galvanizado 120 μm'] },
-  { id: 'classic', code: 'OP-06', name: 'Classic', strap: 'Modelo tradicional multi-post estable', best: 'Clubs y comunidades', price: 'A consultar', image: media.courts.straight, visual: 'classic', imageNote: renderReference, sheet: '/brand/brandbook-07.png', description: 'Un sistema completo, robusto y adaptable que convierte una buena ubicación en un gran lugar para jugar.', facts: ['20 × 10 m', 'Vidrio de seguridad 12 mm', '8 × 200 W LED'] },
+  { id: 'super-panoramic', code: 'OP-01', name: 'Super Panoramic', strap: 'Visión total. Cero óxido.', best: 'Clubes premium, espacios interiores y complejos de élite', price: 'A consultar', image: media.courts.superpanoramic, visual: 'super-panoramic', imageNote: renderReference, sheet: '/brand/brandbook-02.png', description: 'Una envolvente panorámica de líneas limpias para proyectos donde la visibilidad manda.', facts: ['20 × 10 m', 'Vidrio templado 12 mm', '4 × 300 W LED'] },
+  { id: 'panoramic', code: 'OP-02', name: 'Panoramic', strap: 'Maduro, estable y práctico', best: 'Operación diaria de club', price: 'A consultar', image: media.courts.panoramic, visual: 'panoramic', imageNote: renderReference, sheet: '/brand/brandbook-03.png', description: 'La combinación precisa de presencia panorámica, mantenimiento práctico y consistencia de juego.', facts: ['20 × 10 m', 'Vidrio templado 12 mm', '4 × 300 W LED'] },
+  { id: 'signature-tournament', code: 'OP-03', name: 'Signature Tournament', strap: 'Modelo insignia de nivel torneo', best: 'Torneos y eventos', price: 'A consultar', image: media.courts.signature, visual: 'signature', imageNote: renderReference, sheet: '/brand/brandbook-04.png', description: 'Pensada para la presión de la competición: sightlines, detalle y una presencia que se recuerda.', facts: ['20 × 10 m', 'Vidrio templado 12 mm', '4 × 400 W Pro'] },
+  { id: 'full-super-panoramic', code: 'OP-04', name: 'Full Super Panoramic', strap: 'Presencia premium, refinada y emblemática', best: 'Destinos premium', price: 'A consultar', image: media.courts.fullSuper, visual: 'full-super-panoramic', imageNote: 'Ficha visual provisional del brandbook. Sustituir por un render de producto confirmado.', sheet: '/brand/brandbook-05.png', description: 'Una plataforma de juego abierta y refinada para los entornos que exigen máxima transparencia.', facts: ['20 × 10 m', 'S12 Endurance', 'Galvanizado opcional'] },
+  { id: 'extreme', code: 'OP-05', name: 'Extreme', strap: 'Modelo reforzado para entornos exigentes', best: 'Climas expuestos, costa y alta rotación', price: 'A consultar', image: media.courts.extremeSheet, visual: 'extreme', imageNote: 'Ficha visual provisional del brandbook. Sustituir por un render de producto confirmado.', sheet: '/brand/brandbook-06.png', description: 'Refuerzo, protección y especificación técnica para condiciones de viento, costa o uso exigente.', facts: ['20 × 10 m', 'Postes 150 × 150 mm', 'Galvanizado 120 μm'] },
+  { id: 'classic', code: 'OP-06', name: 'Classic', strap: 'Modelo tradicional multi-post estable', best: 'Clubs y comunidades', price: 'A consultar', image: media.courts.classic, visual: 'classic', imageNote: renderReference, sheet: '/brand/brandbook-07.png', description: 'Un sistema completo, robusto y adaptable que convierte una buena ubicación en un gran lugar para jugar.', facts: ['20 × 10 m', 'Vidrio de seguridad 12 mm', '8 × 200 W LED'] },
   { id: 'single-court', code: 'OP-07', name: 'Single Court', strap: 'Compacto y flexible', best: 'Entrenamiento, residencial y medidas especiales', price: 'A consultar', image: media.courts.singlecourts, visual: 'single', imageNote: renderReference, sheet: '/brand/brandbook-08.png', description: 'Una pista compacta y configurable para academias, hoteles, residencias y activaciones.', facts: ['20 × 6 m y especiales', 'Vidrio de seguridad 12 mm', '8 × 200 W LED'] },
 ]
 
 export const turfSystems = [
-  { id: 'x10-super-match', code: 'OP X10', name: 'Super Match', role: 'Competición', pace: 'Rápido', comfort: 4, durability: 5, image: media.turf.blue, imageNote: turfVisualReference, description: 'Respuesta ágil y agarre preciso para una experiencia de partido premium.', facts: ['10 mm', '9.000 Dtex', '46.000 fibras / m²'] },
-  { id: 'r9-control', code: 'OP R9', name: 'Control', role: 'Club premium', pace: 'Rápido', comfort: 5, durability: 4, image: media.turf.turquoise, imageNote: turfVisualReference, description: 'Tacto refinado y consistencia para clubes que cuidan cada sesión.', facts: ['12 mm', '9.000 Dtex', '60.000 fibras / m²'] },
-  { id: 's12-endurance', code: 'OP S12', name: 'Endurance', role: 'Alta rotación', pace: 'Medio-rápido', comfort: 4, durability: 5, image: media.turf.green, imageNote: turfVisualReference, description: 'Construido para largas jornadas, disponibilidad y durabilidad comercial.', facts: ['12 mm', '12.000 Dtex', '46.000 fibras / m²'] },
-  { id: 's9-standard', code: 'OP S9', name: 'Standard', role: 'Todo terreno', pace: 'Medio', comfort: 4, durability: 4, image: media.turf.red, imageNote: turfVisualReference, description: 'Una plataforma de rendimiento equilibrado para la mayoría de proyectos.', facts: ['12 mm', '9.000 Dtex', '60.000 fibras / m²'] },
-  { id: 's7-training', code: 'OP S7', name: 'Training', role: 'Academia', pace: 'Medio-lento', comfort: 4, durability: 3, image: media.turf.black, imageNote: turfVisualReference, description: 'Una solución práctica para enseñanza, juego diario y proyectos de inicio.', facts: ['12 mm', '7.000 Dtex', '63.000 fibras / m²'] },
+  { id: 'x10-super-match', code: 'OP X10', name: 'Super Match', role: 'Selección por proyecto', image: media.turf.blue, imageNote: turfVisualReference, description: 'Sistema de césped con especificaciones verificadas en el catálogo KND.', facts: ['10 mm', '9.000 Dtex', '46.000 fibras / m²'] },
+  { id: 'r9-control', code: 'OP R9', name: 'Control', role: 'Selección por proyecto', image: media.turf.turquoise, imageNote: turfVisualReference, description: 'Sistema de césped con especificaciones verificadas en el catálogo KND.', facts: ['12 mm', '9.000 Dtex', '60.000 fibras / m²'] },
+  { id: 's12-endurance', code: 'OP S12', name: 'Endurance', role: 'Selección por proyecto', image: media.turf.green, imageNote: turfVisualReference, description: 'Sistema de césped con especificaciones verificadas en el catálogo KND.', facts: ['12 mm', '12.000 Dtex', '46.000 fibras / m²'] },
+  { id: 's9-standard', code: 'OP S9', name: 'Standard', role: 'Selección por proyecto', image: media.turf.red, imageNote: turfVisualReference, description: 'Sistema de césped con especificaciones verificadas en el catálogo KND.', facts: ['12 mm', '9.000 Dtex', '60.000 fibras / m²'] },
+  { id: 's7-training', code: 'OP S7', name: 'Training', role: 'Selección por proyecto', image: media.turf.black, imageNote: turfVisualReference, description: 'Sistema de césped con especificaciones verificadas en el catálogo KND.', facts: ['12 mm', '7.000 Dtex', '63.000 fibras / m²'] },
 ]
 
 export const turfFinishes = [
@@ -106,6 +119,9 @@ export const frameFinishes = [
   { id: 'graphite', name: 'Grafito', color: '#15201e' },
   { id: 'mineral-white', name: 'Blanco mineral', color: '#e4e4db' },
   { id: 'knd-blue', name: 'Azul KND', color: '#002f63' },
+  { id: 'dark-green', name: 'Verde oscuro', color: '#244a3a', request: true },
+  { id: 'bronze', name: 'Bronce', color: '#806348', request: true },
+  { id: 'custom-ral', name: 'RAL personalizado', color: '#385c4a', request: true },
 ]
 
 // These lighting packages are only enabled for the models whose starting
@@ -119,18 +135,18 @@ export const lightingPackages = [
 ]
 
 export const projects = [
-  { slug: 'hk-open-2026', courtModelCode: 'OP-03', courtModelName: 'Signature Tournament', name: 'HK Open 2026', location: 'Hong Kong, China', region: 'Asia', segment: 'Competición', year: '2026', status: 'Proyecto publicado', image: media.courts.curvedLighting, imageNote: 'Imagen de referencia aportada por KND. La fotografía final del proyecto se asignará tras su validación.' },
-  { slug: 'gutech-university-sports-project', courtModelCode: 'OP-01', courtModelName: 'Super Panoramic', name: 'GUtech University Sports Project', location: 'Oman', region: 'Oriente Medio', segment: 'Universidad', status: 'Proyecto publicado', image: media.courts.structural, imageNote: 'Imagen de referencia aportada por KND. La fotografía final del proyecto se asignará tras su validación.' },
-  { slug: 'indoor-padel-club-new-jersey', courtModelCode: 'OP-04', courtModelName: 'Full Super Panoramic', name: 'Indoor Padel Club', location: 'New Jersey, USA', region: 'América', segment: 'Club indoor', status: 'Proyecto publicado', image: media.roofs.r2, imageNote: 'Imagen de referencia aportada por KND. La fotografía final del proyecto se asignará tras su validación.' },
-  { slug: 'covered-court-guangzhou', courtModelCode: 'OP-02', courtModelName: 'Panoramic', name: 'Covered Court', location: 'Guangzhou, China', region: 'Asia', segment: 'Club cubierto', status: 'Proyecto publicado', image: media.roofs.r1, imageNote: 'Imagen de referencia aportada por KND. La fotografía final del proyecto se asignará tras su validación.' },
-  { slug: 'in-construction-batam', courtModelCode: 'OP-01', courtModelName: 'Super Panoramic', name: 'In Construction', location: 'Batam, Indonesia', region: 'Asia', segment: 'En construcción', status: 'En construcción', image: media.roofs.r3, imageNote: 'Imagen de referencia aportada por KND. La fotografía final del proyecto se asignará tras su validación.' },
-  { slug: 'panoramic-club-colombia', courtModelCode: 'OP-02', courtModelName: 'Panoramic', name: 'Panoramic Club', location: 'Colombia', region: 'América', segment: 'Club', status: 'Proyecto publicado', image: media.courts.straight, imageNote: 'Imagen de referencia aportada por KND. La fotografía final del proyecto se asignará tras su validación.' },
-  { slug: 'outdoor-club-kenya', courtModelCode: 'OP-02', courtModelName: 'Panoramic', name: 'Outdoor Club', location: 'Kenya', region: 'África', segment: 'Club outdoor', status: 'Proyecto publicado', image: media.courts.platform, imageNote: 'Imagen de referencia aportada por KND. La fotografía final del proyecto se asignará tras su validación.' },
+  { slug: 'hk-open-2026', courtModelCode: 'OP-03', courtModelName: 'Signature Tournament', name: 'HK Open 2026', location: 'Hong Kong, China', region: 'Asia', segment: 'Competición', year: '2026', status: 'Proyecto publicado', image: media.courts.torneo, imageNote: 'Imagen de referencia aportada por KND. La fotografía final del proyecto se asignará tras su validación.' },
+  { slug: 'gutech-university-sports-project', courtModelCode: 'OP-01', courtModelName: 'Super Panoramic', name: 'GUtech University Sports Project', location: 'Oman', region: 'Oriente Medio', segment: 'Universidad', status: 'Proyecto publicado', image: media.courts.germanproject, imageNote: 'Imagen de referencia aportada por KND. La fotografía final del proyecto se asignará tras su validación.' },
+  { slug: 'indoor-padel-club-new-jersey', courtModelCode: 'OP-04', courtModelName: 'Full Super Panoramic', name: 'Indoor Padel Club', location: 'New Jersey, USA', region: 'América', segment: 'Club indoor', status: 'Proyecto publicado', image: media.courts.newjerseyproject, imageNote: 'Imagen de referencia aportada por KND. La fotografía final del proyecto se asignará tras su validación.' },
+  { slug: 'covered-court-guangzhou', courtModelCode: 'OP-02', courtModelName: 'Panoramic', name: 'Covered Court', location: 'Guangzhou, China', region: 'Asia', segment: 'Club cubierto', status: 'Proyecto publicado', image: media.courts.guangzhouproject, imageNote: 'Imagen de referencia aportada por KND. La fotografía final del proyecto se asignará tras su validación.' },
+  { slug: 'in-construction-batam', courtModelCode: 'OP-01', courtModelName: 'Super Panoramic', name: 'In Construction', location: 'Batam, Indonesia', region: 'Asia', segment: 'En construcción', status: 'En construcción', image: media.courts.indonesiaproject, imageNote: 'Imagen de referencia aportada por KND. La fotografía final del proyecto se asignará tras su validación.' },
+  { slug: 'panoramic-club-colombia', courtModelCode: 'OP-02', courtModelName: 'Panoramic', name: 'Panoramic Club', location: 'Colombia', region: 'América', segment: 'Club', status: 'Proyecto publicado', image: media.courts.colombiaproject, imageNote: 'Imagen de referencia aportada por KND. La fotografía final del proyecto se asignará tras su validación.' },
+  { slug: 'outdoor-club-kenya', courtModelCode: 'OP-02', courtModelName: 'Panoramic', name: 'Outdoor Club', location: 'Kenya', region: 'África', segment: 'Club outdoor', status: 'Proyecto publicado', image: media.courts.kenyaproject, imageNote: 'Imagen de referencia aportada por KND. La fotografía final del proyecto se asignará tras su validación.' },
 ]
 
 export const articles = [
   { slug: 'planificar-una-pista-de-padel', type: 'Guía de proyecto', date: '10.2026', title: 'Cómo planificar una pista de pádel que siga funcionando con los años.', excerpt: 'Los puntos que conectar antes de elegir sistema, superficie, implantación y calendario.', image: media.roofs.r1 },
-  { slug: 'que-hace-premium-a-un-club', type: 'Perspectiva', date: '09.2026', title: '¿Qué hace que un club de pádel se sienta realmente premium?', excerpt: 'No es una sola decisión: es el ritmo entre la luz, el recorrido, el juego y el detalle.', image: media.courts.curvedLighting },
+  { slug: 'que-hace-premium-a-un-club', type: 'Perspectiva', date: '09.2026', title: '¿Qué hace que un club de pádel se sienta realmente premium?', excerpt: 'No es una sola decisión: es el ritmo entre la luz, el recorrido, el juego y el detalle.', image: media.courts.torneo },
   { slug: 'jugar-con-sol-viento-y-lluvia', type: 'Notas de campo', date: '08.2026', title: 'Diseñar para el sol, el viento y el juego durante todo el año.', excerpt: 'Preguntas prácticas para decidir una cubierta y protección adecuadas al lugar.', image: media.roofs.r4 },
 ]
 
