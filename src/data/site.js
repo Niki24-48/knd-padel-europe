@@ -20,7 +20,10 @@ export const brand = {
 // configuration references until KND supplies a render-to-model mapping.
 export const media = {
   courts: {
+    partner: '/media/knd/courts/partner.jpg',
     portada: '/media/knd/courts/portada.jpg',
+    singlecourts: '/media/knd/courts/open-court-structural.jpg',
+    extreme: '/media/knd/courts/open-court-platform.jpg',
     straight: '/media/knd/courts/open-court-straight.jpg',
     curvedLighting: '/media/knd/courts/open-court-curved-lighting.jpg',
     structural: '/media/knd/courts/open-court-structural.jpg',
@@ -42,6 +45,7 @@ export const media = {
 }
 
 export const images = {
+  partner: media.courts.partner,
   portada: media.courts.portada,
   hero: media.courts.curvedLighting,
   courtBlue: media.courts.structural,
@@ -64,9 +68,9 @@ export const courts = [
   { id: 'panoramic', code: 'OP-02', name: 'Panoramic', strap: 'Maduro, estable y práctico', best: 'Operación diaria de club', price: 'A consultar', image: media.courts.straight, visual: 'panoramic', imageNote: renderReference, sheet: '/brand/brandbook-03.png', description: 'La combinación precisa de presencia panorámica, mantenimiento práctico y consistencia de juego.', facts: ['20 × 10 m', 'Vidrio templado 12 mm', '4 × 300 W LED'] },
   { id: 'signature-tournament', code: 'OP-03', name: 'Signature Tournament', strap: 'Modelo insignia de nivel torneo', best: 'Torneos y eventos', price: 'A consultar', image: media.courts.curvedLighting, visual: 'signature', imageNote: renderReference, sheet: '/brand/brandbook-04.png', description: 'Pensada para la presión de la competición: sightlines, detalle y una presencia que se recuerda.', facts: ['20 × 10 m', 'Vidrio templado 12 mm', '4 × 400 W Pro'] },
   { id: 'full-super-panoramic', code: 'OP-04', name: 'Full Super Panoramic', strap: 'Presencia premium, refinada y emblemática', best: 'Destinos premium', price: 'A consultar', image: media.courts.platform, visual: 'full-super-panoramic', imageNote: renderReference, sheet: '/brand/brandbook-05.png', description: 'Una plataforma de juego abierta y refinada para los entornos que exigen máxima transparencia.', facts: ['20 × 10 m', 'S12 Endurance', 'Galvanizado opcional'] },
-  { id: 'extreme', code: 'OP-05', name: 'Extreme', strap: 'Modelo reforzado para entornos exigentes', best: 'Climas expuestos, costa y alta rotación', price: 'A consultar', image: media.courts.structural, visual: 'extreme', imageNote: renderReference, sheet: '/brand/brandbook-06.png', description: 'Refuerzo, protección y especificación técnica para condiciones de viento, costa o uso exigente.', facts: ['20 × 10 m', 'Postes 150 × 150 mm', 'Galvanizado 120 μm'] },
+  { id: 'extreme', code: 'OP-05', name: 'Extreme', strap: 'Modelo reforzado para entornos exigentes', best: 'Climas expuestos, costa y alta rotación', price: 'A consultar', image: media.courts.extreme, visual: 'extreme', imageNote: renderReference, sheet: '/brand/brandbook-06.png', description: 'Refuerzo, protección y especificación técnica para condiciones de viento, costa o uso exigente.', facts: ['20 × 10 m', 'Postes 150 × 150 mm', 'Galvanizado 120 μm'] },
   { id: 'classic', code: 'OP-06', name: 'Classic', strap: 'Modelo tradicional multi-post estable', best: 'Clubs y comunidades', price: 'A consultar', image: media.courts.straight, visual: 'classic', imageNote: renderReference, sheet: '/brand/brandbook-07.png', description: 'Un sistema completo, robusto y adaptable que convierte una buena ubicación en un gran lugar para jugar.', facts: ['20 × 10 m', 'Vidrio de seguridad 12 mm', '8 × 200 W LED'] },
-  { id: 'single-court', code: 'OP-07', name: 'Single Court', strap: 'Compacto y flexible', best: 'Entrenamiento, residencial y medidas especiales', price: 'A consultar', image: media.courts.platform, visual: 'single', imageNote: renderReference, sheet: '/brand/brandbook-08.png', description: 'Una pista compacta y configurable para academias, hoteles, residencias y activaciones.', facts: ['20 × 6 m y especiales', 'Vidrio de seguridad 12 mm', '8 × 200 W LED'] },
+  { id: 'single-court', code: 'OP-07', name: 'Single Court', strap: 'Compacto y flexible', best: 'Entrenamiento, residencial y medidas especiales', price: 'A consultar', image: media.courts.singlecourts, visual: 'single', imageNote: renderReference, sheet: '/brand/brandbook-08.png', description: 'Una pista compacta y configurable para academias, hoteles, residencias y activaciones.', facts: ['20 × 6 m y especiales', 'Vidrio de seguridad 12 mm', '8 × 200 W LED'] },
 ]
 
 export const turfSystems = [

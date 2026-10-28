@@ -289,7 +289,7 @@ function HomePage({ navigate, openProject, t }) {
     </section>
     <Stats />
     <section className="section standard-section"><div className="container split-heading"><div><Eyebrow>EL ESTÁNDAR KND</Eyebrow><h2>Un partner.<br/>Cada detalle.<br/><em>Desde el plano<br/>hasta el primer punto.</em></h2></div><p>Planificación, fabricación, logística e instalación se conectan desde el inicio para que cada decisión sume al rendimiento del proyecto.</p></div>
-      <div className="container standard-grid"><figure className="feature-image"><img src={images.projectOne} alt="Pista de pádel KND en exterior"/><figcaption>01 <span>Diseñado alrededor de tu lugar, clima y ambición.</span></figcaption></figure><div className="numbered-list">{[
+      <div className="container standard-grid"><figure className="feature-image"><img src={images.partner} alt="Vista de obra"/><figcaption>01 <span>Diseñado alrededor de tu lugar, clima y ambición.</span></figcaption></figure><div className="numbered-list">{[
         ['01', 'Visión de conjunto', 'Diseño, coordinación técnica y una especificación que habla el idioma del sitio.'],
         ['02', 'Fabricación controlada', 'Acero, vidrio, césped, luz y acabados conectados bajo una misma conversación.'],
         ['03', 'Preparado para tu entorno', 'Opciones pensadas para viento, costa, calor, normas locales y operación sostenida.'],
