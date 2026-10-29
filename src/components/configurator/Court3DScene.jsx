@@ -12,7 +12,8 @@ import React, {
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { Line, OrbitControls } from '@react-three/drei'
 import * as THREE from 'three'
-import KndModularCourt from './KndModularCourt.jsx'
+import KndModularCourt, { clearKndModelCache } from './KndModularCourt.jsx'
+import { resolveProvidedModelSelection } from './providedModelCatalog.js'
 import './Court3DScene.css'
 
 export const COURT_VIEW_KEYS = ['perspective', 'top', 'end', 'side']
@@ -135,13 +136,15 @@ const SCENE_COPY = {
   es: {
     aria: (name, width) => `Configurador 3D de ${name}, pista de ${width} por 20 metros`,
     toolbar: 'Controles de cámara 3D', reset: 'Reiniciar', saving: 'Guardando…', save: 'Guardar PNG',
-    glass: 'Vidrio', day: 'Día', evening: 'Atardecer', night: 'Noche', modular: 'GLB KND', fallback: 'Fallback paramétrico',
+    glass: 'Vidrio', day: 'Día', evening: 'Atardecer', night: 'Noche', modular: 'GLB modular', loading: 'Cargando GLB', fallback: 'Fallback paramétrico',
+    retry: 'Reintentar carga 3D', loadError: 'No se ha podido cargar el modelo 3D.', glassPending: 'El espesor seleccionado se conserva para la propuesta; el GLB mostrado representa 12 mm.',
     disclaimer: 'Se carga geometría modular propia de KND solo cuando su manifiesto está validado; mientras tanto se muestra el fallback paramétrico. Estructura, uniones y dimensiones finales requieren ingeniería KND.',
   },
   en: {
     aria: (name, width) => `3D configurator for ${name}, ${width} by 20 metre court`,
     toolbar: '3D camera controls', reset: 'Reset', saving: 'Saving…', save: 'Save PNG',
-    glass: 'Glass', day: 'Day', evening: 'Evening', night: 'Night', modular: 'KND GLB', fallback: 'Parametric fallback',
+    glass: 'Glass', day: 'Day', evening: 'Evening', night: 'Night', modular: 'Modular GLB', loading: 'Loading GLB', fallback: 'Parametric fallback',
+    retry: 'Retry 3D load', loadError: 'The 3D model could not be loaded.', glassPending: 'The selected thickness is retained for the proposal; the displayed GLB represents 12 mm.',
     disclaimer: 'KND-owned modular geometry loads only after its manifest has been validated; until then the parametric fallback remains visible. Final structure, connections and dimensions require KND engineering.',
   },
 }
@@ -659,6 +662,42 @@ function ProtectionPads({ width }) {
   )
 }
 
+function sourcePointToScene(point) {
+  if (!Array.isArray(point) || point.length !== 3) return null
+  return [point[2], point[1], -point[0]]
+}
+
+function ManifestProtectionPads({ layout, fallbackWidth }) {
+  const netPads = (layout?.netPosts || [])
+    .map((post) => sourcePointToScene(post.protectionCenter || post.position))
+    .filter(Boolean)
+  const entryPads = (layout?.entries || []).flatMap((entry) => (
+    (entry.jambs || []).map((jamb) => ({
+      position: sourcePointToScene(jamb.position),
+      height: Math.min(1.5, Math.max(1.1, entry.height * 0.68)),
+    })).filter((item) => item.position)
+  ))
+
+  if (!netPads.length && !entryPads.length) return <ProtectionPads width={fallbackWidth} />
+
+  return (
+    <group name="orientative-protection-kit" userData={{ status: 'orientative-not-engineering-validated' }}>
+      {netPads.map((position, index) => (
+        <mesh key={`manifest-net-pad-${index}`} position={position} castShadow>
+          <cylinderGeometry args={[0.12, 0.12, 0.82, 16]} />
+          <meshStandardMaterial color="#121a1d" roughness={0.88} />
+        </mesh>
+      ))}
+      {entryPads.map(({ position, height }, index) => (
+        <mesh key={`manifest-entry-pad-${index}`} position={[position[0], height / 2, position[2]]} castShadow>
+          <cylinderGeometry args={[0.14, 0.14, height, 16]} />
+          <meshStandardMaterial color="#121a1d" roughness={0.9} />
+        </mesh>
+      ))}
+    </group>
+  )
+}
+
 function CourtNet({ width, frameColor, protection }) {
   return (
     <group>
@@ -974,16 +1013,27 @@ function CourtWorld({
   environment,
   glassThickness,
   lightsOn,
+  reinforcedFrame,
+  retryToken,
   onModuleStatusChange,
 }) {
   const { width } = modelVisual
-  const moduleRequestKey = [
+  const providedSelection = useMemo(() => resolveProvidedModelSelection({
     modelId,
     poleStyle,
-    mobileBase ? 'mobile' : 'anchored',
-    protection ? 'protected' : 'standard',
-    glassThickness,
-  ].join(':')
+    mobileBase,
+    reinforcedFrame,
+  }), [modelId, mobileBase, poleStyle, reinforcedFrame])
+  const providedPreviewAvailable = Boolean(providedSelection.asset && providedSelection.compatible)
+    && (import.meta.env.DEV || providedSelection.rights?.publicationAllowed === true)
+  const moduleRequestKey = providedPreviewAvailable
+    ? [
+      providedSelection.assetId,
+      providedSelection.asset.frame,
+      providedSelection.asset.poles,
+      providedSelection.asset.mobileBase || 'anchored',
+    ].join(':')
+    : modelId
   const [moduleStatus, setModuleStatus] = useState({ phase: 'checking', componentKeys: [], requestKey: '' })
   const handleModuleStatus = useCallback((next) => {
     const scoped = { ...next, requestKey: moduleRequestKey }
@@ -998,15 +1048,33 @@ function CourtWorld({
       handlesLighting: false,
     })
   }, [handleModuleStatus])
+
+  useEffect(() => {
+    const next = {
+      phase: 'checking',
+      reason: providedPreviewAvailable ? 'loading-provided-bundle' : 'checking-knd-index',
+      componentKeys: [],
+      requestKey: moduleRequestKey,
+      selection: providedPreviewAvailable ? providedSelection : null,
+    }
+    setModuleStatus(next)
+    onModuleStatusChange?.(next)
+  }, [moduleRequestKey, onModuleStatusChange, providedPreviewAvailable, providedSelection, retryToken])
+
   const moduleKeys = moduleStatus.componentKeys || []
   const modularReady = moduleStatus.phase === 'ready' && moduleStatus.requestKey === moduleRequestKey
   const modularPoles = modularReady && moduleKeys.includes('poles')
-  const modularMobileBase = modularReady && mobileBase && moduleKeys.includes('mobileBase')
+  const modularMobileBase = providedPreviewAvailable
+    ? Boolean(providedSelection.resolved?.mobileBase)
+    : modularReady && mobileBase && moduleKeys.includes('mobileBase')
   const modularProtection = modularReady && protection && moduleKeys.includes('protection')
-  const modularLighting = modularReady && moduleStatus.handlesLighting
+  const modularLighting = providedPreviewAvailable || (modularReady && moduleStatus.handlesLighting)
+  const structuralGlbExpected = providedPreviewAvailable || modularReady
+  const renderParametricCourt = !providedPreviewAvailable && !modularReady
+  const protectionLayout = providedSelection.asset?.layout || moduleStatus.manifest?.layout
   return (
     <group>
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, mobileBase ? -0.3 : -0.17, 0]} receiveShadow>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, modularMobileBase ? -0.3 : -0.17, 0]} receiveShadow>
         <planeGeometry args={[58, 58]} />
         <meshStandardMaterial color={environment === 'night' ? '#15202c' : environment === 'evening' ? '#aaa9a5' : '#efeee9'} roughness={1} />
       </mesh>
@@ -1014,12 +1082,12 @@ function CourtWorld({
         width={width}
         turfColor={turfColor}
         turfTexture={turfTexture}
-        mobileBase={mobileBase}
+        mobileBase={modularMobileBase}
         frameColor={frameColor}
         renderBase={!modularMobileBase}
-        surfaceY={modularReady ? 0 : 0.015}
+        surfaceY={structuralGlbExpected ? 0 : 0.015}
       />
-      {!modularReady && (
+      {renderParametricCourt && (
         <>
           <CourtEnvelope
             width={width}
@@ -1031,7 +1099,7 @@ function CourtWorld({
           <CourtNet width={width} frameColor={frameColor} protection={protection} />
         </>
       )}
-      <CourtModuleErrorBoundary key={moduleRequestKey} onError={handleModuleError}>
+      <CourtModuleErrorBoundary key={`${moduleRequestKey}:${retryToken}`} onError={handleModuleError}>
         <Suspense fallback={null}>
           <KndModularCourt
             modelId={modelId}
@@ -1043,13 +1111,18 @@ function CourtWorld({
             lighting={lighting}
             environment={environment}
             lightsOn={lightsOn}
-            active={modularReady}
+            reinforcedFrame={reinforcedFrame}
+            providedSelection={providedPreviewAvailable ? providedSelection : undefined}
+            active={providedPreviewAvailable || modularReady}
             onStatusChange={handleModuleStatus}
           />
         </Suspense>
       </CourtModuleErrorBoundary>
-      {modularReady && protection && !modularProtection && <ProtectionPads width={width} />}
-      {!modularLighting && (
+      {providedPreviewAvailable && protection && (
+        <ManifestProtectionPads layout={protectionLayout} fallbackWidth={width} />
+      )}
+      {!providedPreviewAvailable && modularReady && protection && !modularProtection && <ProtectionPads width={width} />}
+      {!providedPreviewAvailable && !modularLighting && (
         <CourtLighting
           width={width}
           lighting={lighting}
@@ -1060,8 +1133,7 @@ function CourtWorld({
           renderPoles={!modularPoles}
         />
       )}
-      <RoofSystem roofId={roofId} width={width} frameColor={frameColor} />
-      {!mobileBase && !modularReady && <AnchorPlates width={width} frameColor={frameColor} />}
+      {!mobileBase && renderParametricCourt && <AnchorPlates width={width} frameColor={frameColor} />}
     </group>
   )
 }
@@ -1112,6 +1184,7 @@ const Court3DScene = forwardRef(function Court3DScene({
   environment,
   glassThickness,
   lightsOn,
+  reinforcedFrame,
   view: controlledView,
   onViewChange,
   captureRequest,
@@ -1125,6 +1198,7 @@ const Court3DScene = forwardRef(function Court3DScene({
   const [resetToken, setResetToken] = useState(0)
   const [captureBusy, setCaptureBusy] = useState(false)
   const [moduleStatus, setModuleStatus] = useState({ phase: 'checking', componentKeys: [] })
+  const [moduleRetryToken, setModuleRetryToken] = useState(0)
   const renderStateRef = useRef(null)
   const controlsRef = useRef(null)
   const previousCaptureRequest = useRef(captureRequest)
@@ -1138,11 +1212,14 @@ const Court3DScene = forwardRef(function Court3DScene({
   const resolvedLighting = resolveLighting(lighting, config)
   const resolvedPoleStyle = resolvePoleStyle(poleStyle, config)
   const resolvedProtection = resolveProtection(protection, config)
-  const resolvedRoof = resolveRoofId(roof, config)
+  // Roofs stay in their independent commercial flow until reliable 3D assets
+  // exist. Legacy roof values are deliberately ignored by this viewer.
+  const resolvedRoof = ''
   const resolvedMobileBase = resolveMobileBase(installation, config)
   const resolvedEnvironment = resolveEnvironment(environment, config)
   const resolvedGlassThickness = resolveGlassThickness(glassThickness, config)
   const resolvedLightsOn = resolveLightsOn(lightsOn, config, resolvedEnvironment)
+  const resolvedReinforcedFrame = reinforcedFrame ?? (config?.frameVariant === 'frame150')
   // Supplier swatch photography is not automatically treated as a seamless
   // tile. Pass turfTexture/turfImage explicitly when a tileable image exists.
   const resolvedTurfTexture = turfTexture || turfImage || turfFinish?.texture || ''
@@ -1210,6 +1287,8 @@ const Court3DScene = forwardRef(function Court3DScene({
     environment: resolvedEnvironment,
     glassThickness: resolvedGlassThickness,
     lightsOn: resolvedLightsOn,
+    reinforcedFrame: resolvedReinforcedFrame,
+    retryToken: moduleRetryToken,
   }), [
     modelVisual,
     resolvedModelId,
@@ -1222,9 +1301,23 @@ const Court3DScene = forwardRef(function Court3DScene({
     resolvedPoleStyle,
     resolvedProtection,
     resolvedRoof,
+    resolvedReinforcedFrame,
     resolvedTurfColor,
     resolvedTurfTexture,
+    moduleRetryToken,
   ])
+
+  const retryModule = useCallback(() => {
+    const assetId = moduleStatus.selection?.assetId || null
+    clearKndModelCache(assetId)
+    setModuleStatus({ phase: 'checking', reason: 'manual-retry', componentKeys: [] })
+    setModuleRetryToken((token) => token + 1)
+  }, [moduleStatus.selection?.assetId])
+
+  const diagnosticMode = useMemo(() => {
+    if (!import.meta.env.DEV || typeof window === 'undefined') return false
+    return new URLSearchParams(window.location.search).get('debug3d') === '1'
+  }, [])
 
   const modelName = court?.name || valueId(model) || resolvedModelId.replaceAll('-', ' ')
   const label = ariaLabel || sceneText.aria(modelName, modelVisual.width)
@@ -1255,6 +1348,14 @@ const Court3DScene = forwardRef(function Court3DScene({
         </SceneErrorBoundary>
       </div>
 
+      {moduleStatus.phase === 'error' && (
+        <div className="knd-court3d-module-error" role="alert">
+          <strong>{sceneText.loadError}</strong>
+          <small>{moduleStatus.reason}</small>
+          <button type="button" onClick={retryModule}>{sceneText.retry}</button>
+        </div>
+      )}
+
       {showToolbar && (
         <div className="knd-court3d-toolbar" role="toolbar" aria-label={sceneText.toolbar}>
           {COURT_VIEW_KEYS.map((item) => (
@@ -1279,11 +1380,27 @@ const Court3DScene = forwardRef(function Court3DScene({
         <span>{modelVisual.width} × 20 m</span>
         <span>{sceneText.glass} {Math.round(resolvedGlassThickness * 1000)} mm</span>
         <span>{resolvedEnvironment === 'night' ? sceneText.night : resolvedEnvironment === 'evening' ? sceneText.evening : sceneText.day}</span>
-        <span>{moduleStatus.phase === 'ready' ? sceneText.modular : sceneText.fallback}</span>
+        <span>{moduleStatus.phase === 'ready' ? sceneText.modular : moduleStatus.phase === 'checking' ? sceneText.loading : sceneText.fallback}</span>
       </div>
+      {Math.round(resolvedGlassThickness * 1000) !== 12 && <p className="knd-court3d-option-note">{sceneText.glassPending}</p>}
       <p className="knd-court3d-disclaimer">
         {sceneText.disclaimer}
       </p>
+      {diagnosticMode && (
+        <details className="knd-court3d-diagnostics" open>
+          <summary>3D diagnostics</summary>
+          <pre>{JSON.stringify({
+            modelId: resolvedModelId,
+            poleStyle: resolvedPoleStyle,
+            frameVariant: resolvedReinforcedFrame ? 'frame150' : 'standard',
+            phase: moduleStatus.phase,
+            reason: moduleStatus.reason,
+            components: moduleStatus.componentKeys,
+            selection: moduleStatus.selection,
+            diagnostics: moduleStatus.diagnostics,
+          }, null, 2)}</pre>
+        </details>
+      )}
     </div>
   )
 })

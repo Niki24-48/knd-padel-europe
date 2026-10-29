@@ -138,6 +138,86 @@
   pointer-events: none;
 }
 
+.knd-court3d-module-error {
+  position: absolute;
+  z-index: 8;
+  top: 50%;
+  left: 50%;
+  display: grid;
+  width: min(28rem, calc(100% - 2rem));
+  gap: 0.65rem;
+  padding: 1.1rem;
+  border: 1px solid rgb(255 255 255 / 20%);
+  border-radius: 0.75rem;
+  background: rgb(4 16 27 / 92%);
+  box-shadow: 0 1.2rem 3rem rgb(0 0 0 / 28%);
+  transform: translate(-50%, -50%);
+  backdrop-filter: blur(14px);
+}
+
+.knd-court3d-module-error small {
+  color: rgb(255 255 255 / 68%);
+  line-height: 1.45;
+}
+
+.knd-court3d-module-error button {
+  justify-self: start;
+  min-height: 2.4rem;
+  padding: 0 0.9rem;
+  border: 0;
+  border-radius: 999px;
+  background: var(--knd-3d-accent);
+  color: var(--knd-3d-ink);
+  font: inherit;
+  font-size: 0.68rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.knd-court3d-option-note {
+  position: absolute;
+  z-index: 4;
+  right: 1rem;
+  bottom: 4.95rem;
+  max-width: 27rem;
+  margin: 0;
+  padding: 0.48rem 0.65rem;
+  border-radius: 0.4rem;
+  background: rgb(4 16 27 / 72%);
+  color: rgb(255 255 255 / 78%);
+  font-size: 0.64rem;
+  line-height: 1.4;
+  pointer-events: none;
+}
+
+.knd-court3d-diagnostics {
+  position: absolute;
+  z-index: 20;
+  top: 4.5rem;
+  right: 0.75rem;
+  width: min(28rem, calc(100% - 1.5rem));
+  max-height: calc(100% - 8rem);
+  padding: 0.75rem;
+  overflow: auto;
+  border: 1px solid rgb(211 246 5 / 42%);
+  border-radius: 0.5rem;
+  background: rgb(3 12 22 / 92%);
+  color: #fff;
+  font-size: 0.68rem;
+}
+
+.knd-court3d-diagnostics summary {
+  color: var(--knd-3d-accent);
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.knd-court3d-diagnostics pre {
+  margin: 0.75rem 0 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
 .knd-court3d-fallback {
   position: absolute;
   inset: 0;
@@ -218,6 +298,12 @@
     bottom: 0.65rem;
     left: 0.7rem;
     font-size: 0.62rem;
+  }
+
+  .knd-court3d-option-note {
+    right: 0.7rem;
+    bottom: 5.6rem;
+    left: 0.7rem;
   }
 }
 

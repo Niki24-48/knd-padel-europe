@@ -307,7 +307,41 @@ Los propios manifests describen las dimensiones personalizadas, secciones reforz
 | OP06 | Completo respecto al manifest | Validada | Pendiente de derechos y marca | No validada |
 | OP07 | Completo respecto al manifest | Validada | Pendiente de derechos y marca | No validada |
 
-La integración inicial debe limitarse a OP01, conservar el fallback paramétrico y no habilitar otros modelos hasta completar su revisión visual y confirmar los derechos de publicación.
+Los diez bundles pueden habilitarse únicamente como vista previa de desarrollo, conservando un fallback seguro y el bloqueo de producción. Ninguno debe publicarse hasta completar su revisión visual y confirmar documentalmente los derechos.
+
+## 11. Matriz normalizada de compatibilidad
+
+La tabla siguiente resume los datos consumibles del manifest. Cada tipo de poste dispone de cuatro mounts. `protectionCenter` corresponde a los dos postes de red, no a una pieza GLB separada.
+
+| Bundle | Variante | Postes/mounts | Entradas, centros | `protectionCenter` | Base móvil | Frame 150 |
+|---|---|---|---|---|---|---|
+| `op01` | estándar | curved ×4; angled ×4 | `[0,0.9975,-5.038]`; `[0,0.9975,5.038]` | `[0,0.5075,-5.044]`; `[0,0.5075,5.044]` | No | No |
+| `op01-angled` | angled | angled ×4 | `[0,0.9975,-5.038]`; `[0,0.9975,5.038]` | `[0,0.5075,-5.044]`; `[0,0.5075,5.044]` | No | No |
+| `op02` | estándar | curved ×4; angled ×4 | `[0,0.9975,-5.038]`; `[0,0.9975,5.038]` | `[0,0.5075,5.058]`; `[0,0.5075,-5.058]` | No | No |
+| `op02-angled` | angled | angled ×4 | `[0,0.9975,-5.038]`; `[0,0.9975,5.038]` | `[0,0.5075,5.058]`; `[0,0.5075,-5.058]` | No | No |
+| `op03` | estándar | curved ×4 | `[0,1.107,-5.034]`; `[0,1.107,5.034]` | `[0,0.5075,-5.064]`; `[0,0.5075,5.064]` | No | No |
+| `op03-mobile` | mobile | curved ×4 | `[0,1.1065,-5.034]`; `[0,1.1065,5.034]` | `[0,0.5175,-5.057]`; `[0,0.5175,5.057]` | Sí, propia | No |
+| `op04` | estándar | straight ×4 | `[0,1.1045,-5.034]`; `[0,1.1045,5.034]` | `[0,0.5075,5.059]`; `[0,0.5075,-5.059]` | No | No |
+| `op05` | estándar | curved ×4 | `[0.003,0.9975,-5.037]`; `[0,0.9975,5.037]` | `[0,0.5075,5.057]`; `[0,0.5075,-5.057]` | No | Sí |
+| `op06` | estándar | straight ×4 | `[0,0.9975,-5.038]`; `[0,0.9975,5.038]` | `[0,0.5075,-5.058]`; `[0,0.5075,5.058]` | No | No |
+| `op07` | single 20 × 6 | curved ×4 | `[0,1.093,-3.028]`; `[0,1.093,3.028]` | `[0,0.5095,3.058]`; `[0,0.5095,-3.058]` | No | No |
+
+La base móvil no es compatible con otros bundles según el paquete recibido. `frame150` sólo es compatible con OP05. Las variantes angled de OP01 y OP02 tienen manifests y sets completos propios; los manifests base también declaran una referencia cruzada explícita a sus postes angled.
+
+## 12. Catálogo y adaptador de selección
+
+La fuente central está en `src/components/configurator/providedModelCatalog.js`. Expone:
+
+- `PROVIDED_MODEL_CATALOG`: snapshot normalizado de los diez manifests;
+- `selectProvidedModelComponents(assetId, options)`: selección técnica directa por bundle;
+- `getProvidedModelCompatibility(modelId)` e `isProvidedModelSelectionCompatible(selection)`: consulta de compatibilidad para la interfaz;
+- `normalizeProvidedManifest(manifest, requestedId)`: validación de versión, ejes, huella y rutas contra la auditoría;
+- `resolveProvidedModelSelection({ modelId, poleStyle, mobileBase, reinforcedFrame })`: adaptador entre IDs comerciales del configurador y bundles GLB;
+- `PROVIDED_ASSET_RIGHTS` y `RIGHTS_BLOCKED_PROVIDED_MODELS`: bloqueo explícito de publicación.
+
+El resolver ignora deliberadamente accesorios como protección y grosor de vidrio, ya que no seleccionan otra geometría suministrada. Un estilo de poste no suministrado carga el bundle base del modelo y devuelve `requestedPoleUnsupported: true`; no inventa una geometría. Las solicitudes de base móvil o frame reforzado fuera de sus bundles documentados se consideran incompatibles.
+
+`providedModelAssets.js` mantiene una vista plana retrocompatible para el cargador existente. Los diez bundles están disponibles para vista previa de desarrollo, pero siguen bloqueados para publicación mediante el estado de derechos y el proceso de retirada de assets en producción.
 
 ## 11. Integración local realizada
 

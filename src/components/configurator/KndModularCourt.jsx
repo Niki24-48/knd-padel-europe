@@ -3,34 +3,26 @@ import { useGLTF } from '@react-three/drei'
 import * as THREE from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js'
-import { ACTIVE_PROVIDED_MODELS, PROVIDED_MODEL_ASSETS } from './providedModelAssets.js'
+import {
+  PROVIDED_MODEL_CATALOG,
+  getProvidedModelRecord,
+  normalizeProvidedManifest,
+  resolveProvidedModelSelection,
+  selectProvidedModelComponents,
+} from './providedModelCatalog.js'
 
 const DEFAULT_INDEX_URL = '/models/knd/index.json'
 const REQUIRED_COMPONENTS = ['frame', 'glass', 'fence', 'net']
-const STRUCTURE_COMPONENTS = new Set(['frame', 'fence', 'poles', 'mobileBase'])
-const PROVIDED_COMPONENT_KEYS = ['frame', 'glass', 'fence', 'net', 'poles']
+const REQUIRED_PROVIDED_COMPONENTS = ['frame', 'glass', 'fence', 'net', 'poles']
+const STRUCTURE_ROLES = new Set(['structure', 'frame', 'fence', 'poles', 'mobileBase'])
+const SHADOW_CASTING_COMPONENTS = new Set(['frame', 'poles', 'mobileBase'])
 const jsonCache = new Map()
 const glbCache = new Map()
+const pendingMaterialDisposals = new WeakMap()
 
-// Supplier files remain local-only while commercial publication and
-// redistribution rights are documented. Production keeps using the existing
-// KND/fallback contract even if these files are present on disk.
-const RIGHTS_PENDING_ASSETS_ENABLED = import.meta.env.DEV
-
-const OP01_LIGHT_MOUNTS = {
-  op01: [
-    { position: [-5.12585, 5.811142, 6.02], target: [0, 0, 4.214], width: 0.7 },
-    { position: [5.12585, 5.811142, 6.02], target: [0, 0, 4.214], width: 0.7 },
-    { position: [-5.12585, 5.811142, -6.02], target: [0, 0, -4.214], width: 0.7 },
-    { position: [5.12585, 5.811142, -6.02], target: [0, 0, -4.214], width: 0.7 },
-  ],
-  'op01-angled': [
-    { position: [-5.0265, 5.806, 6.0765], target: [0, 0, 4.25355], width: 0.7 },
-    { position: [5.0265, 5.806, 6.0765], target: [0, 0, 4.25355], width: 0.7 },
-    { position: [-5.0265, 5.806, -6.0265], target: [0, 0, -4.21855], width: 1.2 },
-    { position: [5.0265, 5.806, -6.0265], target: [0, 0, -4.21855], width: 1.2 },
-  ],
-}
+// The supplied package remains a development preview until the catalogue says
+// publication is allowed. This switch does not constitute a rights decision.
+const DEVELOPMENT_PREVIEW_ENABLED = import.meta.env.DEV
 
 function fetchJson(url) {
   if (!jsonCache.has(url)) {
@@ -82,6 +74,91 @@ function validateManifest(manifest, modelId) {
   return manifest
 }
 
+function vectorArray(vector) {
+  return [vector.x, vector.y, vector.z].map((value) => Number(value.toFixed(6)))
+}
+
+function inspectScene(scene, key, url) {
+  scene.updateMatrixWorld(true)
+  const bounds = new THREE.Box3().setFromObject(scene, true)
+  const materialNames = new Set()
+  let meshCount = 0
+  let vertexCount = 0
+  let triangleCount = 0
+
+  scene.traverse((child) => {
+    if (!child.isMesh) return
+    meshCount += 1
+    const positions = child.geometry?.getAttribute?.('position')
+    const indices = child.geometry?.getIndex?.()
+    const vertices = positions?.count || 0
+    vertexCount += vertices
+    triangleCount += Math.floor((indices?.count || vertices) / 3)
+    const materials = Array.isArray(child.material) ? child.material : [child.material]
+    materials.filter(Boolean).forEach((material) => materialNames.add(material.name || material.type || 'unnamed'))
+  })
+
+  const hasFiniteBounds = !bounds.isEmpty()
+    && [bounds.min.x, bounds.min.y, bounds.min.z, bounds.max.x, bounds.max.y, bounds.max.z].every(Number.isFinite)
+  const size = hasFiniteBounds ? bounds.getSize(new THREE.Vector3()) : null
+  const center = hasFiniteBounds ? bounds.getCenter(new THREE.Vector3()) : null
+  const identityQuaternion = new THREE.Quaternion()
+  const rootTransformIsIdentity = scene.position.lengthSq() < 1e-12
+    && scene.quaternion.angleTo(identityQuaternion) < 1e-8
+    && scene.scale.distanceTo(new THREE.Vector3(1, 1, 1)) < 1e-8
+
+  return {
+    key,
+    url,
+    meshCount,
+    vertexCount,
+    triangleCount,
+    materialCount: materialNames.size,
+    materialNames: [...materialNames],
+    bounds: hasFiniteBounds ? {
+      min: vectorArray(bounds.min),
+      max: vectorArray(bounds.max),
+      size: vectorArray(size),
+      center: vectorArray(center),
+    } : null,
+    rootTransform: {
+      position: vectorArray(scene.position),
+      quaternion: [scene.quaternion.x, scene.quaternion.y, scene.quaternion.z, scene.quaternion.w]
+        .map((value) => Number(value.toFixed(8))),
+      scale: vectorArray(scene.scale),
+      identity: rootTransformIsIdentity,
+    },
+  }
+}
+
+function diagnoseScenes(entries) {
+  const components = entries.map(({ key, url, scene }) => inspectScene(scene, key, url))
+  const invalid = components.filter((component) => component.meshCount === 0 || !component.bounds)
+  if (invalid.length) {
+    throw new Error(`GLB sin geometría utilizable: ${invalid.map((component) => component.key).join(', ')}.`)
+  }
+
+  const assemblyBounds = new THREE.Box3()
+  components.forEach((component) => {
+    assemblyBounds.expandByPoint(new THREE.Vector3(...component.bounds.min))
+    assemblyBounds.expandByPoint(new THREE.Vector3(...component.bounds.max))
+  })
+  const rootSignatures = new Set(components.map((component) => JSON.stringify(component.rootTransform)))
+
+  return {
+    componentCount: components.length,
+    components,
+    assemblyBounds: {
+      min: vectorArray(assemblyBounds.min),
+      max: vectorArray(assemblyBounds.max),
+      size: vectorArray(assemblyBounds.getSize(new THREE.Vector3())),
+      center: vectorArray(assemblyBounds.getCenter(new THREE.Vector3())),
+    },
+    sharedRootTransform: rootSignatures.size === 1,
+    warnings: rootSignatures.size === 1 ? [] : ['component-root-transforms-differ'],
+  }
+}
+
 async function loadModelBundle(modelId, indexUrl) {
   const index = await fetchJson(indexUrl)
   const record = index?.models?.[modelId]
@@ -104,16 +181,20 @@ async function loadModelBundle(modelId, indexUrl) {
   }))
 
   const components = Object.fromEntries(loaded.filter(Boolean))
+  const diagnostics = diagnoseScenes(
+    Object.entries(components).map(([key, component]) => ({ key, url: component.url, scene: component.scene })),
+  )
   return {
     phase: 'ready',
     reason: 'knd-modular-glb',
     manifest,
     components,
     componentKeys: Object.keys(components),
+    diagnostics,
   }
 }
 
-function createRoleMaterial(role, frameColor, glassThickness) {
+function createFallbackRoleMaterial(role, frameColor, glassThickness) {
   if (role === 'glass') {
     return new THREE.MeshPhysicalMaterial({
       color: '#d7eff5',
@@ -136,24 +217,86 @@ function createRoleMaterial(role, frameColor, glassThickness) {
   return new THREE.MeshStandardMaterial({ color: frameColor, metalness: 0.68, roughness: 0.38, side: THREE.DoubleSide })
 }
 
+function cloneMaterialForRole(source, role, frameColor, glassThickness) {
+  const material = source?.clone?.() || createFallbackRoleMaterial(role, frameColor, glassThickness)
+  if (STRUCTURE_ROLES.has(role) && material.color) material.color.set(frameColor)
+  if (role === 'protection' && material.color) material.color.set('#121a1d')
+  if (role === 'glass') {
+    material.side = THREE.DoubleSide
+    if ('thickness' in material && Number.isFinite(glassThickness)) material.thickness = glassThickness
+  }
+  material.needsUpdate = true
+  return material
+}
+
+function cloneSceneWithMaterials(scene, { key, role, frameColor, glassThickness, name }) {
+  const object = scene.clone(true)
+  const materialMap = new Map()
+  const materials = []
+
+  const cloneMaterial = (source) => {
+    if (source && materialMap.has(source)) return materialMap.get(source)
+    const material = cloneMaterialForRole(source, role, frameColor, glassThickness)
+    if (source) materialMap.set(source, material)
+    materials.push(material)
+    return material
+  }
+
+  object.traverse((child) => {
+    if (!child.isMesh) return
+    child.material = Array.isArray(child.material)
+      ? child.material.map(cloneMaterial)
+      : cloneMaterial(child.material)
+    child.castShadow = SHADOW_CASTING_COMPONENTS.has(key)
+    child.receiveShadow = key !== 'glass' && key !== 'net'
+  })
+  object.name = name
+  return { object, materials }
+}
+
+// StrictMode runs an effect cleanup/setup pair during development. Deferring
+// disposal lets the second setup cancel that synthetic cleanup while still
+// disposing owned clones after a real unmount.
+function retainOwnedMaterials(materials) {
+  materials.forEach((material) => {
+    const pending = pendingMaterialDisposals.get(material)
+    if (pending != null) {
+      clearTimeout(pending)
+      pendingMaterialDisposals.delete(material)
+    }
+  })
+
+  return () => {
+    materials.forEach((material) => {
+      const timer = setTimeout(() => {
+        material.dispose()
+        pendingMaterialDisposals.delete(material)
+      }, 0)
+      pendingMaterialDisposals.set(material, timer)
+    })
+  }
+}
+
+function useOwnedMaterials(materials) {
+  useEffect(() => retainOwnedMaterials(materials), [materials])
+}
+
 function prepareValidatedComponents(bundle, frameColor, glassThickness) {
   if (bundle.phase !== 'ready') return { objects: [], materials: [] }
   const materials = []
   const objects = Object.entries(bundle.components).map(([key, component]) => {
-    const role = component.materialRole || (STRUCTURE_COMPONENTS.has(key) ? 'structure' : key)
-    const material = createRoleMaterial(role, frameColor, glassThickness)
-    materials.push(material)
-    const object = component.scene.clone(true)
-    object.name = `knd-${bundle.manifest.id}-${key}`
-    object.traverse((child) => {
-      if (!child.isMesh) return
-      child.castShadow = role !== 'glass'
-      child.receiveShadow = true
-      child.material = material
+    const role = component.materialRole || key
+    const prepared = cloneSceneWithMaterials(component.scene, {
+      key,
+      role,
+      frameColor,
+      glassThickness,
+      name: `knd-${bundle.manifest.id}-${key}`,
     })
+    materials.push(...prepared.materials)
     return {
       key,
-      object,
+      object: prepared.object,
       position: asTransform(component.position, [0, 0, 0]),
       rotation: asTransform(component.rotation, [0, 0, 0]),
       scale: asTransform(component.scale, [1, 1, 1]),
@@ -162,54 +305,206 @@ function prepareValidatedComponents(bundle, frameColor, glassThickness) {
   return { objects, materials }
 }
 
-function cloneProvidedScene(scene, role, frameColor) {
-  const object = scene.clone(true)
-  const materials = []
-  object.traverse((child) => {
-    if (!child.isMesh) return
-    const sourceMaterials = Array.isArray(child.material) ? child.material : [child.material]
-    const clonedMaterials = sourceMaterials.map((source) => {
-      const material = source.clone()
-      if ((role === 'frame' || role === 'poles') && material.color) material.color.set(frameColor)
-      materials.push(material)
-      return material
-    })
-    child.material = Array.isArray(child.material) ? clonedMaterials : clonedMaterials[0]
-    // Dense CAD fence/net geometry produces heavy shadow-map aliasing on the
-    // turf. Keep shadows on the structural steel and poles only.
-    child.castShadow = role === 'frame' || role === 'poles'
-    child.receiveShadow = role === 'frame' || role === 'poles'
-  })
-  object.name = `rights-pending-op01-${role}`
-  return { object, materials }
+function providedComponentEntries(asset) {
+  return [
+    ['frame', asset.frame],
+    ['glass', asset.glass],
+    ['fence', asset.fence],
+    ['net', asset.net],
+    ['poles', asset.poles],
+    ...(asset.mobileBase ? [['mobileBase', asset.mobileBase]] : []),
+  ].map(([key, url]) => ({ key, url }))
 }
 
-function ProvidedGlbModule({ scene, role, frameColor }) {
-  const prepared = useMemo(() => cloneProvidedScene(scene, role, frameColor), [frameColor, role, scene])
+function collectRecordPaths(record) {
+  if (!record) return []
+  return [...new Set([
+    ...Object.values(record.components?.frame || {}),
+    record.components?.glass,
+    record.components?.fence,
+    record.components?.net,
+    ...Object.values(record.components?.poles || {}),
+    record.components?.mobileBase,
+  ].filter(Boolean))]
+}
 
-  useEffect(() => () => prepared.materials.forEach((material) => material.dispose()), [prepared])
+/** Clears Drei's GLTF cache for one catalogue bundle, or every bundle. */
+export function clearProvidedModelCache(assetId) {
+  const records = assetId
+    ? [getProvidedModelRecord(assetId)].filter(Boolean)
+    : Object.values(PROVIDED_MODEL_CATALOG)
+  records.forEach((record) => {
+    collectRecordPaths(record).forEach((path) => useGLTF.clear(path))
+    jsonCache.delete(record.manifest)
+  })
+}
 
+/** Starts an atomic Meshopt-aware preload and returns the selected paths. */
+export function preloadProvidedModel(assetId, options = {}) {
+  const asset = selectProvidedModelComponents(assetId, options)
+  const paths = providedComponentEntries(asset).map((entry) => entry.url)
+  fetchJson(asset.manifest).catch(() => {})
+  useGLTF.preload(paths, false, true)
+  return { manifest: asset.manifest, paths }
+}
+
+/** Clears both the legacy KND v1 caches and the provided-package cache. */
+export function clearKndModelCache(assetId) {
+  jsonCache.clear()
+  glbCache.clear()
+  clearProvidedModelCache(assetId)
+}
+
+function selectionFromExplicitAsset(assetId, {
+  mountType,
+  frameVariant,
+  poleStyle,
+  mobileBase,
+  reinforcedFrame,
+}) {
+  const record = getProvidedModelRecord(assetId)
+  if (!record) return null
+  const requestedMount = mountType || poleStyle || record.compatibility.defaultMountType
+  const requestedFrame = frameVariant || (reinforcedFrame ? 'frame150' : 'standard')
+  const requestedPoleUnsupported = !record.compatibility.mountTypes.includes(requestedMount)
+  const requestedFrameUnsupported = !record.compatibility.frameVariants.includes(requestedFrame)
+  const requestedMobileUnsupported = Boolean(mobileBase) && !record.compatibility.mobileBase
+  const resolvedMount = requestedPoleUnsupported ? record.compatibility.defaultMountType : requestedMount
+  const structurallyCompatible = !requestedFrameUnsupported && !requestedMobileUnsupported
+  const resolvedFrame = structurallyCompatible ? requestedFrame : null
+  const notes = [
+    'explicit-provided-asset',
+    ...(requestedPoleUnsupported ? ['requested-pole-unsupported-using-model-default'] : []),
+    ...(requestedFrameUnsupported ? ['reinforced-frame-not-supplied-for-model'] : []),
+    ...(requestedMobileUnsupported ? ['mobile-base-not-supplied-for-model'] : []),
+  ]
+
+  if (!structurallyCompatible) {
+    return {
+      assetId,
+      asset: null,
+      compatible: false,
+      requestedPoleUnsupported,
+      notes,
+      requested: { poleStyle: requestedMount, mobileBase, reinforcedFrame },
+      resolved: null,
+      compatibility: record.compatibility,
+      rights: record.rights,
+    }
+  }
+
+  const asset = selectProvidedModelComponents(assetId, { mountType: resolvedMount, frameVariant: resolvedFrame })
+  return {
+    assetId,
+    asset,
+    compatible: true,
+    requestedPoleUnsupported,
+    notes,
+    requested: { poleStyle: requestedMount, mobileBase, reinforcedFrame },
+    resolved: { poleStyle: resolvedMount, frameVariant: resolvedFrame, mobileBase: Boolean(asset.mobileBase) },
+    compatibility: record.compatibility,
+    rights: record.rights,
+  }
+}
+
+function normalizeExplicitSelection(selectionOrAsset) {
+  if (!selectionOrAsset) return null
+  if (selectionOrAsset.asset && selectionOrAsset.assetId) return selectionOrAsset
+  if (!selectionOrAsset.frame || !selectionOrAsset.glass || !selectionOrAsset.fence || !selectionOrAsset.net || !selectionOrAsset.poles) {
+    return null
+  }
+  const assetId = selectionOrAsset.id
+  return {
+    assetId,
+    asset: selectionOrAsset,
+    compatible: true,
+    requestedPoleUnsupported: false,
+    notes: ['explicit-provided-bundle'],
+    requested: null,
+    resolved: {
+      poleStyle: selectionOrAsset.mountType,
+      mobileBase: Boolean(selectionOrAsset.mobileBase),
+      frameVariant: null,
+    },
+    compatibility: getProvidedModelRecord(assetId)?.compatibility || null,
+    rights: selectionOrAsset.rights,
+  }
+}
+
+function resolveCatalogSelection({
+  assetId,
+  bundle,
+  providedSelection,
+  modelId,
+  poleStyle,
+  mobileBase,
+  reinforcedFrame,
+  mountType,
+  frameVariant,
+}) {
+  const explicit = normalizeExplicitSelection(providedSelection || bundle)
+  if (explicit) return explicit
+  if (assetId) {
+    return selectionFromExplicitAsset(assetId, {
+      mountType,
+      frameVariant,
+      poleStyle,
+      mobileBase,
+      reinforcedFrame,
+    })
+  }
+  return resolveProvidedModelSelection({ modelId, poleStyle, mobileBase, reinforcedFrame })
+}
+
+function canPreviewProvidedSelection(selection) {
+  return Boolean(selection?.asset && selection.compatible)
+    && (DEVELOPMENT_PREVIEW_ENABLED || selection.rights?.publicationAllowed === true)
+}
+
+function ProvidedGlbModule({ scene, role, frameColor, glassThickness, bundleId }) {
+  const prepared = useMemo(() => cloneSceneWithMaterials(scene, {
+    key: role,
+    role,
+    frameColor,
+    glassThickness,
+    name: `provided-${bundleId}-${role}`,
+  }), [bundleId, frameColor, glassThickness, role, scene])
+
+  useOwnedMaterials(prepared.materials)
   return <primitive object={prepared.object} />
 }
 
-function FrameModule(props) {
+function ProvidedFrame(props) {
   return <ProvidedGlbModule {...props} role="frame" />
 }
 
-function GlassModule(props) {
+function ProvidedGlass(props) {
   return <ProvidedGlbModule {...props} role="glass" />
 }
 
-function FenceModule(props) {
+function ProvidedFence(props) {
   return <ProvidedGlbModule {...props} role="fence" />
 }
 
-function NetModule(props) {
+function ProvidedNet(props) {
   return <ProvidedGlbModule {...props} role="net" />
 }
 
-function PolesModule(props) {
+function ProvidedPoles(props) {
   return <ProvidedGlbModule {...props} role="poles" />
+}
+
+function ProvidedMobileBase(props) {
+  return <ProvidedGlbModule {...props} role="mobileBase" />
+}
+
+const PROVIDED_COMPONENT_RENDERERS = {
+  frame: ProvidedFrame,
+  glass: ProvidedGlass,
+  fence: ProvidedFence,
+  net: ProvidedNet,
+  poles: ProvidedPoles,
+  mobileBase: ProvidedMobileBase,
 }
 
 function ProvidedFixture({ mount, lighting, environment, lightsOn }) {
@@ -228,47 +523,133 @@ function ProvidedFixture({ mount, lighting, environment, lightsOn }) {
   )
 }
 
-function ProvidedOp01Court({
-  assetId,
+function ProvidedCatalogCourt({
+  selection,
   frameColor,
+  glassThickness,
   lighting,
   environment,
   lightsOn,
   active,
   onStatusChange,
 }) {
-  const assets = PROVIDED_MODEL_ASSETS[assetId]
-  // Loading the array through one hook makes the swap atomic: all five files
-  // resolve together or the parametric fallback remains visible.
-  const [frame, glass, fence, net, poles] = useGLTF(
-    [assets.frame, assets.glass, assets.fence, assets.net, assets.poles],
-    false,
-    true,
-  )
+  const { assetId, asset } = selection
+  const componentEntries = useMemo(() => providedComponentEntries(asset), [asset])
+  const paths = useMemo(() => componentEntries.map((entry) => entry.url), [componentEntries])
+  // One array request is the atomic boundary: R3F reveals no component until
+  // every required GLB (including OP03's mobile base) has loaded and decoded.
+  const loaded = useGLTF(paths, false, true)
+  const loadedEntries = useMemo(() => componentEntries.map((entry, index) => ({
+    ...entry,
+    scene: loaded[index].scene,
+  })), [componentEntries, loaded])
+  const diagnostics = useMemo(() => diagnoseScenes(loadedEntries), [loadedEntries])
+  const [manifestState, setManifestState] = useState({ phase: 'checking', manifest: null, error: null })
 
   useEffect(() => {
+    let cancelled = false
+    setManifestState({ phase: 'checking', manifest: null, error: null })
+    onStatusChange?.({
+      phase: 'checking',
+      reason: 'checking-provided-manifest',
+      componentKeys: [],
+      handlesLighting: false,
+      rightsPending: !selection.rights?.publicationAllowed,
+      selection,
+    })
+    fetchJson(asset.manifest)
+      .then((manifest) => normalizeProvidedManifest(manifest, assetId))
+      .then((manifest) => {
+        if (!cancelled) setManifestState({ phase: 'ready', manifest, error: null })
+      })
+      .catch((error) => {
+        if (!cancelled) setManifestState({ phase: 'error', manifest: null, error })
+      })
+    return () => { cancelled = true }
+  }, [asset.manifest, assetId, onStatusChange, selection])
+
+  useEffect(() => {
+    if (manifestState.phase === 'checking') return
+    if (manifestState.phase === 'error') {
+      onStatusChange?.({
+        phase: 'error',
+        reason: manifestState.error?.message || 'No se pudo validar el manifiesto proporcionado.',
+        componentKeys: [],
+        manifest: null,
+        handlesLighting: false,
+        rightsPending: !selection.rights?.publicationAllowed,
+        retryable: true,
+        selection,
+      })
+      return
+    }
     onStatusChange?.({
       phase: 'ready',
-      reason: 'provided-op01-rights-pending',
-      componentKeys: PROVIDED_COMPONENT_KEYS,
-      manifest: { id: assetId, source: assets.manifest, validation: { geometryVerified: false } },
-      handlesLighting: true,
-      rightsPending: true,
+      reason: 'provided-catalog-modular-glb',
+      componentKeys: componentEntries.map((entry) => entry.key),
+      manifest: {
+        id: assetId,
+        source: asset.manifest,
+        version: manifestState.manifest.manifestVersion,
+        dimensions: manifestState.manifest.dimensions,
+        layout: manifestState.manifest.layout,
+        compatibility: manifestState.manifest.compatibility,
+        validation: { geometryVerified: false },
+      },
+      handlesLighting: Boolean(asset.mounts?.length),
+      rightsPending: !selection.rights?.publicationAllowed,
+      engineeringValidated: false,
+      requestedPoleUnsupported: Boolean(selection.requestedPoleUnsupported),
+      requestedMobileUnsupported: Boolean(selection.requestedMobileUnsupported),
+      requestedFrameUnsupported: Boolean(selection.requestedFrameUnsupported),
+      notes: selection.notes || [],
+      selection: {
+        assetId,
+        requested: selection.requested,
+        resolved: selection.resolved,
+      },
+      diagnostics: {
+        ...diagnostics,
+        coordinateSystem: asset.coordinateSystem,
+      },
     })
-  }, [assetId, assets.manifest, onStatusChange])
+  }, [
+    asset.coordinateSystem,
+    asset.manifest,
+    asset.mounts,
+    assetId,
+    componentEntries,
+    diagnostics,
+    manifestState,
+    onStatusChange,
+    selection,
+  ])
 
-  if (!active) return null
+  if (!active || manifestState.phase !== 'ready') return null
 
+  const missing = REQUIRED_PROVIDED_COMPONENTS.filter(
+    (key) => !loadedEntries.some((entry) => entry.key === key && entry.scene),
+  )
+  if (missing.length) throw new Error(`Bundle ${assetId} incompleto: ${missing.join(', ')}.`)
+
+  // Source length is X and source width is Z. Rotate the complete assembly once
+  // to match the scene's width-X / length-Z convention; never transform parts.
   return (
-    <group name={`provided-${assetId}-assembly`}>
-      <group rotation={[0, Math.PI / 2, 0]} position={[0, 0, 0]} scale={[1, 1, 1]}>
-        <FrameModule scene={frame.scene} frameColor={frameColor} />
-        <GlassModule scene={glass.scene} frameColor={frameColor} />
-        <FenceModule scene={fence.scene} frameColor={frameColor} />
-        <NetModule scene={net.scene} frameColor={frameColor} />
-        <PolesModule scene={poles.scene} frameColor={frameColor} />
-      </group>
-      {OP01_LIGHT_MOUNTS[assetId].map((mount, index) => (
+    <group name={`provided-${assetId}-assembly`} rotation={[0, Math.PI / 2, 0]} position={[0, 0, 0]} scale={[1, 1, 1]}>
+      {loadedEntries.map((entry) => {
+        const Component = PROVIDED_COMPONENT_RENDERERS[entry.key] || ProvidedGlbModule
+        return (
+          <Component
+            key={entry.key}
+            scene={entry.scene}
+            role={entry.key}
+            frameColor={frameColor}
+            glassThickness={glassThickness}
+            bundleId={assetId}
+          />
+        )
+      })}
+      {(asset.mounts || []).map((mount, index) => (
         <ProvidedFixture
           key={`${assetId}-fixture-${index}`}
           mount={mount}
@@ -312,6 +693,8 @@ function ValidatedKndCourt({
       manifest: bundle.manifest,
       handlesLighting: false,
       rightsPending: false,
+      diagnostics: bundle.diagnostics || null,
+      retryable: bundle.phase === 'error',
     })
   }, [bundle, onStatusChange])
 
@@ -319,8 +702,7 @@ function ValidatedKndCourt({
     () => prepareValidatedComponents(bundle, frameColor, glassThickness),
     [bundle, frameColor, glassThickness],
   )
-
-  useEffect(() => () => prepared.materials.forEach((material) => material.dispose()), [prepared])
+  useOwnedMaterials(prepared.materials)
 
   if (bundle.phase !== 'ready' || !active) return null
 
@@ -345,23 +727,9 @@ function ValidatedKndCourt({
   )
 }
 
-function resolveProvidedModel(modelId, poleStyle, mobileBase, glassThickness, protection) {
-  if (
-    !RIGHTS_PENDING_ASSETS_ENABLED
-    || modelId !== 'super-panoramic'
-    || mobileBase
-    || protection
-    || Math.abs(glassThickness - 0.012) > 0.0001
-  ) return null
-  if (poleStyle === 'curved') return 'op01'
-  if (poleStyle === 'angled') return 'op01-angled'
-  return null
-}
-
 /**
- * Selects either the local rights-pending OP-01 adapter or the stricter KND
- * manifest contract. Every other model and unsupported OP-01 option keeps the
- * existing fallback until its own geometry has been visually verified.
+ * Selects an audited provided bundle in development, while retaining the
+ * stricter KND-owned v1 manifest path as the production/future fallback.
  */
 export default function KndModularCourt({
   modelId,
@@ -373,18 +741,51 @@ export default function KndModularCourt({
   lighting,
   environment,
   lightsOn,
+  reinforcedFrame = false,
+  assetId,
+  bundle,
+  providedSelection,
+  mountType,
+  frameVariant,
   active = false,
   onStatusChange,
   indexUrl = import.meta.env.VITE_KND_MODEL_INDEX_URL || DEFAULT_INDEX_URL,
 }) {
-  const providedModelId = resolveProvidedModel(modelId, poleStyle, mobileBase, glassThickness, protection)
+  const selection = useMemo(() => resolveCatalogSelection({
+    assetId,
+    bundle,
+    providedSelection,
+    modelId,
+    poleStyle,
+    mobileBase,
+    reinforcedFrame,
+    mountType,
+    frameVariant,
+  }), [
+    assetId,
+    bundle,
+    frameVariant,
+    mobileBase,
+    modelId,
+    mountType,
+    poleStyle,
+    providedSelection,
+    reinforcedFrame,
+  ])
 
-  if (providedModelId && ACTIVE_PROVIDED_MODELS.has(providedModelId)) {
+  if (canPreviewProvidedSelection(selection)) {
+    const selectionKey = [
+      selection.assetId,
+      selection.asset.mountType,
+      selection.asset.frame,
+      selection.asset.mobileBase || 'anchored',
+    ].join(':')
     return (
-      <ProvidedOp01Court
-        key={providedModelId}
-        assetId={providedModelId}
+      <ProvidedCatalogCourt
+        key={selectionKey}
+        selection={selection}
         frameColor={frameColor}
+        glassThickness={glassThickness}
         lighting={lighting}
         environment={environment}
         lightsOn={lightsOn}

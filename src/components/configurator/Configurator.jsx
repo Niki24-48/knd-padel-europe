@@ -5,11 +5,11 @@ import {
   frameFinishes,
   lightingPackages,
   projectScales,
-  roofSystems,
   turfFinishes,
   turfSystems,
 } from '../../data/site.js'
 import Court3DScene from './Court3DScene.jsx'
+import { resolveProvidedModelSelection } from './providedModelCatalog.js'
 import './Configurator.css'
 
 const SCHEMA_VERSION = 2
@@ -18,7 +18,16 @@ const VALID_ENVIRONMENTS = ['day', 'evening', 'night']
 const VALID_POLES = ['curved', 'signature-curved', 'straight', 'angled', 'z', 't']
 const VALID_INSTALLATIONS = ['anchored', 'mobile-request']
 const VALID_GLASS = ['10', '12']
+const VALID_FRAME_VARIANTS = ['standard', 'frame150']
 const HEX_COLOUR = /^#[0-9a-f]{6}$/i
+const MODEL_COMPATIBILITY_CACHE = new Map()
+const URL_CONFIG_KEYS = ['v', 'model', 'turf', 'colour', 'frame', 'light', 'scale', 'roof', 'protection', 'installation', 'pole', 'glass', 'structure', 'lights', 'hex', 'env', 'view']
+const STORAGE_FIELDS = {
+  model: 'modelId', turf: 'turfSystemId', colour: 'turfFinishId', frame: 'frameId', light: 'lightingId',
+  scale: 'projectScaleId', roof: 'roofId', protection: 'protection', installation: 'installation',
+  pole: 'poleStyle', glass: 'glassThickness', structure: 'frameVariant', lights: 'lightsOn', hex: 'customFrameHex',
+  env: 'environment', view: 'view',
+}
 
 const COPY = {
   es: {
@@ -28,8 +37,10 @@ const COPY = {
     surface: 'Sistema de superficie', pole: 'Silueta del poste', fixture: 'Luminaria', evening: 'Iluminación nocturna',
     choosePole: 'Elige la silueta del poste y combínala con la luminaria disponible.', without: 'Sin kit', include: 'Incluir kit',
     padding: 'Protección negra para postes de red y marcos de puerta.', custom: 'Color personalizado',
-    anchored: 'Anclada', anchoredSub: 'Instalación permanente', mobile: 'Base móvil', mobileSub: 'Sin anclajes al pavimento',
-    projectOptions: 'Opciones de proyecto', scale: 'Número de pistas', roof: 'Cubierta', glass: 'Vidrio', noRoof: 'Sin cubierta',
+    anchored: 'Anclada', anchoredSub: 'Instalación permanente', mobile: 'Base móvil', mobileSub: 'Geometría disponible para OP-03', mobilePending: 'Solicitud sujeta a validación; se mantiene la pista anclada en el visor',
+    unavailable3d: 'Modelo 3D no disponible', glassVisualPending: 'El visor mantiene la geometría base de 12 mm; la selección de 10 mm se conserva para la propuesta.',
+    frameVariant: 'Estructura', standardFrame: 'Estructura estándar', reinforcedFrame: 'Estructura reforzada 150',
+    projectOptions: 'Opciones de proyecto', scale: 'Número de pistas', roof: 'Cubierta', glass: 'Vidrio', noRoof: 'Sin cubierta', canopyOutsideStudio: 'Se estudia por proyecto',
     view: 'Ver tu configuración', drag: 'Arrastra para girar · Rueda para acercar', preview: 'vista de diseño',
     summaryEyebrow: 'TU PISTA, DEFINIDA', summaryTitle: 'Tu configuración.', enquire: 'Consultar esta pista', close: 'Cerrar',
     copy: 'Copiar configuración', json: 'Descargar configuración', png: 'Guardar imagen', reset: 'Restablecer',
@@ -45,8 +56,10 @@ const COPY = {
     surface: 'Surface system', pole: 'Pole silhouette', fixture: 'Light fixture', evening: 'Evening lighting',
     choosePole: 'Choose a pole silhouette and pair it with the available floodlight.', without: 'Without', include: 'Include kit',
     padding: 'Black padding for net posts and door frames.', custom: 'Custom colour',
-    anchored: 'Anchored', anchoredSub: 'Permanent installation', mobile: 'Mobile base', mobileSub: 'No floor anchors',
-    projectOptions: 'Project options', scale: 'Number of courts', roof: 'Canopy', glass: 'Glass', noRoof: 'No canopy',
+    anchored: 'Anchored', anchoredSub: 'Permanent installation', mobile: 'Mobile base', mobileSub: 'Geometry available for OP-03', mobilePending: 'Request subject to validation; the anchored court remains in the viewer',
+    unavailable3d: '3D model unavailable', glassVisualPending: 'The viewer keeps the 12 mm base geometry; the 10 mm choice is retained for the proposal.',
+    frameVariant: 'Structure', standardFrame: 'Standard structure', reinforcedFrame: 'Reinforced 150 structure',
+    projectOptions: 'Project options', scale: 'Number of courts', roof: 'Canopy', glass: 'Glass', noRoof: 'No canopy', canopyOutsideStudio: 'Discussed per project',
     view: 'View your configuration', drag: 'Drag to rotate · Scroll to zoom', preview: 'design preview',
     summaryEyebrow: 'YOUR COURT, DEFINED', summaryTitle: 'Your configuration.', enquire: 'Enquire about this court', close: 'Close',
     copy: 'Copy configuration', json: 'Download configuration', png: 'Save preview image', reset: 'Reset',
@@ -71,43 +84,97 @@ function lightingFor(modelId, requested) {
   return allowed.some((item) => item.id === requested) ? requested : allowed[0]?.id || 'project-defined'
 }
 
-function readInitial(search) {
+function getModelCompatibility(modelId) {
+  const cached = MODEL_COMPATIBILITY_CACHE.get(modelId)
+  if (cached) return cached
+  const court = courts.find((item) => item.id === modelId)
+  const baseSelection = resolveProvidedModelSelection({ modelId })
+  const suppliedPoles = baseSelection.compatibility?.mountTypes || []
+  const mobileSelection = resolveProvidedModelSelection({ modelId, mobileBase: true })
+  const catalogue = court?.configuratorOptions || court?.configurator || court?.configuration || {}
+  const allowed = (keys, fallback) => {
+    const configured = keys
+      .map((key) => catalogue?.[key] ?? court?.[key])
+      .find((value) => Array.isArray(value))
+    const valid = configured?.filter((value) => fallback.includes(value)) || []
+    return valid.length ? valid : fallback
+  }
+
+  const compatibility = {
+    poles: allowed(['poleStyles', 'poleStyleIds', 'poles'], suppliedPoles.length ? suppliedPoles : ['curved']),
+    installations: VALID_INSTALLATIONS,
+    hasMobileGeometry: Boolean(mobileSelection.resolved?.mobileBase),
+    frameVariants: modelId === 'extreme' ? VALID_FRAME_VARIANTS : ['standard'],
+  }
+  MODEL_COMPATIBILITY_CACHE.set(modelId, compatibility)
+  return compatibility
+}
+
+function normalizeModelOptions(config, modelId = config.modelId, preference = {}) {
+  const compatibility = getModelCompatibility(modelId)
+  const requestedPole = preference.poleStyle ?? config.poleStyle
+  const requestedInstallation = preference.installation ?? config.installation
+  const requestedFrameVariant = preference.frameVariant ?? config.frameVariant
+  return {
+    ...config,
+    modelId,
+    roofId: 'none',
+    poleStyle: compatibility.poles.includes(requestedPole) ? requestedPole : compatibility.poles[0],
+    installation: VALID_INSTALLATIONS.includes(requestedInstallation) ? requestedInstallation : 'anchored',
+    frameVariant: compatibility.frameVariants.includes(requestedFrameVariant) ? requestedFrameVariant : 'standard',
+  }
+}
+
+function readInitial(search, { restoreDraft = true } = {}) {
   const params = new URLSearchParams(search || '')
+  const hasUrlConfiguration = URL_CONFIG_KEYS.some((key) => params.has(key))
   let stored = null
-  if (!search && typeof window !== 'undefined') {
+  // A URL with configuration fields is a shareable, canonical state. Never
+  // merge it with a previous visitor's browser state, even if it is partial.
+  // Storage restores a draft only when the URL contains no configuration.
+  if (restoreDraft && !hasUrlConfiguration && typeof window !== 'undefined') {
     try { stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null') } catch { stored = null }
   }
-  const get = (key) => params.get(key) || stored?.[key] || ''
+  const get = (key) => {
+    if (params.has(key)) return params.get(key) ?? ''
+    return stored?.[STORAGE_FIELDS[key]] ?? stored?.[key] ?? ''
+  }
+  const bool = (key, fallback) => {
+    const value = get(key)
+    if (typeof value === 'boolean') return value
+    if (value === '') return fallback
+    return value === 'yes' || value === 'on' || value === 'true'
+  }
   const modelId = findValid(courts, get('model'), courts[0].id)
   const projectScaleId = findValid(projectScales, get('scale'), projectScales[0].id)
-  const scale = projectScales.find((item) => item.id === projectScaleId) || projectScales[0]
-  const requestedRoof = findValid(roofSystems, get('roof'), 'none')
-  const selectedRoof = roofSystems.find((item) => item.id === requestedRoof)
-  return {
+  return normalizeModelOptions({
     modelId,
     turfSystemId: findValid(turfSystems, get('turf'), turfSystems[0].id),
     turfFinishId: findValid(turfFinishes, get('colour'), turfFinishes[0].id),
     frameId: findValid(frameFinishes, get('frame'), frameFinishes[0].id),
     lightingId: lightingFor(modelId, get('light')),
     projectScaleId,
-    roofId: selectedRoof && selectedRoof.minCourts <= scale.courts ? requestedRoof : 'none',
-    protection: get('protection') === 'yes' || stored?.protection === true,
+    // Retain the field so legacy URLs/drafts are safely normalized, but roofs
+    // are configured in their own KND product flow, not in Court Studio.
+    roofId: 'none',
+    protection: bool('protection', false),
     installation: VALID_INSTALLATIONS.includes(get('installation')) ? get('installation') : 'anchored',
     poleStyle: VALID_POLES.includes(get('pole')) ? get('pole') : 'curved',
     glassThickness: VALID_GLASS.includes(get('glass')) ? get('glass') : '12',
-    lightsOn: get('lights') !== 'off',
+    frameVariant: VALID_FRAME_VARIANTS.includes(get('structure')) ? get('structure') : 'standard',
+    lightsOn: bool('lights', true),
     customFrameHex: HEX_COLOUR.test(get('hex')) ? get('hex') : '#385c4a',
     environment: VALID_ENVIRONMENTS.includes(get('env')) ? get('env') : 'day',
     view: ['perspective', 'top', 'end', 'side'].includes(get('view')) ? get('view') : 'perspective',
-  }
+  }, modelId)
 }
 
 function toParams(config) {
   return new URLSearchParams({
     v: String(SCHEMA_VERSION), model: config.modelId, turf: config.turfSystemId, colour: config.turfFinishId,
-    frame: config.frameId, light: config.lightingId, scale: config.projectScaleId, roof: config.roofId,
+    frame: config.frameId, light: config.lightingId, scale: config.projectScaleId, roof: 'none',
     protection: config.protection ? 'yes' : 'no', installation: config.installation, pole: config.poleStyle,
-    glass: config.glassThickness, lights: config.lightsOn ? 'on' : 'off', hex: config.customFrameHex,
+    glass: config.glassThickness, structure: config.frameVariant, lights: config.lightsOn ? 'on' : 'off', hex: config.customFrameHex,
     env: config.environment, view: config.view,
   })
 }
@@ -189,17 +256,16 @@ export default function Configurator({ navigate, openProject, search = '', local
   const frame = frameBase.id === 'custom-ral' ? { ...frameBase, color: HEX_COLOUR.test(config.customFrameHex) ? config.customFrameHex : '#385c4a' } : frameBase
   const lighting = lightingPackages.find((item) => item.id === config.lightingId) || lightingPackages.find((item) => item.id === lightingFor(config.modelId)) || lightingPackages[0]
   const scale = projectScales.find((item) => item.id === config.projectScaleId) || projectScales[0]
-  const roof = roofSystems.find((item) => item.id === config.roofId) || null
-  const update = (patch) => setConfig((current) => ({ ...current, ...patch }))
+  const compatibility = getModelCompatibility(court.id)
+  const update = (patch) => setConfig((current) => normalizeModelOptions({ ...current, ...patch, roofId: 'none' }, current.modelId, patch))
 
-  const selectModel = (modelId) => setConfig((current) => ({ ...current, modelId, lightingId: lightingFor(modelId, current.lightingId) }))
-  const selectScale = (projectScaleId) => {
-    const nextScale = projectScales.find((item) => item.id === projectScaleId) || projectScales[0]
-    setConfig((current) => {
-      const currentRoof = roofSystems.find((item) => item.id === current.roofId)
-      return { ...current, projectScaleId, roofId: currentRoof && currentRoof.minCourts > nextScale.courts ? 'none' : current.roofId }
-    })
-  }
+  const selectModel = (modelId) => setConfig((current) => normalizeModelOptions({
+    ...current,
+    modelId,
+    lightingId: lightingFor(modelId, current.lightingId),
+    roofId: 'none',
+  }, modelId))
+  const selectScale = (projectScaleId) => update({ projectScaleId })
 
   const selection = useMemo(() => ({
     schema: 'knd-court-configuration', schemaVersion: SCHEMA_VERSION, createdAt: new Date().toISOString(), preliminary: true,
@@ -209,16 +275,25 @@ export default function Configurator({ navigate, openProject, search = '', local
     frameFinish: { id: frame.id, name: frame.name, color: frame.color },
     lighting: { id: lighting.id, name: lighting.name, pole: config.poleStyle },
     glass: { thickness: `${config.glassThickness} mm` }, projectScale: { id: scale.id, name: scale.name },
-    canopy: roof ? { id: roof.id, code: roof.code, name: roof.name } : null,
+    structure: { variant: config.frameVariant },
+    canopy: null,
     protectionRequest: config.protection, installation: config.installation, lightsOn: config.lightsOn,
     environment: config.environment, disclaimer: text.disclaimer,
-  }), [config.environment, config.glassThickness, config.installation, config.lightsOn, config.poleStyle, config.protection, court, frame, lighting, roof, scale, text.disclaimer, turf, turfFinish])
+  }), [config.environment, config.frameVariant, config.glassThickness, config.installation, config.lightsOn, config.poleStyle, config.protection, court, frame, lighting, scale, text.disclaimer, turf, turfFinish])
 
   useEffect(() => {
     const next = `${window.location.pathname}?${toParams(config).toString()}`
     window.history.replaceState({}, '', next)
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(config)) } catch { /* URL state remains canonical. */ }
   }, [config])
+
+  const previousSearch = useRef(search)
+  useEffect(() => {
+    if (search === previousSearch.current) return
+    previousSearch.current = search
+    setSummaryOpen(false)
+    setConfig(readInitial(search))
+  }, [search])
 
   useEffect(() => {
     const onEscape = (event) => { if (event.key === 'Escape') setSummaryOpen(false) }
@@ -243,7 +318,9 @@ export default function Configurator({ navigate, openProject, search = '', local
     } catch { setStatus(text.captureError) }
   }
   const reset = () => {
-    setConfig(readInitial('?'))
+    // Reset must not immediately rehydrate the draft that the config effect
+    // has just persisted. It intentionally starts from catalogue defaults.
+    setConfig(readInitial('', { restoreDraft: false }))
     sceneRef.current?.reset()
     setStatus(text.saved)
   }
@@ -253,7 +330,9 @@ export default function Configurator({ navigate, openProject, search = '', local
     [text.model, `${court.code} · ${court.name}`], [text.turf, `${turf.name} · ${turfFinish.name}`],
     [text.frame, frame.name], [text.lighting, `${poleLabels.find(([id]) => id === config.poleStyle)?.[1] || config.poleStyle} · ${lighting.name}`],
     [text.protection, config.protection ? text.include : text.without], [text.installation, config.installation === 'anchored' ? text.anchored : text.mobile],
-    [text.glass, `${config.glassThickness} mm`], [text.scale, scale.name], [text.roof, roof ? roof.name : text.noRoof],
+    [text.glass, `${config.glassThickness} mm`],
+    ...(court.id === 'extreme' ? [[text.frameVariant, config.frameVariant === 'frame150' ? text.reinforcedFrame : text.standardFrame]] : []),
+    [text.scale, scale.name],
   ]
 
   return (
@@ -268,9 +347,10 @@ export default function Configurator({ navigate, openProject, search = '', local
 
           <Court3DScene
             ref={sceneRef} className="knd-studio-scene" locale={locale} config={config} court={court}
-            turfFinish={turfFinish} frameFinish={frame} lighting={lighting} roof={roof} view={config.view}
+            turfFinish={turfFinish} frameFinish={frame} lighting={lighting} roof={null} view={config.view}
             onViewChange={(view) => update({ view })} poleStyle={config.poleStyle} protection={config.protection}
             installation={config.installation} environment={config.environment} glassThickness={config.glassThickness} lightsOn={config.lightsOn}
+            reinforcedFrame={config.frameVariant === 'frame150'}
           />
 
           <div className="knd-studio-model-meta"><span>{court.code} / {court.name}</span><i /><span>{court.id === 'single-court' ? '20 × 6 m' : '20 × 10 m'}</span></div>
@@ -310,7 +390,7 @@ export default function Configurator({ navigate, openProject, search = '', local
               <SectionHeading number="04" title={text.lighting} detail={lighting.name} />
               <p className="knd-studio-help"><strong>{text.pole}</strong>{text.choosePole}</p>
               <div className="knd-studio-poles">
-                {poleLabels.map(([id, label, note]) => <CardChoice key={id} className="knd-studio-pole-choice" selected={id === config.poleStyle} onClick={() => update({ poleStyle: id })}><span className={`knd-pole-icon knd-pole-icon--${id}`} aria-hidden="true"><i /></span><strong>{label}</strong><small>{note}</small></CardChoice>)}
+                {poleLabels.map(([id, label, note]) => { const available = compatibility.poles.includes(id); return <CardChoice key={id} className="knd-studio-pole-choice" selected={id === config.poleStyle} disabled={!available} onClick={() => update({ poleStyle: id })}><span className={`knd-pole-icon knd-pole-icon--${id}`} aria-hidden="true"><i /></span><strong>{label}</strong><small>{available ? note : text.unavailable3d}</small></CardChoice> })}
               </div>
               <p className="knd-studio-help"><strong>{text.fixture}</strong></p>
               <div className="knd-studio-fixtures">
@@ -327,7 +407,7 @@ export default function Configurator({ navigate, openProject, search = '', local
 
             <section className="knd-studio-section">
               <SectionHeading number="06" title={text.installation} />
-              <div className="knd-studio-installation"><CardChoice selected={config.installation === 'anchored'} onClick={() => update({ installation: 'anchored' })}><strong>{text.anchored}</strong><small>{text.anchoredSub}</small></CardChoice><CardChoice selected={config.installation === 'mobile-request'} onClick={() => update({ installation: 'mobile-request' })}><strong>{text.mobile}</strong><small>{text.mobileSub}</small></CardChoice></div>
+              <div className="knd-studio-installation"><CardChoice selected={config.installation === 'anchored'} onClick={() => update({ installation: 'anchored' })}><strong>{text.anchored}</strong><small>{text.anchoredSub}</small></CardChoice><CardChoice selected={config.installation === 'mobile-request'} onClick={() => update({ installation: 'mobile-request' })}><strong>{text.mobile}</strong><small>{compatibility.hasMobileGeometry ? text.mobileSub : text.mobilePending}</small></CardChoice></div>
             </section>
 
             <details className="knd-studio-project-options">
@@ -335,7 +415,8 @@ export default function Configurator({ navigate, openProject, search = '', local
               <div>
                 <label>{text.scale}<select value={config.projectScaleId} onChange={(event) => selectScale(event.target.value)}>{projectScales.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
                 <label>{text.glass}<select value={config.glassThickness} onChange={(event) => update({ glassThickness: event.target.value })}><option value="12">12 mm</option><option value="10">10 mm</option></select></label>
-                <label>{text.roof}<select value={config.roofId} onChange={(event) => update({ roofId: event.target.value })}><option value="none">{text.noRoof}</option>{roofSystems.map((item) => <option key={item.id} value={item.id} disabled={item.minCourts > scale.courts}>{item.code} · {item.name}</option>)}</select></label>
+                {config.glassThickness === '10' && <p className="knd-studio-option-note">{text.glassVisualPending}</p>}
+                {court.id === 'extreme' && <label>{text.frameVariant}<select value={config.frameVariant} onChange={(event) => update({ frameVariant: event.target.value })}><option value="standard">{text.standardFrame}</option><option value="frame150">{text.reinforcedFrame}</option></select></label>}
               </div>
             </details>
           </div>
