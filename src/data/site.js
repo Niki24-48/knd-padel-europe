@@ -41,17 +41,18 @@ export const media = {
 
   },
   roofs: {
-    r1: '/media/knd/roofs/r1-canopy-reference.jpg',
-    r2: '/media/knd/roofs/r2-semi-enclosed-reference.jpg',
-    r3: '/media/knd/roofs/r3-enclosed-reference.jpg',
-    r4: '/media/knd/roofs/r4-retractable-reference.jpg',
+    r1: '/media/knd/roofs/r1-canopy-reference.png',
+    r2: '/media/knd/roofs/r2-semi-enclosed-reference.png',
+    r3: '/media/knd/roofs/r3-enclosed-reference.png',
+    r4: '/media/knd/roofs/r4-retractable-reference.png',
   },
   turf: {
-    black: '/media/knd/turf/sample-black.jpg',
-    turquoise: '/media/knd/turf/sample-turquoise.jpg',
-    green: '/media/knd/turf/sample-green.jpg',
-    blue: '/media/knd/turf/sample-blue.jpg',
-    red: '/media/knd/turf/sample-red.jpg',
+    black: '/media/knd/turf/sample-black.png',
+    turquoise: '/media/knd/turf/sample-turquoise.png',
+    green: '/media/knd/turf/sample-green.png',
+    blue: '/media/knd/turf/sample-blue.png',
+    red: '/media/knd/turf/sample-red.png',
+    detallenegro: '/media/knd/turf/detalle-negro.png',
   },
 }
 
@@ -87,11 +88,11 @@ export const courts = [
 ]
 
 export const turfSystems = [
-  { id: 'x10-super-match', code: 'OP X10', name: 'Super Match', role: 'Selección por proyecto', image: media.turf.blue, imageNote: turfVisualReference, description: 'Sistema de césped con especificaciones verificadas en el catálogo KND.', facts: ['10 mm', '9.000 Dtex', '46.000 fibras / m²'] },
+  { id: 'x10-super-match', code: 'OP X10', name: 'Super Match', role: 'Selección por proyecto', image: media.turf.blue , imageNote: turfVisualReference, description: 'Sistema de césped con especificaciones verificadas en el catálogo KND.', facts: ['10 mm', '9.000 Dtex', '46.000 fibras / m²'] },
   { id: 'r9-control', code: 'OP R9', name: 'Control', role: 'Selección por proyecto', image: media.turf.turquoise, imageNote: turfVisualReference, description: 'Sistema de césped con especificaciones verificadas en el catálogo KND.', facts: ['12 mm', '9.000 Dtex', '60.000 fibras / m²'] },
   { id: 's12-endurance', code: 'OP S12', name: 'Endurance', role: 'Selección por proyecto', image: media.turf.green, imageNote: turfVisualReference, description: 'Sistema de césped con especificaciones verificadas en el catálogo KND.', facts: ['12 mm', '12.000 Dtex', '46.000 fibras / m²'] },
   { id: 's9-standard', code: 'OP S9', name: 'Standard', role: 'Selección por proyecto', image: media.turf.red, imageNote: turfVisualReference, description: 'Sistema de césped con especificaciones verificadas en el catálogo KND.', facts: ['12 mm', '9.000 Dtex', '60.000 fibras / m²'] },
-  { id: 's7-training', code: 'OP S7', name: 'Training', role: 'Selección por proyecto', image: media.turf.black, imageNote: turfVisualReference, description: 'Sistema de césped con especificaciones verificadas en el catálogo KND.', facts: ['12 mm', '7.000 Dtex', '63.000 fibras / m²'] },
+  { id: 's7-training', code: 'OP S7', name: 'Training', role: 'Selección por proyecto', image: media.turf.black, detailImage: media.turf.detallenegro ,imageNote: turfVisualReference, description: 'Sistema de césped con especificaciones verificadas en el catálogo KND.', facts: ['12 mm', '7.000 Dtex', '63.000 fibras / m²'] },
 ]
 
 export const turfFinishes = [
