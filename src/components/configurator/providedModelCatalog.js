@@ -23,16 +23,16 @@ const netPost = (position, protectionCenter) => ({ position, protectionCenter })
 const entry = (center, width, height, jambPositions) => ({ center, width, height, jambPositions })
 
 export const PROVIDED_ASSET_RIGHTS = deepFreeze({
-  status: 'blocked-pending-documentation',
-  developmentPreviewOnly: true,
-  publicationAllowed: false,
-  commercialUseVerified: false,
-  redistributionVerified: false,
+  status: 'owner-authorized-publication',
+  developmentPreviewOnly: false,
+  publicationAllowed: true,
+  commercialUseVerified: true,
+  redistributionVerified: true,
   trademarkUseVerified: false,
   reportedEmbeddedBrand: 'ONTO Padel',
   affectedMeshRegionsIdentified: false,
   reason:
-    'The package contains no licence or chain-of-title document, and every v3 manifest reports branded display plates with ONTO Padel logo cut-outs.',
+    'Owner authorization for commercial publication and redistribution confirmed by KND. Embedded third-party brand plates still require replacement or separate trademark clearance.',
 })
 
 const COMMON_COORDINATE_SYSTEM = deepFreeze({
