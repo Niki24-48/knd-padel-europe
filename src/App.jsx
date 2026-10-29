@@ -210,7 +210,7 @@ function App() {
     setProjectOpen(true)
   }
 
-  const pageProps = { navigate, t, locale, openProject, search, hash }
+  const pageProps = { navigate, t, locale, setLocale, openProject, search, hash }
   let page
   if (path === '/') page = <HomePage {...pageProps} />
   else if (path === '/courts') page = <CourtsIndex {...pageProps} />
@@ -229,11 +229,13 @@ function App() {
   else if (path === '/contact') page = <ContactPage {...pageProps} />
   else page = <NotFound {...pageProps} />
 
+  const isConfigurator = path === '/configurator'
+
   return <>
     <SeoManager path={path} locale={locale} />
-    <Header navigate={navigate} locale={locale} setLocale={setLocale} t={t} openProject={openProject} />
-    <main key={`${locale}:${path}`}>{page}</main>
-    <Footer navigate={navigate} t={t} />
+    {!isConfigurator && <Header navigate={navigate} locale={locale} setLocale={setLocale} t={t} openProject={openProject} />}
+    <main className={isConfigurator ? 'configurator-main' : ''} key={`${locale}:${path}`}>{page}</main>
+    {!isConfigurator && <Footer navigate={navigate} t={t} />}
     {projectOpen && <ProjectDialogComponent context={projectContext} onClose={() => setProjectOpen(false)} />}
   </>
 }

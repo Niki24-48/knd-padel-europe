@@ -1,5 +1,6 @@
 import React, {
   Component,
+  Suspense,
   forwardRef,
   useCallback,
   useEffect,
@@ -119,10 +120,10 @@ const FRAME_COLORS = {
 }
 
 const CAMERA_PRESETS = {
-  perspective: { position: [15, 12, 18], target: [0, 1.5, 0], fov: 40 },
-  top: { position: [0.01, 28, 0.01], target: [0, 0, 0], fov: 36 },
-  end: { position: [0, 5.8, 23], target: [0, 1.6, 0], fov: 38 },
-  side: { position: [19, 5.8, 0.01], target: [0, 1.6, 0], fov: 38 },
+  perspective: { position: [19.5, 16, 24.5], target: [0, 1.35, 0], fov: 38 },
+  top: { position: [0.01, 38, 0.01], target: [0, 0, 0], fov: 36 },
+  end: { position: [0, 7.2, 26], target: [0, 1.45, 0], fov: 36 },
+  side: { position: [22, 7.2, 0.01], target: [0, 1.45, 0], fov: 36 },
 }
 
 const VIEW_LABELS = {
@@ -269,6 +270,26 @@ class SceneErrorBoundary extends Component {
   }
 }
 
+class CourtModuleErrorBoundary extends Component {
+  constructor(props) {
+    super(props)
+    this.state = { error: null }
+  }
+
+  static getDerivedStateFromError(error) {
+    return { error }
+  }
+
+  componentDidCatch(error) {
+    this.props.onError?.(error)
+  }
+
+  render() {
+    if (this.state.error) return null
+    return this.props.children
+  }
+}
+
 function WebGLFallback({ title = 'La vista 3D no está disponible' }) {
   return (
     <div className="knd-court3d-fallback" role="status" aria-live="polite">
@@ -355,13 +376,14 @@ function GlassPanel({ size, position, rotation = [0, 0, 0] }) {
     <mesh position={position} rotation={rotation} castShadow receiveShadow renderOrder={3}>
       <boxGeometry args={size} />
       <meshPhysicalMaterial
-        color="#c9e8ef"
-        roughness={0.08}
+        color="#e7f1f2"
+        roughness={0.04}
         metalness={0}
-        transmission={0.35}
+        transmission={0.72}
         transparent
-        opacity={0.28}
+        opacity={0.22}
         depthWrite={false}
+        thickness={0.035}
         side={THREE.DoubleSide}
       />
     </mesh>
@@ -447,27 +469,28 @@ function TurfMaterial({ color, textureUrl }) {
   return <meshStandardMaterial color={tint} map={texture} roughness={0.94} metalness={0} />
 }
 
-function CourtFloor({ width, turfColor, turfTexture, mobileBase, frameColor, renderBase = true }) {
+function CourtFloor({ width, turfColor, turfTexture, mobileBase, frameColor, renderBase = true, surfaceY = 0.015 }) {
+  const baseY = mobileBase ? -0.14 : surfaceY === 0 ? -0.09 : -0.08
   return (
-    <group>
+    <>
       {renderBase && (
-        <mesh position={[0, mobileBase ? -0.14 : -0.08, 0]} receiveShadow castShadow={mobileBase}>
+        <mesh position={[0, baseY, 0]} receiveShadow castShadow={mobileBase}>
           <boxGeometry args={[width + (mobileBase ? 0.72 : 0.22), mobileBase ? 0.28 : 0.16, 20.72]} />
           <meshStandardMaterial color={mobileBase ? frameColor : '#5b5e5c'} roughness={0.78} metalness={mobileBase ? 0.5 : 0.08} />
         </mesh>
       )}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.015, 0]} receiveShadow>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, surfaceY, 0]} receiveShadow>
         <planeGeometry args={[width, 20, 1, 1]} />
         <TurfMaterial color={turfColor} textureUrl={turfTexture} />
       </mesh>
-      <CourtLines width={width} />
+      <CourtLines width={width} surfaceY={surfaceY} />
       {mobileBase && renderBase && <MobileBaseDetails width={width} color={frameColor} />}
-    </group>
+    </>
   )
 }
 
-function CourtLines({ width }) {
-  const y = 0.038
+function CourtLines({ width, surfaceY = 0.015 }) {
+  const y = surfaceY + (surfaceY > 0.01 ? 0.023 : 0.004)
   const edge = width / 2 - 0.07
   const end = 9.93
   const lineProps = { color: '#f7f7f1', lineWidth: 2.2, transparent: true, opacity: 0.96 }
@@ -542,8 +565,9 @@ function CourtEnvelope({ width, modelVisual, frameColor, protection, glassThickn
       )}
 
       <CourtDoors width={width} frameColor={frameColor} profile={p} />
-      {modelVisual.braces && <StructureBraces width={width} frameColor={frameColor} profile={p * 0.72} />}
-      {modelVisual.reinforcedRails && <ReinforcedRails width={width} frameColor={frameColor} profile={p * 0.72} />}
+      {/* Keep the visual fallback intentionally clean. Reinforcement rails and
+          braces must come from a validated KND GLB instead of being layered
+          over glass, gates and mesh with generic primitives. */}
       {modelVisual.signature && <SignatureBand width={width} color={frameColor} />}
       {protection && <ProtectionPads width={width} />}
     </group>
@@ -809,7 +833,10 @@ function CourtLighting({ width, lighting, frameColor, poleStyle, environment, li
   if (lighting.style === 'suspended') {
     return <SuspendedLighting width={width} frameColor={frameColor} environment={environment} lightsOn={lightsOn} />
   }
-  const zPositions = lighting.lamps === 8 ? [-7.3, -2.45, 2.45, 7.3] : [-6.4, 6.4]
+  // The fallback uses four clean pole anchors. Packages that contain eight
+  // luminaires are represented by their fixture choice, not eight invented
+  // pole bodies. Exact anchors will come from the model manifest.
+  const zPositions = [-6.4, 6.4]
   return (
     <group>
       {[-1, 1].flatMap((side) => zPositions.map((z) => (
@@ -900,16 +927,16 @@ function AnchorPlates({ width, frameColor }) {
 function WorldLighting({ environment }) {
   const night = environment === 'night'
   const evening = environment === 'evening'
-  const background = night ? '#07111e' : evening ? '#6f7889' : '#dbe7e7'
+  const background = night ? '#111b29' : evening ? '#b8b6b2' : '#f3f2ee'
   return (
     <>
       <color attach="background" args={[background]} />
       <fog attach="fog" args={[background, 30, 58]} />
-      <hemisphereLight args={[night ? '#7798bc' : '#f4fbff', night ? '#18211d' : '#879483', night ? 0.68 : evening ? 1.05 : 1.5]} />
+      <hemisphereLight args={[night ? '#7798bc' : '#ffffff', night ? '#18211d' : '#c8c6be', night ? 0.72 : evening ? 1.2 : 1.75]} />
       <directionalLight
         position={night ? [-8, 12, 9] : [9, 16, 7]}
         color={evening ? '#ffd1a3' : '#ffffff'}
-        intensity={night ? 0.55 : evening ? 1.7 : 2.15}
+        intensity={night ? 0.6 : evening ? 1.55 : 1.85}
         castShadow
         shadow-mapSize-width={1024}
         shadow-mapSize-height={1024}
@@ -950,24 +977,48 @@ function CourtWorld({
   onModuleStatusChange,
 }) {
   const { width } = modelVisual
-  const [moduleStatus, setModuleStatus] = useState({ phase: 'checking', componentKeys: [] })
+  const moduleRequestKey = [
+    modelId,
+    poleStyle,
+    mobileBase ? 'mobile' : 'anchored',
+    protection ? 'protected' : 'standard',
+    glassThickness,
+  ].join(':')
+  const [moduleStatus, setModuleStatus] = useState({ phase: 'checking', componentKeys: [], requestKey: '' })
   const handleModuleStatus = useCallback((next) => {
-    setModuleStatus(next)
-    onModuleStatusChange?.(next)
-  }, [onModuleStatusChange])
+    const scoped = { ...next, requestKey: moduleRequestKey }
+    setModuleStatus(scoped)
+    onModuleStatusChange?.(scoped)
+  }, [moduleRequestKey, onModuleStatusChange])
+  const handleModuleError = useCallback((error) => {
+    handleModuleStatus({
+      phase: 'error',
+      reason: error?.message || 'No se pudo cargar el conjunto GLB.',
+      componentKeys: [],
+      handlesLighting: false,
+    })
+  }, [handleModuleStatus])
   const moduleKeys = moduleStatus.componentKeys || []
-  const modularReady = moduleStatus.phase === 'ready'
+  const modularReady = moduleStatus.phase === 'ready' && moduleStatus.requestKey === moduleRequestKey
   const modularPoles = modularReady && moduleKeys.includes('poles')
   const modularMobileBase = modularReady && mobileBase && moduleKeys.includes('mobileBase')
   const modularProtection = modularReady && protection && moduleKeys.includes('protection')
+  const modularLighting = modularReady && moduleStatus.handlesLighting
   return (
     <group>
-      <WorldLighting environment={environment} />
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, mobileBase ? -0.3 : -0.17, 0]} receiveShadow>
         <planeGeometry args={[58, 58]} />
-        <meshStandardMaterial color={environment === 'night' ? '#101c23' : environment === 'evening' ? '#5a6268' : '#bdc7bf'} roughness={1} />
+        <meshStandardMaterial color={environment === 'night' ? '#15202c' : environment === 'evening' ? '#aaa9a5' : '#efeee9'} roughness={1} />
       </mesh>
-      <CourtFloor width={width} turfColor={turfColor} turfTexture={turfTexture} mobileBase={mobileBase} frameColor={frameColor} renderBase={!modularMobileBase} />
+      <CourtFloor
+        width={width}
+        turfColor={turfColor}
+        turfTexture={turfTexture}
+        mobileBase={mobileBase}
+        frameColor={frameColor}
+        renderBase={!modularMobileBase}
+        surfaceY={modularReady ? 0 : 0.015}
+      />
       {!modularReady && (
         <>
           <CourtEnvelope
@@ -980,24 +1031,35 @@ function CourtWorld({
           <CourtNet width={width} frameColor={frameColor} protection={protection} />
         </>
       )}
-      <KndModularCourt
-        modelId={modelId}
-        frameColor={frameColor}
-        glassThickness={glassThickness}
-        mobileBase={mobileBase}
-        protection={protection}
-        onStatusChange={handleModuleStatus}
-      />
+      <CourtModuleErrorBoundary key={moduleRequestKey} onError={handleModuleError}>
+        <Suspense fallback={null}>
+          <KndModularCourt
+            modelId={modelId}
+            frameColor={frameColor}
+            glassThickness={glassThickness}
+            mobileBase={mobileBase}
+            protection={protection}
+            poleStyle={poleStyle}
+            lighting={lighting}
+            environment={environment}
+            lightsOn={lightsOn}
+            active={modularReady}
+            onStatusChange={handleModuleStatus}
+          />
+        </Suspense>
+      </CourtModuleErrorBoundary>
       {modularReady && protection && !modularProtection && <ProtectionPads width={width} />}
-      <CourtLighting
-        width={width}
-        lighting={lighting}
-        frameColor={frameColor}
-        poleStyle={poleStyle}
-        environment={environment}
-        lightsOn={lightsOn}
-        renderPoles={!modularPoles}
-      />
+      {!modularLighting && (
+        <CourtLighting
+          width={width}
+          lighting={lighting}
+          frameColor={frameColor}
+          poleStyle={poleStyle}
+          environment={environment}
+          lightsOn={lightsOn}
+          renderPoles={!modularPoles}
+        />
+      )}
       <RoofSystem roofId={roofId} width={width} frameColor={frameColor} />
       {!mobileBase && !modularReady && <AnchorPlates width={width} frameColor={frameColor} />}
     </group>
@@ -1008,6 +1070,7 @@ function SceneContents({ sceneProps, view, resetToken, controlsRef, onModuleStat
   return (
     <>
       <RendererSettings environment={sceneProps.environment} />
+      <WorldLighting environment={sceneProps.environment} />
       <CameraRig view={view} resetToken={resetToken} controlsRef={controlsRef} />
       <CourtWorld {...sceneProps} onModuleStatusChange={onModuleStatusChange} />
       <OrbitControls

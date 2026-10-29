@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import {
+  brand,
   courts,
   frameFinishes,
   lightingPackages,
@@ -11,54 +12,55 @@ import {
 import Court3DScene from './Court3DScene.jsx'
 import './Configurator.css'
 
-const SCHEMA_VERSION = 1
-
-const UI = {
-  es: {
-    eyebrow: 'KND CONFIGURATION STUDIO',
-    title: 'Tu pista. Tu sistema.',
-    intro: 'Configura una propuesta preliminar y comprueba cada cambio en la escena 3D. Las opciones sujetas a ingeniería están identificadas.',
-    model: 'Modelo de pista', turf: 'Sistema de césped', finish: 'Color de césped', frame: 'Acabado de estructura',
-    pole: 'Poste de iluminación', lighting: 'Luminaria LED', glass: 'Vidrio', protection: 'Protecciones', installationLabel: 'Instalación',
-    scale: 'Número de pistas', roof: 'Cubierta', accessories: 'Protección e instalación',
-    noRoof: 'Sin cubierta', protectionOff: 'Sin acolchado solicitado', protectionOn: 'Solicitar kit de protección',
-    anchored: 'Instalación anclada', mobile: 'Solicitar estudio de base móvil', day: 'Día', evening: 'Atardecer', night: 'Noche',
-    view: 'Entorno de visualización', summary: 'Resumen de configuración', quote: 'Solicitar presupuesto con esta configuración',
-    copy: 'Copiar enlace', json: 'Descargar configuración', png: 'Guardar imagen PNG', print: 'Imprimir / guardar PDF', reset: 'Restablecer',
-    visualRequest: 'Opción visual sujeta a validación técnica y comercial.',
-    roofRule: 'Esta cubierta requiere un proyecto de al menos 2 pistas.',
-    disclaimer: 'Configuración preliminar. La ingeniería, normativa local, cimentación, colores, disponibilidad y especificación final se confirman para cada emplazamiento.',
-    saved: 'Configuración guardada en este navegador.', copied: 'Enlace copiado.', copyError: 'No se pudo copiar; selecciona la URL del navegador.',
-    captured: 'Vista PNG guardada.', captureError: 'No se pudo generar la captura en este dispositivo.',
-    tech: 'Ficha técnica', colourNote: 'La disponibilidad de color por sistema se confirma en la propuesta.',
-    compatible: 'Compatibilidad aplicada automáticamente', modelVisual: 'Geometría paramétrica orientativa',
-  },
-  en: {
-    eyebrow: 'KND CONFIGURATION STUDIO',
-    title: 'Your court. Your system.',
-    intro: 'Build a preliminary proposal and see every change in the 3D scene. Options subject to engineering review are clearly identified.',
-    model: 'Court model', turf: 'Turf system', finish: 'Turf colour', frame: 'Frame finish',
-    pole: 'Lighting pole', lighting: 'LED lighting', glass: 'Glass', protection: 'Protection', installationLabel: 'Installation',
-    scale: 'Number of courts', roof: 'Canopy', accessories: 'Protection and installation',
-    noRoof: 'No canopy', protectionOff: 'No padding requested', protectionOn: 'Request protection kit',
-    anchored: 'Anchored installation', mobile: 'Request mobile-base study', day: 'Day', evening: 'Evening', night: 'Night',
-    view: 'Preview environment', summary: 'Configuration summary', quote: 'Request a quote with this configuration',
-    copy: 'Copy link', json: 'Download configuration', png: 'Save PNG image', print: 'Print / save PDF', reset: 'Reset',
-    visualRequest: 'Visual option subject to technical and commercial validation.',
-    roofRule: 'This canopy requires a project with at least 2 courts.',
-    disclaimer: 'Preliminary configuration. Engineering, local regulations, foundations, colours, availability and final specification are confirmed for each site.',
-    saved: 'Configuration saved in this browser.', copied: 'Link copied.', copyError: 'Could not copy; select the browser URL instead.',
-    captured: 'PNG view saved.', captureError: 'The capture could not be generated on this device.',
-    tech: 'Technical sheet', colourNote: 'Colour availability per system is confirmed in the proposal.',
-    compatible: 'Compatibility applied automatically', modelVisual: 'Indicative parametric geometry',
-  },
-}
-
+const SCHEMA_VERSION = 2
+const STORAGE_KEY = 'knd-configurator-studio-v2'
 const VALID_ENVIRONMENTS = ['day', 'evening', 'night']
 const VALID_POLES = ['curved', 'signature-curved', 'straight', 'angled', 'z', 't']
 const VALID_INSTALLATIONS = ['anchored', 'mobile-request']
 const VALID_GLASS = ['10', '12']
 const HEX_COLOUR = /^#[0-9a-f]{6}$/i
+
+const COPY = {
+  es: {
+    studio: 'COURT STUDIO', configuration: 'Tu configuración', make: 'HAZLA TUYA', collection: 'THE KND COLLECTION',
+    titleOne: 'Tu pista.', titleTwo: 'Tu firma.', intro: 'Pensada en cada detalle. Configurada por ti.', live: 'VISTA 3D EN DIRECTO',
+    model: 'Modelo', turf: 'Césped', frame: 'Color de estructura', lighting: 'Iluminación', protection: 'Kit de protección', installation: 'Instalación',
+    surface: 'Sistema de superficie', pole: 'Silueta del poste', fixture: 'Luminaria', evening: 'Iluminación nocturna',
+    choosePole: 'Elige la silueta del poste y combínala con la luminaria disponible.', without: 'Sin kit', include: 'Incluir kit',
+    padding: 'Protección negra para postes de red y marcos de puerta.', custom: 'Color personalizado',
+    anchored: 'Anclada', anchoredSub: 'Instalación permanente', mobile: 'Base móvil', mobileSub: 'Sin anclajes al pavimento',
+    projectOptions: 'Opciones de proyecto', scale: 'Número de pistas', roof: 'Cubierta', glass: 'Vidrio', noRoof: 'Sin cubierta',
+    view: 'Ver tu configuración', drag: 'Arrastra para girar · Rueda para acercar', preview: 'vista de diseño',
+    summaryEyebrow: 'TU PISTA, DEFINIDA', summaryTitle: 'Tu configuración.', enquire: 'Consultar esta pista', close: 'Cerrar',
+    copy: 'Copiar configuración', json: 'Descargar configuración', png: 'Guardar imagen', reset: 'Restablecer',
+    disclaimer: 'Vista de diseño. Las dimensiones, estructura, cimentación y requisitos finales se confirman con el equipo de proyecto KND.',
+    saved: 'Configuración guardada.', copied: 'Enlace copiado.', copyError: 'No se ha podido copiar el enlace.', captured: 'Imagen guardada.', captureError: 'No se ha podido guardar la imagen.',
+    preliminary: 'Geometría visual provisional hasta validar los GLB y planos KND.', customHelp: 'Visualización de color. El RAL final se confirma en la propuesta.',
+    models: 'sistemas', selected: 'Seleccionado', details: 'Detalles del proyecto', day: 'Día', night: 'Noche', language: 'Cambiar idioma',
+  },
+  en: {
+    studio: 'COURT STUDIO', configuration: 'Your configuration', make: 'MAKE IT YOURS', collection: 'THE KND COLLECTION',
+    titleOne: 'Your court.', titleTwo: 'Your signature.', intro: 'Considered in every detail. Configured by you.', live: 'LIVE 3D PREVIEW',
+    model: 'Model', turf: 'Turf', frame: 'Frame colour', lighting: 'Lighting', protection: 'Protection kit', installation: 'Installation',
+    surface: 'Surface system', pole: 'Pole silhouette', fixture: 'Light fixture', evening: 'Evening lighting',
+    choosePole: 'Choose a pole silhouette and pair it with the available floodlight.', without: 'Without', include: 'Include kit',
+    padding: 'Black padding for net posts and door frames.', custom: 'Custom colour',
+    anchored: 'Anchored', anchoredSub: 'Permanent installation', mobile: 'Mobile base', mobileSub: 'No floor anchors',
+    projectOptions: 'Project options', scale: 'Number of courts', roof: 'Canopy', glass: 'Glass', noRoof: 'No canopy',
+    view: 'View your configuration', drag: 'Drag to rotate · Scroll to zoom', preview: 'design preview',
+    summaryEyebrow: 'YOUR COURT, DEFINED', summaryTitle: 'Your configuration.', enquire: 'Enquire about this court', close: 'Close',
+    copy: 'Copy configuration', json: 'Download configuration', png: 'Save preview image', reset: 'Reset',
+    disclaimer: 'Design preview. Final dimensions, structure, foundations and requirements are confirmed with the KND project team.',
+    saved: 'Configuration saved.', copied: 'Link copied.', copyError: 'The link could not be copied.', captured: 'Image saved.', captureError: 'The image could not be saved.',
+    preliminary: 'Indicative geometry until KND GLBs and drawings are validated.', customHelp: 'Visual colour only. Final RAL is confirmed in the proposal.',
+    models: 'systems', selected: 'Selected', details: 'Project details', day: 'Day', night: 'Evening', language: 'Change language',
+  },
+}
+
+const POLES = {
+  es: [['curved', 'Curvo', 'Perfil curvo compacto'], ['signature-curved', 'Signature Curved', 'Perfil curvo extendido'], ['angled', 'Inclinado', 'Una declaración precisa'], ['straight', 'Recto', 'Limpio y directo'], ['z', 'Poste Z', 'Perfil expresivo'], ['t', 'Poste T', 'Abierto y equilibrado']],
+  en: [['curved', 'Curved', 'Compact curved profile'], ['signature-curved', 'Signature Curved', 'Extended curved profile'], ['angled', 'Angled', 'A precise statement'], ['straight', 'Straight', 'Clean and direct'], ['z', 'Z pole', 'A bold profile'], ['t', 'T pole', 'Balanced and open']],
+}
 
 function findValid(items, id, fallback) {
   return items.some((item) => item.id === id) ? id : fallback
@@ -73,15 +75,14 @@ function readInitial(search) {
   const params = new URLSearchParams(search || '')
   let stored = null
   if (!search && typeof window !== 'undefined') {
-    try { stored = JSON.parse(localStorage.getItem('knd-configurator-draft') || 'null') } catch { stored = null }
+    try { stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null') } catch { stored = null }
   }
   const get = (key) => params.get(key) || stored?.[key] || ''
   const modelId = findValid(courts, get('model'), courts[0].id)
   const projectScaleId = findValid(projectScales, get('scale'), projectScales[0].id)
-  const scale = projectScales.find((item) => item.id === projectScaleId)
+  const scale = projectScales.find((item) => item.id === projectScaleId) || projectScales[0]
   const requestedRoof = findValid(roofSystems, get('roof'), 'none')
   const selectedRoof = roofSystems.find((item) => item.id === requestedRoof)
-
   return {
     modelId,
     turfSystemId: findValid(turfSystems, get('turf'), turfSystems[0].id),
@@ -111,25 +112,6 @@ function toParams(config) {
   })
 }
 
-function Choice({ selected, disabled = false, onClick, children, swatch, note }) {
-  return (
-    <button type="button" className={`knd-config-choice ${selected ? 'is-selected' : ''}`} aria-pressed={selected} disabled={disabled} onClick={onClick}>
-      {swatch && <i aria-hidden="true" style={{ background: swatch }} />}
-      <span>{children}</span>
-      {note && <small>{note}</small>}
-    </button>
-  )
-}
-
-function Step({ number, title, detail, children }) {
-  return (
-    <fieldset className="knd-config-step">
-      <legend><span>{number}</span><strong>{title}</strong>{detail && <small>{detail}</small>}</legend>
-      <div className="knd-config-choices">{children}</div>
-    </fieldset>
-  )
-}
-
 function makeDownload(filename, content, type) {
   const blob = new Blob([content], { type })
   const url = URL.createObjectURL(blob)
@@ -142,9 +124,61 @@ function makeDownload(filename, content, type) {
   URL.revokeObjectURL(url)
 }
 
-export default function Configurator({ navigate, openProject, search = '', locale = 'es' }) {
-  const text = UI[locale] || UI.es
+function Arrow() {
+  return <span aria-hidden="true">→</span>
+}
+
+function StudioHeader({ court, locale, setLocale, navigate, onSummary, text }) {
+  return (
+    <header className="knd-studio-header">
+      <div className="knd-studio-brand">
+        <button type="button" onClick={() => navigate('/')} aria-label="KND Padel home"><img src={brand.logo} alt="KND Padel" /></button>
+        <span aria-hidden="true" />
+        <b>{text.studio}</b>
+      </div>
+      <p>{court.code} / {court.name}</p>
+      <div className="knd-studio-header-actions">
+        <button type="button" className="knd-studio-language" onClick={() => setLocale?.(locale === 'es' ? 'en' : 'es')} aria-label={text.language}>◎ <span>{locale.toUpperCase()}</span></button>
+        <button type="button" className="knd-studio-summary-trigger" onClick={onSummary}>{text.configuration}<Arrow /></button>
+      </div>
+    </header>
+  )
+}
+
+function SectionHeading({ number, title, detail }) {
+  return <div className="knd-studio-section-heading"><span>{number}</span><strong>{title}</strong>{detail && <em>{detail}</em>}</div>
+}
+
+function CardChoice({ selected, disabled, onClick, children, className = '', ariaLabel }) {
+  return <button type="button" className={`knd-studio-choice ${selected ? 'is-selected' : ''} ${className}`.trim()} aria-pressed={selected} aria-label={ariaLabel} disabled={disabled} onClick={onClick}>{children}</button>
+}
+
+function SummaryModal({ text, court, rows, selection, onClose, onEnquire, onCopy, onDownload, onSave, status }) {
+  return (
+    <div className="knd-studio-modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose() }}>
+      <section className="knd-studio-modal" role="dialog" aria-modal="true" aria-labelledby="knd-summary-title">
+        <button type="button" className="knd-studio-modal-close" onClick={onClose} aria-label={text.close}>×</button>
+        <span>{text.summaryEyebrow}</span>
+        <h2 id="knd-summary-title">{text.summaryTitle}</h2>
+        <p className="knd-studio-modal-model"><b>{court.code}</b><strong>{court.name}</strong><small>{court.id === 'single-court' ? '20 × 6 m' : '20 × 10 m'} / KND Padel</small></p>
+        <dl>{rows.map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl>
+        <button type="button" className="knd-studio-enquire" onClick={() => onEnquire(selection)}>{text.enquire}<Arrow /></button>
+        <div className="knd-studio-modal-actions">
+          <button type="button" onClick={onSave}>{text.png}</button>
+          <button type="button" onClick={onDownload}>{text.json}</button>
+          <button type="button" onClick={onCopy}>{text.copy}</button>
+        </div>
+        <p className="knd-studio-modal-note">{text.disclaimer}</p>
+        {status && <p className="knd-studio-status" role="status" aria-live="polite">{status}</p>}
+      </section>
+    </div>
+  )
+}
+
+export default function Configurator({ navigate, openProject, search = '', locale = 'es', setLocale }) {
+  const text = COPY[locale] || COPY.es
   const [config, setConfig] = useState(() => readInitial(search))
+  const [summaryOpen, setSummaryOpen] = useState(false)
   const [status, setStatus] = useState('')
   const sceneRef = useRef(null)
 
@@ -152,17 +186,15 @@ export default function Configurator({ navigate, openProject, search = '', local
   const turf = turfSystems.find((item) => item.id === config.turfSystemId) || turfSystems[0]
   const turfFinish = turfFinishes.find((item) => item.id === config.turfFinishId) || turfFinishes[0]
   const frameBase = frameFinishes.find((item) => item.id === config.frameId) || frameFinishes[0]
-  const frame = frameBase.id === 'custom-ral'
-    ? { ...frameBase, color: HEX_COLOUR.test(config.customFrameHex) ? config.customFrameHex : '#385c4a' }
-    : frameBase
-  const lighting = lightingPackages.find((item) => item.id === config.lightingId) || lightingFor(config.modelId)
+  const frame = frameBase.id === 'custom-ral' ? { ...frameBase, color: HEX_COLOUR.test(config.customFrameHex) ? config.customFrameHex : '#385c4a' } : frameBase
+  const lighting = lightingPackages.find((item) => item.id === config.lightingId) || lightingPackages.find((item) => item.id === lightingFor(config.modelId)) || lightingPackages[0]
   const scale = projectScales.find((item) => item.id === config.projectScaleId) || projectScales[0]
   const roof = roofSystems.find((item) => item.id === config.roofId) || null
-
   const update = (patch) => setConfig((current) => ({ ...current, ...patch }))
+
   const selectModel = (modelId) => setConfig((current) => ({ ...current, modelId, lightingId: lightingFor(modelId, current.lightingId) }))
   const selectScale = (projectScaleId) => {
-    const nextScale = projectScales.find((item) => item.id === projectScaleId)
+    const nextScale = projectScales.find((item) => item.id === projectScaleId) || projectScales[0]
     setConfig((current) => {
       const currentRoof = roofSystems.find((item) => item.id === current.roofId)
       return { ...current, projectScaleId, roofId: currentRoof && currentRoof.minCourts > nextScale.courts ? 'none' : current.roofId }
@@ -170,213 +202,151 @@ export default function Configurator({ navigate, openProject, search = '', local
   }
 
   const selection = useMemo(() => ({
-    schema: 'knd-court-configuration', schemaVersion: SCHEMA_VERSION,
-    createdAt: new Date().toISOString(),
-    preliminary: true,
-    court: { id: court.id, code: court.code, name: court.name, dimensions: court.id === 'single-court' ? '20 × 6 m y especiales' : '20 × 10 m' },
+    schema: 'knd-court-configuration', schemaVersion: SCHEMA_VERSION, createdAt: new Date().toISOString(), preliminary: true,
+    court: { id: court.id, code: court.code, name: court.name, dimensions: court.id === 'single-court' ? '20 × 6 m' : '20 × 10 m' },
     turfSystem: { id: turf.id, code: turf.code, name: turf.name, facts: turf.facts },
     turfFinish: { id: turfFinish.id, name: turfFinish.name, color: turfFinish.color },
     frameFinish: { id: frame.id, name: frame.name, color: frame.color },
-    lighting: { id: lighting.id, name: lighting.name },
-    glass: { thickness: `${config.glassThickness} mm`, note: config.glassThickness === '10' ? text.visualRequest : undefined },
-    projectScale: { id: scale.id, name: scale.name, minimumCourts: scale.courts },
+    lighting: { id: lighting.id, name: lighting.name, pole: config.poleStyle },
+    glass: { thickness: `${config.glassThickness} mm` }, projectScale: { id: scale.id, name: scale.name },
     canopy: roof ? { id: roof.id, code: roof.code, name: roof.name } : null,
-    protectionRequest: config.protection,
-    installation: config.installation,
-    poleVisual: config.poleStyle,
-    lightsOn: config.lightsOn,
-    environment: config.environment,
-    disclaimer: text.disclaimer,
-  }), [config.environment, config.glassThickness, config.installation, config.lightsOn, config.poleStyle, config.protection, court, frame, lighting, roof, scale, text.disclaimer, text.visualRequest, turf, turfFinish])
+    protectionRequest: config.protection, installation: config.installation, lightsOn: config.lightsOn,
+    environment: config.environment, disclaimer: text.disclaimer,
+  }), [config.environment, config.glassThickness, config.installation, config.lightsOn, config.poleStyle, config.protection, court, frame, lighting, roof, scale, text.disclaimer, turf, turfFinish])
 
   useEffect(() => {
-    const params = toParams(config)
-    const next = `${window.location.pathname}?${params.toString()}`
+    const next = `${window.location.pathname}?${toParams(config).toString()}`
     window.history.replaceState({}, '', next)
-    try {
-      localStorage.setItem('knd-configurator-draft', JSON.stringify(config))
-      const timeout = window.setTimeout(() => setStatus(text.saved), 250)
-      return () => window.clearTimeout(timeout)
-    } catch { return undefined }
-  }, [config, text.saved])
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(config)) } catch { /* URL state remains canonical. */ }
+  }, [config])
+
+  useEffect(() => {
+    const onEscape = (event) => { if (event.key === 'Escape') setSummaryOpen(false) }
+    document.addEventListener('keydown', onEscape)
+    return () => document.removeEventListener('keydown', onEscape)
+  }, [])
 
   const copyLink = async () => {
-    const link = `${window.location.origin}${window.location.pathname}?${toParams(config).toString()}`
     try {
-      if (navigator.clipboard?.writeText) await navigator.clipboard.writeText(link)
-      else throw new Error('clipboard')
+      await navigator.clipboard.writeText(`${window.location.origin}${window.location.pathname}?${toParams(config).toString()}`)
       setStatus(text.copied)
-    } catch {
-      setStatus(text.copyError)
-    }
+    } catch { setStatus(text.copyError) }
   }
-
   const downloadConfiguration = () => {
-    makeDownload(`knd-${court.code.toLowerCase()}-configuracion.json`, JSON.stringify(selection, null, 2), 'application/json;charset=utf-8')
-    setStatus(locale === 'en' ? 'Configuration file downloaded.' : 'Archivo de configuración descargado.')
+    makeDownload(`knd-${court.code.toLowerCase()}-configuration.json`, JSON.stringify(selection, null, 2), 'application/json;charset=utf-8')
+    setStatus(text.saved)
   }
-
   const savePng = async () => {
     try {
       const image = await sceneRef.current?.capture({ download: true, filename: `knd-${court.code.toLowerCase()}-${config.view}.png` })
       setStatus(image ? text.captured : text.captureError)
-    } catch {
-      setStatus(text.captureError)
-    }
+    } catch { setStatus(text.captureError) }
   }
-
   const reset = () => {
-    const fresh = readInitial('?')
-    setConfig(fresh)
+    setConfig(readInitial('?'))
     sceneRef.current?.reset()
-    setStatus(locale === 'en' ? 'Configuration reset.' : 'Configuración restablecida.')
+    setStatus(text.saved)
   }
 
+  const poleLabels = POLES[locale] || POLES.es
   const summaryRows = [
-    [text.model, `${court.code} · ${court.name}`],
-    [text.turf, `${turf.code} · ${turf.name}`],
-    [text.finish, turfFinish.name],
-    [text.frame, frame.name],
-    [text.pole, config.poleStyle],
-    [text.lighting, lighting.name],
-    [text.glass, `${config.glassThickness} mm${config.glassThickness === '10' ? ` · ${text.visualRequest}` : ''}`],
-    [text.scale, scale.name],
-    [text.roof, roof ? `${roof.code} · ${roof.name}` : text.noRoof],
-    [locale === 'en' ? 'Protection' : 'Protección', config.protection ? text.protectionOn : text.protectionOff],
-    [locale === 'en' ? 'Installation' : 'Instalación', config.installation === 'anchored' ? text.anchored : text.mobile],
-    [locale === 'en' ? 'Lights' : 'Luces', config.lightsOn ? (locale === 'en' ? 'On' : 'Encendidas') : (locale === 'en' ? 'Off' : 'Apagadas')],
+    [text.model, `${court.code} · ${court.name}`], [text.turf, `${turf.name} · ${turfFinish.name}`],
+    [text.frame, frame.name], [text.lighting, `${poleLabels.find(([id]) => id === config.poleStyle)?.[1] || config.poleStyle} · ${lighting.name}`],
+    [text.protection, config.protection ? text.include : text.without], [text.installation, config.installation === 'anchored' ? text.anchored : text.mobile],
+    [text.glass, `${config.glassThickness} mm`], [text.scale, scale.name], [text.roof, roof ? roof.name : text.noRoof],
   ]
 
   return (
-    <section className="knd-configurator-page">
-      <header className="knd-configurator-intro">
-        <span>{text.eyebrow}</span>
-        <h1>{text.title}</h1>
-        <p>{text.intro}</p>
-        <button type="button" onClick={() => navigate('/courts')}>{locale === 'en' ? 'Compare court models' : 'Comparar modelos de pista'} →</button>
-      </header>
+    <section className="knd-studio">
+      <StudioHeader court={court} locale={locale} setLocale={setLocale} navigate={navigate} onSummary={() => setSummaryOpen(true)} text={text} />
 
-      <div className="knd-configurator-layout">
-        <section className="knd-configurator-visual" aria-label={locale === 'en' ? 'Interactive court preview' : 'Vista interactiva de la pista'}>
-          <div className="knd-configurator-visual-head">
-            <div><span>{court.code}</span><strong>{court.name}</strong></div>
-            <small>{text.modelVisual}</small>
-          </div>
+      <div className="knd-studio-workspace">
+        <section className="knd-studio-viewport" aria-label={locale === 'en' ? 'Interactive 3D court preview' : 'Vista 3D interactiva de la pista'}>
+          <div className="knd-studio-editorial"><span>{text.collection}</span><h1>{text.titleOne}<br /><em>{text.titleTwo}</em></h1><p>{text.intro}</p></div>
+          <div className="knd-studio-live"><i />{text.live}</div>
+          <button type="button" className="knd-studio-reset" onClick={reset} aria-label={text.reset}>↶</button>
+
           <Court3DScene
-            ref={sceneRef}
-            locale={locale}
-            config={config}
-            court={court}
-            turfFinish={turfFinish}
-            frameFinish={frame}
-            lighting={lighting}
-            roof={roof}
-            view={config.view}
-            onViewChange={(view) => update({ view })}
-            poleStyle={config.poleStyle}
-            protection={config.protection}
-            installation={config.installation}
-            environment={config.environment}
-            onCapture={(image, meta) => setStatus(image ? text.captured : `${text.captureError}${meta?.error ? '' : ''}`)}
+            ref={sceneRef} className="knd-studio-scene" locale={locale} config={config} court={court}
+            turfFinish={turfFinish} frameFinish={frame} lighting={lighting} roof={roof} view={config.view}
+            onViewChange={(view) => update({ view })} poleStyle={config.poleStyle} protection={config.protection}
+            installation={config.installation} environment={config.environment} glassThickness={config.glassThickness} lightsOn={config.lightsOn}
           />
-          <div className="knd-configurator-keyline"><span>20 × {court.id === 'single-court' ? '6' : '10'} m</span><span>WebGL · THREE.JS</span><span>{text.compatible}</span></div>
+
+          <div className="knd-studio-model-meta"><span>{court.code} / {court.name}</span><i /><span>{court.id === 'single-court' ? '20 × 6 m' : '20 × 10 m'}</span></div>
+          <p className="knd-studio-drag">⌁ &nbsp; {text.drag}</p>
+          <span className="knd-studio-watermark">KND PADEL</span>
+          <p className="knd-studio-preliminary">{text.preliminary}</p>
         </section>
 
-        <div className="knd-configurator-controls">
-          <Step number="01" title={text.model} detail={`${courts.length} ${locale === 'en' ? 'systems' : 'sistemas'}`}>
-            {courts.map((item) => <Choice key={item.id} selected={item.id === config.modelId} onClick={() => selectModel(item.id)}><b>{item.code}</b>{item.name}</Choice>)}
-          </Step>
+        <aside className="knd-studio-panel" aria-label={locale === 'en' ? 'Court configuration' : 'Configuración de pista'}>
+          <div className="knd-studio-panel-scroll">
+            <header className="knd-studio-panel-title"><span>{text.make}</span><small>{court.code}</small><h2>{court.name}</h2></header>
 
-          <Step number="02" title={text.turf} detail={turf.code}>
-            {turfSystems.map((item) => <Choice key={item.id} selected={item.id === config.turfSystemId} onClick={() => update({ turfSystemId: item.id })} note={item.facts.join(' · ')}><b>{item.code}</b>{item.name}</Choice>)}
-          </Step>
+            <section className="knd-studio-section">
+              <SectionHeading number="01" title={text.model} detail={`${courts.length} ${text.models}`} />
+              <div className="knd-studio-model-grid">
+                {courts.map((item) => <CardChoice key={item.id} selected={item.id === config.modelId} onClick={() => selectModel(item.id)} ariaLabel={`${item.code} ${item.name}`}><small>{item.code}</small><strong>{item.name}</strong>{item.id === config.modelId && <em>{text.selected}</em>}</CardChoice>)}
+              </div>
+            </section>
 
-          <Step number="03" title={text.finish} detail={text.colourNote}>
-            {turfFinishes.map((item) => <Choice key={item.id} selected={item.id === config.turfFinishId} onClick={() => update({ turfFinishId: item.id })} swatch={item.color}>{item.name}</Choice>)}
-          </Step>
+            <section className="knd-studio-section">
+              <SectionHeading number="02" title={text.turf} detail={turfFinish.name} />
+              <label className="knd-studio-select-label">{text.surface}<select value={config.turfSystemId} onChange={(event) => update({ turfSystemId: event.target.value })}>{turfSystems.map((item) => <option key={item.id} value={item.id}>{item.code} · {item.name}</option>)}</select></label>
+              <div className="knd-studio-swatches" role="group" aria-label={text.turf}>
+                {turfFinishes.map((item) => <CardChoice key={item.id} className="knd-studio-turf-choice" selected={item.id === config.turfFinishId} onClick={() => update({ turfFinishId: item.id })} ariaLabel={item.name}><i style={{ backgroundImage: `url(${item.image})`, backgroundColor: item.color }} /><span>{item.name}</span></CardChoice>)}
+              </div>
+            </section>
 
-          <Step number="04" title={text.frame} detail={locale === 'en' ? 'Final RAL to confirm' : 'RAL final a confirmar'}>
-            {frameFinishes.map((item) => <Choice key={item.id} selected={item.id === config.frameId} onClick={() => update({ frameId: item.id })} swatch={item.id === 'custom-ral' ? config.customFrameHex : item.color} note={item.request ? text.visualRequest : ''}>{item.name}</Choice>)}
-            {config.frameId === 'custom-ral' && <label className="knd-config-hex">
-              <span>{locale === 'en' ? 'Custom HEX visual' : 'HEX visual personalizado'}</span>
-              <input value={config.customFrameHex} onChange={(event) => update({ customFrameHex: event.target.value })} onBlur={() => { if (!HEX_COLOUR.test(config.customFrameHex)) update({ customFrameHex: '#385c4a' }) }} pattern="#[0-9A-Fa-f]{6}" aria-invalid={!HEX_COLOUR.test(config.customFrameHex)} />
-              <small>{text.visualRequest}</small>
-            </label>}
-          </Step>
+            <section className="knd-studio-section">
+              <SectionHeading number="03" title={text.frame} detail={frame.name} />
+              <div className="knd-studio-frame-options" role="group" aria-label={text.frame}>
+                {frameFinishes.map((item) => <CardChoice key={item.id} className="knd-studio-frame-choice" selected={item.id === config.frameId} onClick={() => update({ frameId: item.id })} ariaLabel={item.name}><i style={{ background: item.id === 'custom-ral' ? config.customFrameHex : item.color }} /><span>{item.name}</span></CardChoice>)}
+              </div>
+              {config.frameId === 'custom-ral' && <label className="knd-studio-custom-colour">{text.custom}<span><input type="color" value={HEX_COLOUR.test(config.customFrameHex) ? config.customFrameHex : '#385c4a'} onChange={(event) => update({ customFrameHex: event.target.value })} /><input value={config.customFrameHex} onChange={(event) => update({ customFrameHex: event.target.value })} onBlur={() => { if (!HEX_COLOUR.test(config.customFrameHex)) update({ customFrameHex: '#385c4a' }) }} /></span><small>{text.customHelp}</small></label>}
+            </section>
 
-          <Step number="05" title={text.pole} detail={text.visualRequest}>
-            {[
-              ['curved', locale === 'en' ? 'Curved' : 'Curvo'],
-              ['signature-curved', 'Signature Curved'],
-              ['angled', locale === 'en' ? 'Angled' : 'Inclinado'],
-              ['straight', locale === 'en' ? 'Straight' : 'Recto'],
-              ['z', 'Z Pole'],
-              ['t', 'T Pole'],
-            ].map(([id, label]) => <Choice key={id} selected={id === config.poleStyle} onClick={() => update({ poleStyle: id })}>{label}</Choice>)}
-          </Step>
+            <section className="knd-studio-section">
+              <SectionHeading number="04" title={text.lighting} detail={lighting.name} />
+              <p className="knd-studio-help"><strong>{text.pole}</strong>{text.choosePole}</p>
+              <div className="knd-studio-poles">
+                {poleLabels.map(([id, label, note]) => <CardChoice key={id} className="knd-studio-pole-choice" selected={id === config.poleStyle} onClick={() => update({ poleStyle: id })}><span className={`knd-pole-icon knd-pole-icon--${id}`} aria-hidden="true"><i /></span><strong>{label}</strong><small>{note}</small></CardChoice>)}
+              </div>
+              <p className="knd-studio-help"><strong>{text.fixture}</strong></p>
+              <div className="knd-studio-fixtures">
+                {lightingPackages.map((item) => { const enabled = item.models.includes(config.modelId); return <CardChoice key={item.id} selected={item.id === config.lightingId} disabled={!enabled} onClick={() => update({ lightingId: item.id })}><strong>{item.name}</strong><small>{enabled ? item.style : '—'}</small></CardChoice> })}
+              </div>
+              <label className="knd-studio-toggle"><span><strong>{text.evening}</strong><small>{locale === 'en' ? 'See your court after hours.' : 'Mira tu pista después del atardecer.'}</small></span><input type="checkbox" checked={config.environment !== 'day'} onChange={(event) => update({ environment: event.target.checked ? 'evening' : 'day', lightsOn: true })} /><i /></label>
+            </section>
 
-          <Step number="06" title={text.lighting} detail={text.compatible}>
-            {lightingPackages.map((item) => {
-              const enabled = item.models.includes(config.modelId)
-              return <Choice key={item.id} selected={item.id === config.lightingId} disabled={!enabled} onClick={() => update({ lightingId: item.id })} note={!enabled ? (locale === 'en' ? 'Not available for this model' : 'No disponible para este modelo') : ''}>{item.name}</Choice>
-            })}
-            <Choice selected={config.lightsOn} onClick={() => update({ lightsOn: true })}>{locale === 'en' ? 'Lights on' : 'Luces encendidas'}</Choice>
-            <Choice selected={!config.lightsOn} onClick={() => update({ lightsOn: false })}>{locale === 'en' ? 'Lights off' : 'Luces apagadas'}</Choice>
-          </Step>
+            <section className="knd-studio-section">
+              <SectionHeading number="05" title={text.protection} detail={config.protection ? text.include : text.without} />
+              <p className="knd-studio-section-copy">{text.padding}</p>
+              <div className="knd-studio-binary"><CardChoice selected={!config.protection} onClick={() => update({ protection: false })}>{text.without}</CardChoice><CardChoice selected={config.protection} onClick={() => update({ protection: true })}>{text.include}</CardChoice></div>
+            </section>
 
-          <Step number="07" title={text.glass} detail={locale === 'en' ? 'Visual thickness · final calculation required' : 'Espesor visual · requiere cálculo final'}>
-            <Choice selected={config.glassThickness === '12'} onClick={() => update({ glassThickness: '12' })}>12 mm</Choice>
-            <Choice selected={config.glassThickness === '10'} onClick={() => update({ glassThickness: '10' })} note={text.visualRequest}>10 mm</Choice>
-          </Step>
+            <section className="knd-studio-section">
+              <SectionHeading number="06" title={text.installation} />
+              <div className="knd-studio-installation"><CardChoice selected={config.installation === 'anchored'} onClick={() => update({ installation: 'anchored' })}><strong>{text.anchored}</strong><small>{text.anchoredSub}</small></CardChoice><CardChoice selected={config.installation === 'mobile-request'} onClick={() => update({ installation: 'mobile-request' })}><strong>{text.mobile}</strong><small>{text.mobileSub}</small></CardChoice></div>
+            </section>
 
-          <Step number="08" title={text.protection} detail={text.visualRequest}>
-            <Choice selected={!config.protection} onClick={() => update({ protection: false })}>{text.protectionOff}</Choice>
-            <Choice selected={config.protection} onClick={() => update({ protection: true })}>{text.protectionOn}</Choice>
-          </Step>
+            <details className="knd-studio-project-options">
+              <summary><span>07</span><strong>{text.projectOptions}</strong><em>{text.details}</em></summary>
+              <div>
+                <label>{text.scale}<select value={config.projectScaleId} onChange={(event) => selectScale(event.target.value)}>{projectScales.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
+                <label>{text.glass}<select value={config.glassThickness} onChange={(event) => update({ glassThickness: event.target.value })}><option value="12">12 mm</option><option value="10">10 mm</option></select></label>
+                <label>{text.roof}<select value={config.roofId} onChange={(event) => update({ roofId: event.target.value })}><option value="none">{text.noRoof}</option>{roofSystems.map((item) => <option key={item.id} value={item.id} disabled={item.minCourts > scale.courts}>{item.code} · {item.name}</option>)}</select></label>
+              </div>
+            </details>
+          </div>
 
-          <Step number="09" title={text.installationLabel} detail={text.visualRequest}>
-            <Choice selected={config.installation === 'anchored'} onClick={() => update({ installation: 'anchored' })}>{text.anchored}</Choice>
-            <Choice selected={config.installation === 'mobile-request'} onClick={() => update({ installation: 'mobile-request' })} note={text.visualRequest}>{text.mobile}</Choice>
-          </Step>
-
-          <Step number="10" title={text.scale} detail={scale.name}>
-            {projectScales.map((item) => <Choice key={item.id} selected={item.id === config.projectScaleId} onClick={() => selectScale(item.id)}>{item.name}</Choice>)}
-          </Step>
-
-          <Step number="11" title={text.roof} detail={roof?.code || text.noRoof}>
-            <Choice selected={config.roofId === 'none'} onClick={() => update({ roofId: 'none' })}>{text.noRoof}</Choice>
-            {roofSystems.map((item) => {
-              const disabled = item.minCourts > scale.courts
-              return <Choice key={item.id} selected={item.id === config.roofId} disabled={disabled} onClick={() => update({ roofId: item.id })} note={disabled ? text.roofRule : item.role}><b>{item.code}</b>{item.name}</Choice>
-            })}
-          </Step>
-
-          <Step number="12" title={text.view} detail={config.environment}>
-            {[['day', text.day], ['evening', text.evening], ['night', text.night]].map(([id, label]) => <Choice key={id} selected={id === config.environment} onClick={() => update({ environment: id })}>{label}</Choice>)}
-          </Step>
-
-          <section className="knd-config-summary" id="configuration-summary">
-            <span className="knd-config-summary-kicker">12 / 12 · {text.summary}</span>
-            <h2>{court.code}<br/><em>{court.name}</em></h2>
-            <dl>{summaryRows.map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl>
-            <p>{text.disclaimer}</p>
-            <button className="knd-config-quote" type="button" onClick={() => openProject({
-              type: 'knd-configurator-enquiry',
-              label: `${court.code} ${court.name}`,
-              configuration: selection,
-              editUrl: `${window.location.origin}${window.location.pathname}?${toParams(config).toString()}`,
-            })}>{text.quote} →</button>
-            <div className="knd-config-actions">
-              <button type="button" onClick={copyLink}>{text.copy}</button>
-              <button type="button" onClick={downloadConfiguration}>{text.json}</button>
-              <button type="button" onClick={savePng}>{text.png}</button>
-              <button type="button" onClick={() => window.print()}>{text.print}</button>
-              <button type="button" onClick={reset}>{text.reset}</button>
-            </div>
-            {status && <p className="knd-config-status" role="status" aria-live="polite">{status}</p>}
-          </section>
-        </div>
+          <div className="knd-studio-panel-footer"><button type="button" onClick={() => setSummaryOpen(true)}>{text.view}<Arrow /></button><small>{court.code} {text.preview}</small></div>
+        </aside>
       </div>
+
+      <footer className="knd-studio-footer"><span>KND PADEL · COURT STUDIO</span><span>{court.code} {text.preview}</span></footer>
+
+      {summaryOpen && <SummaryModal text={text} court={court} rows={summaryRows} selection={selection} status={status} onClose={() => setSummaryOpen(false)} onCopy={copyLink} onDownload={downloadConfiguration} onSave={savePng} onEnquire={(configuration) => { setSummaryOpen(false); openProject({ type: 'knd-configurator-enquiry', label: `${court.code} ${court.name}`, configuration, editUrl: window.location.href }) }} />}
     </section>
   )
 }

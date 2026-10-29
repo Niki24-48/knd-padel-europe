@@ -1,13 +1,36 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useGLTF } from '@react-three/drei'
 import * as THREE from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js'
+import { ACTIVE_PROVIDED_MODELS, PROVIDED_MODEL_ASSETS } from './providedModelAssets.js'
 
 const DEFAULT_INDEX_URL = '/models/knd/index.json'
 const REQUIRED_COMPONENTS = ['frame', 'glass', 'fence', 'net']
 const STRUCTURE_COMPONENTS = new Set(['frame', 'fence', 'poles', 'mobileBase'])
+const PROVIDED_COMPONENT_KEYS = ['frame', 'glass', 'fence', 'net', 'poles']
 const jsonCache = new Map()
 const glbCache = new Map()
+
+// Supplier files remain local-only while commercial publication and
+// redistribution rights are documented. Production keeps using the existing
+// KND/fallback contract even if these files are present on disk.
+const RIGHTS_PENDING_ASSETS_ENABLED = import.meta.env.DEV
+
+const OP01_LIGHT_MOUNTS = {
+  op01: [
+    { position: [-5.12585, 5.811142, 6.02], target: [0, 0, 4.214], width: 0.7 },
+    { position: [5.12585, 5.811142, 6.02], target: [0, 0, 4.214], width: 0.7 },
+    { position: [-5.12585, 5.811142, -6.02], target: [0, 0, -4.214], width: 0.7 },
+    { position: [5.12585, 5.811142, -6.02], target: [0, 0, -4.214], width: 0.7 },
+  ],
+  'op01-angled': [
+    { position: [-5.0265, 5.806, 6.0765], target: [0, 0, 4.25355], width: 0.7 },
+    { position: [5.0265, 5.806, 6.0765], target: [0, 0, 4.25355], width: 0.7 },
+    { position: [-5.0265, 5.806, -6.0265], target: [0, 0, -4.21855], width: 1.2 },
+    { position: [5.0265, 5.806, -6.0265], target: [0, 0, -4.21855], width: 1.2 },
+  ],
+}
 
 function fetchJson(url) {
   if (!jsonCache.has(url)) {
@@ -113,7 +136,7 @@ function createRoleMaterial(role, frameColor, glassThickness) {
   return new THREE.MeshStandardMaterial({ color: frameColor, metalness: 0.68, roughness: 0.38, side: THREE.DoubleSide })
 }
 
-function prepareComponents(bundle, frameColor, glassThickness) {
+function prepareValidatedComponents(bundle, frameColor, glassThickness) {
   if (bundle.phase !== 'ready') return { objects: [], materials: [] }
   const materials = []
   const objects = Object.entries(bundle.components).map(([key, component]) => {
@@ -139,18 +162,134 @@ function prepareComponents(bundle, frameColor, glassThickness) {
   return { objects, materials }
 }
 
-/**
- * Loads KND-owned, model-specific GLB modules when a manifest is marked ready.
- * Until then it renders nothing so Court3DScene can keep its parametric fallback.
- */
-export default function KndModularCourt({
+function cloneProvidedScene(scene, role, frameColor) {
+  const object = scene.clone(true)
+  const materials = []
+  object.traverse((child) => {
+    if (!child.isMesh) return
+    const sourceMaterials = Array.isArray(child.material) ? child.material : [child.material]
+    const clonedMaterials = sourceMaterials.map((source) => {
+      const material = source.clone()
+      if ((role === 'frame' || role === 'poles') && material.color) material.color.set(frameColor)
+      materials.push(material)
+      return material
+    })
+    child.material = Array.isArray(child.material) ? clonedMaterials : clonedMaterials[0]
+    // Dense CAD fence/net geometry produces heavy shadow-map aliasing on the
+    // turf. Keep shadows on the structural steel and poles only.
+    child.castShadow = role === 'frame' || role === 'poles'
+    child.receiveShadow = role === 'frame' || role === 'poles'
+  })
+  object.name = `rights-pending-op01-${role}`
+  return { object, materials }
+}
+
+function ProvidedGlbModule({ scene, role, frameColor }) {
+  const prepared = useMemo(() => cloneProvidedScene(scene, role, frameColor), [frameColor, role, scene])
+
+  useEffect(() => () => prepared.materials.forEach((material) => material.dispose()), [prepared])
+
+  return <primitive object={prepared.object} />
+}
+
+function FrameModule(props) {
+  return <ProvidedGlbModule {...props} role="frame" />
+}
+
+function GlassModule(props) {
+  return <ProvidedGlbModule {...props} role="glass" />
+}
+
+function FenceModule(props) {
+  return <ProvidedGlbModule {...props} role="fence" />
+}
+
+function NetModule(props) {
+  return <ProvidedGlbModule {...props} role="net" />
+}
+
+function PolesModule(props) {
+  return <ProvidedGlbModule {...props} role="poles" />
+}
+
+function ProvidedFixture({ mount, lighting, environment, lightsOn }) {
+  if (!lightsOn) return null
+  const lightColor = environment === 'evening' ? '#ffe1ad' : '#dcecff'
+  const packageFactor = lighting?.style === 'pro' ? 1.15 : lighting?.lamps === 8 ? 0.65 : 1
+
+  return (
+    <pointLight
+      position={mount.position}
+      color={lightColor}
+      intensity={(environment === 'night' ? 17 : environment === 'evening' ? 11 : 6) * packageFactor}
+      distance={14}
+      decay={2}
+    />
+  )
+}
+
+function ProvidedOp01Court({
+  assetId,
+  frameColor,
+  lighting,
+  environment,
+  lightsOn,
+  active,
+  onStatusChange,
+}) {
+  const assets = PROVIDED_MODEL_ASSETS[assetId]
+  // Loading the array through one hook makes the swap atomic: all five files
+  // resolve together or the parametric fallback remains visible.
+  const [frame, glass, fence, net, poles] = useGLTF(
+    [assets.frame, assets.glass, assets.fence, assets.net, assets.poles],
+    false,
+    true,
+  )
+
+  useEffect(() => {
+    onStatusChange?.({
+      phase: 'ready',
+      reason: 'provided-op01-rights-pending',
+      componentKeys: PROVIDED_COMPONENT_KEYS,
+      manifest: { id: assetId, source: assets.manifest, validation: { geometryVerified: false } },
+      handlesLighting: true,
+      rightsPending: true,
+    })
+  }, [assetId, assets.manifest, onStatusChange])
+
+  if (!active) return null
+
+  return (
+    <group name={`provided-${assetId}-assembly`}>
+      <group rotation={[0, Math.PI / 2, 0]} position={[0, 0, 0]} scale={[1, 1, 1]}>
+        <FrameModule scene={frame.scene} frameColor={frameColor} />
+        <GlassModule scene={glass.scene} frameColor={frameColor} />
+        <FenceModule scene={fence.scene} frameColor={frameColor} />
+        <NetModule scene={net.scene} frameColor={frameColor} />
+        <PolesModule scene={poles.scene} frameColor={frameColor} />
+      </group>
+      {OP01_LIGHT_MOUNTS[assetId].map((mount, index) => (
+        <ProvidedFixture
+          key={`${assetId}-fixture-${index}`}
+          mount={mount}
+          lighting={lighting}
+          environment={environment}
+          lightsOn={lightsOn}
+        />
+      ))}
+    </group>
+  )
+}
+
+function ValidatedKndCourt({
   modelId,
   frameColor,
   glassThickness,
   mobileBase,
   protection,
+  active,
   onStatusChange,
-  indexUrl = import.meta.env.VITE_KND_MODEL_INDEX_URL || DEFAULT_INDEX_URL,
+  indexUrl,
 }) {
   const [bundle, setBundle] = useState({ phase: 'checking', reason: 'checking-index', components: [], manifest: null })
 
@@ -171,17 +310,19 @@ export default function KndModularCourt({
       reason: bundle.reason,
       componentKeys: bundle.componentKeys || [],
       manifest: bundle.manifest,
+      handlesLighting: false,
+      rightsPending: false,
     })
   }, [bundle, onStatusChange])
 
   const prepared = useMemo(
-    () => prepareComponents(bundle, frameColor, glassThickness),
+    () => prepareValidatedComponents(bundle, frameColor, glassThickness),
     [bundle, frameColor, glassThickness],
   )
 
   useEffect(() => () => prepared.materials.forEach((material) => material.dispose()), [prepared])
 
-  if (bundle.phase !== 'ready') return null
+  if (bundle.phase !== 'ready' || !active) return null
 
   const root = bundle.manifest.transform || {}
   return (
@@ -204,3 +345,65 @@ export default function KndModularCourt({
   )
 }
 
+function resolveProvidedModel(modelId, poleStyle, mobileBase, glassThickness, protection) {
+  if (
+    !RIGHTS_PENDING_ASSETS_ENABLED
+    || modelId !== 'super-panoramic'
+    || mobileBase
+    || protection
+    || Math.abs(glassThickness - 0.012) > 0.0001
+  ) return null
+  if (poleStyle === 'curved') return 'op01'
+  if (poleStyle === 'angled') return 'op01-angled'
+  return null
+}
+
+/**
+ * Selects either the local rights-pending OP-01 adapter or the stricter KND
+ * manifest contract. Every other model and unsupported OP-01 option keeps the
+ * existing fallback until its own geometry has been visually verified.
+ */
+export default function KndModularCourt({
+  modelId,
+  frameColor,
+  glassThickness,
+  mobileBase,
+  protection,
+  poleStyle,
+  lighting,
+  environment,
+  lightsOn,
+  active = false,
+  onStatusChange,
+  indexUrl = import.meta.env.VITE_KND_MODEL_INDEX_URL || DEFAULT_INDEX_URL,
+}) {
+  const providedModelId = resolveProvidedModel(modelId, poleStyle, mobileBase, glassThickness, protection)
+
+  if (providedModelId && ACTIVE_PROVIDED_MODELS.has(providedModelId)) {
+    return (
+      <ProvidedOp01Court
+        key={providedModelId}
+        assetId={providedModelId}
+        frameColor={frameColor}
+        lighting={lighting}
+        environment={environment}
+        lightsOn={lightsOn}
+        active={active}
+        onStatusChange={onStatusChange}
+      />
+    )
+  }
+
+  return (
+    <ValidatedKndCourt
+      modelId={modelId}
+      frameColor={frameColor}
+      glassThickness={glassThickness}
+      mobileBase={mobileBase}
+      protection={protection}
+      active={active}
+      onStatusChange={onStatusChange}
+      indexUrl={indexUrl}
+    />
+  )
+}
