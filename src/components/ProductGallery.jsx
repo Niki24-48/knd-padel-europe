@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import ImageLightbox from './ImageLightbox.jsx'
 
 const copy = {
@@ -73,6 +73,7 @@ export default function ProductGallery({ item, type, locale = 'es' }) {
 
   const [active, setActive] = useState(0)
   const [lightbox, setLightbox] = useState(false)
+  const closeLightbox = useCallback(() => setLightbox(false), [])
 
   useEffect(() => { setActive(0); setLightbox(false) }, [item?.id])
   useEffect(() => { if (active >= images.length) setActive(0) }, [active, images.length])
@@ -91,12 +92,12 @@ export default function ProductGallery({ item, type, locale = 'es' }) {
           <img id="product-gallery-stage" src={current.src} alt={current.alt} loading="lazy" decoding="async" />
           <span>{current.label}</span>
         </button>
-        {images.length > 1 && <div className="gallery-thumbnails" role="tablist" aria-label={labels.tabs}>
-          {images.map((image, index) => <button key={image.src} type="button" role="tab" aria-selected={active === index} aria-controls="product-gallery-stage" className={active === index ? 'active' : ''} onClick={() => setActive(index)}><img src={image.src} alt="" loading="lazy" decoding="async"/><span>{image.label}</span></button>)}
+        {images.length > 1 && <div className="gallery-thumbnails" role="group" aria-label={labels.tabs}>
+          {images.map((image, index) => <button key={image.src} type="button" aria-pressed={active === index} aria-controls="product-gallery-stage" className={active === index ? 'active' : ''} onClick={() => setActive(index)}><img src={image.src} alt="" loading="lazy" decoding="async"/><span>{image.label}</span></button>)}
         </div>}
       </div>
       {current.note && <p className="gallery-note">{current.note}</p>}
     </div>
-    {lightbox && <ImageLightbox images={images} index={active} onChange={setActive} onClose={() => setLightbox(false)} />}
+    {lightbox && <ImageLightbox images={images} index={active} onChange={setActive} onClose={closeLightbox} locale={language} />}
   </section>
 }

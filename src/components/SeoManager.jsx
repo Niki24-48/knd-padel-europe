@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { articles, brand, courts, projects, roofSystems, turfSystems } from '../data/site.js'
+import { courtProductContent } from '../data/courts/index.js'
 
 const SITE_URL = 'https://www.kndpadel.com'
 const SOCIAL_IMAGE = `${SITE_URL}/brand/logo-knd-padel.png`
@@ -69,11 +70,25 @@ function entityPage(path, locale) {
   if (path.startsWith('/courts/')) {
     const item = courts.find((court) => court.id === slug)
     if (!item) return null
+    const profile = courtProductContent[item.id]
+    const courtSeo = profile?.seo?.[locale]
+    const image = profile?.media?.hero?.src || item.heroImage || item.image
     return {
-      title: `${item.code} ${item.name} — ${isEnglish ? 'Padel court' : 'Pista de pádel'}`,
-      description: clip(isEnglish ? `KND ${item.code} ${item.name} padel court. ${item.facts.join(' · ')}` : `${item.description} ${item.facts.join(' · ')}`),
+      title: courtSeo?.title || `${item.code} ${item.name} — ${isEnglish ? 'Padel court' : 'Pista de pádel'}`,
+      description: clip(courtSeo?.description || (isEnglish ? `KND ${item.code} ${item.name} padel court. ${item.facts.join(' · ')}` : `${item.description} ${item.facts.join(' · ')}`)),
       type: 'product',
-      image: item.heroImage || item.image,
+      image,
+      structuredData: profile ? {
+        '@context': 'https://schema.org',
+        '@type': 'Product',
+        name: `${profile.code} ${profile.name}`,
+        sku: profile.code,
+        category: isEnglish ? 'Padel court system' : 'Sistema de pista de pádel',
+        description: courtSeo?.description,
+        image: image ? `${SITE_URL}${image}` : undefined,
+        url: `${SITE_URL}/courts/${profile.id}`,
+        brand: { '@type': 'Brand', name: brand.name },
+      } : undefined,
     }
   }
 
@@ -142,6 +157,7 @@ export function resolveSeo(pathname = '/', locale = 'es') {
     canonical: `${SITE_URL}${canonicalPath === '/' ? '/' : canonicalPath}`,
     type: entity?.type || 'website',
     image: entity?.image ? `${SITE_URL}${entity.image}` : SOCIAL_IMAGE,
+    structuredData: entity?.structuredData,
     robots: found ? 'index,follow' : 'noindex,follow',
     language,
   }
@@ -165,6 +181,20 @@ function upsertCanonical(href) {
     document.head.appendChild(element)
   }
   element.setAttribute('href', href)
+}
+
+function updateStructuredData(data) {
+  const id = 'knd-page-structured-data'
+  const existing = document.getElementById(id)
+  if (!data) {
+    existing?.remove()
+    return
+  }
+  const element = existing || document.createElement('script')
+  element.id = id
+  element.type = 'application/ld+json'
+  element.textContent = JSON.stringify(data)
+  if (!existing) document.head.appendChild(element)
 }
 
 /**
@@ -192,6 +222,7 @@ export default function SeoManager({ path = '/', locale = 'es' }) {
     upsertMeta('meta[name="twitter:title"]', { name: 'twitter:title' }, seo.title)
     upsertMeta('meta[name="twitter:description"]', { name: 'twitter:description' }, seo.description)
     upsertMeta('meta[name="twitter:image"]', { name: 'twitter:image' }, seo.image)
+    updateStructuredData(seo.structuredData)
   }, [path, locale])
 
   return null

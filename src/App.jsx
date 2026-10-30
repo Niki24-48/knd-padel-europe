@@ -204,6 +204,14 @@ function App() {
   const t = copy[locale]
 
   useEffect(() => {
+    if ('scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'
+    const frame = window.requestAnimationFrame(() => {
+      if (!hash) window.scrollTo({ top: 0, behavior: 'auto' })
+    })
+    return () => window.cancelAnimationFrame(frame)
+  }, [path])
+
+  useEffect(() => {
     const frame = window.requestAnimationFrame(() => localizeRenderedContent(locale))
     return () => window.cancelAnimationFrame(frame)
   }, [locale, path, projectOpen])
