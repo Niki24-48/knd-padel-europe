@@ -53,7 +53,9 @@ export default function ProductGallery({ item, type, locale = 'es' }) {
     const gallery = (Array.isArray(item.gallery) ? item.gallery : [])
       .map((image, index) => normaliseGalleryImage(image, index, item, productLabel, language, labels))
       .filter(Boolean)
-    const supporting = [
+    // Some products (currently OP-01) provide a fully curated gallery with an explicit order.
+    // Keep the automatic supporting assets for every other product.
+    const supporting = item.galleryOnly ? [] : [
       item.detailImage && { src: item.detailImage, alt: `${labels.detail} ${productLabel} ${item.name}`, label: labels.detail, note: localize(item.detailImageNote || item.imageNote, language) },
       (item.fiberImage || item.fibreImage) && { src: item.fiberImage || item.fibreImage, alt: `${labels.fibre} ${item.name}`, label: labels.fibre, note: localize(item.fiberImageNote || item.fibreImageNote, language) },
       item.catalogImage && { src: item.catalogImage, alt: `${labels.visual} ${productLabel} ${item.name}`, label: labels.visual, note: localize(item.catalogImageNote || item.imageNote, language) },
