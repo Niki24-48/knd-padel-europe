@@ -84,9 +84,17 @@ const courtCustomisationReference = 'Color de estructura, superficie, iluminaci�
 
 export const courts = [
   {
-    id: 'super-panoramic', code: 'OP-01', name: 'Super Panoramic', strap: 'Visión total. Cero óxido.', best: 'Clubes premium, espacios interiores y complejos de élite', price: 'A consultar', image: media.courts.superpanoramic, heroImage: media.courts.superpanoramic, visual: 'super-panoramic', imageNote: renderReference, sheet: '/brand/brandbook-02.png',
+    id: 'super-panoramic', code: 'OP-01', name: 'Super Panoramic', strap: 'Visión total. Cero óxido.', best: 'Clubes premium, espacios interiores y complejos de élite', price: 'A consultar', image: media.courts.superpanoramic, heroImage: '/media/knd/op-1/portada%20op1.jpg', visual: 'super-panoramic', imageNote: '', sheet: '/brand/brandbook-02.png',
     description: 'Una envolvente panorámica de líneas limpias para proyectos donde la visibilidad manda.', facts: ['20 × 10 m', 'Vidrio templado 12 mm', '4 × 300 W LED'],
     applications: ['Clubes premium', 'Complejos de élite', 'Espacios interiores'],
+    // OP-01 uses a manually ordered gallery: the original reference render is last.
+    galleryOnly: true,
+    gallery: [
+      { src: '/media/knd/op-1/galeria%20op1.jpg', label: 'Galería 01', alt: 'OP-01 Super Panoramic · vista aérea de la pista' },
+      { src: '/media/knd/op-1/galeria%20op1%202.jpg', label: 'Galería 02', alt: 'OP-01 Super Panoramic · vista desde la esquina' },
+      { src: '/media/knd/op-1/galeria%20op1%203.jpg', label: 'Galería 03', alt: 'OP-01 Super Panoramic · vista exterior' },
+      { src: media.courts.superpanoramic, label: 'Render de referencia', alt: 'OP-01 Super Panoramic · render de referencia', note: renderReference },
+    ],
     advantages: [
       { title: 'Lectura panorámica', text: 'La configuración sin poste trasero de apoyo mantiene despejada la perspectiva principal documentada para OP-01.' },
       { title: 'Presencia arquitectónica', text: 'Una estructura visualmente ligera para sedes donde la pista forma parte de la experiencia del lugar.' },
@@ -95,10 +103,10 @@ export const courts = [
     standardConfiguration: [
       { label: 'Área de juego', value: '20 × 10 m' }, { label: 'Césped de partida', value: 'OP S9 STD · 9.000 Dtex' }, { label: 'Vidrio', value: 'Templado · 12 mm' }, { label: 'Iluminación', value: 'OP L300 Lineal · 4 × 300 W' },
     ],
-    structure: { title: 'La visibilidad define la estructura.', text: 'La ficha KND documenta una perspectiva trasera sin poste de apoyo y un sistema de abrazadera de vidrio de presencia mínima.', facts: ['Perspectiva trasera sin poste de apoyo', 'Acabado y protección según proyecto'] },
-    turf: { code: 'OP S9 STD', text: 'La configuración de partida documentada utiliza OP S9 STD de 9.000 Dtex. La superficie final se confirma con el uso y el proyecto.', facts: ['9.000 Dtex'] },
-    glass: { text: 'Vidrio templado de 12 mm con paneles documentados de 1996 × 2998 mm.', facts: ['12 mm', '1996 × 2998 mm'] },
-    lighting: { text: 'Paquete OP L300 Lineal documentado para esta configuración.', facts: ['4 × 300 W LED'] },
+    structure: { title: 'La visibilidad define la estructura.', text: 'La ficha KND documenta una perspectiva trasera sin poste de apoyo y un sistema de abrazadera de vidrio de presencia mínima.', facts: ['Perspectiva trasera sin poste de apoyo', 'Acabado y protección según proyecto'], image: '/media/knd/op-1/backview.jpg' },
+    turf: { code: 'OP S9 STD', text: 'La configuración de partida documentada utiliza OP S9 STD de 9.000 Dtex. La superficie final se confirma con el uso y el proyecto.', facts: ['9.000 Dtex'], image: '/media/knd/op-1/sample-blue.png' },
+    glass: { text: 'Vidrio templado de 12 mm con paneles documentados de 1996 × 2998 mm.', facts: ['12 mm', '1996 × 2998 mm'], image: '/media/knd/op-1/cristalview.webp' },
+    lighting: { text: 'Paquete OP L300 Lineal documentado para esta configuración.', facts: ['4 × 300 W LED'], image: '/media/knd/op-1/foco.webp' },
     finishes: courtFinishReference, customisation: courtCustomisationReference, relatedIds: ['panoramic', 'full-super-panoramic'],
   },
   {
