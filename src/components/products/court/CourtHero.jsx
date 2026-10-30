@@ -12,7 +12,7 @@ export default function CourtHero({ profile, copy, media, locale = 'es', navigat
   const title = headingLines(copy?.title || profile?.name, language)
   const applications = asArray(copy?.applications).map((entry) => textValue(entry, language)).filter(Boolean)
 
-  return <header className="court-hero" id="court-overview">
+  return <header className={`court-hero court-hero--${profile?.id || 'model'}`} id="court-overview">
     <CourtMedia media={media} locale={language} alt={`${profile?.code || ''} ${profile?.name || ''}`} priority decorative className="court-hero__media" />
     <div className="court-hero__shade" aria-hidden="true" />
     <div className="container court-hero__inner">
