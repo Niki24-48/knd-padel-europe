@@ -1,0 +1,321 @@
+{
+  "generated_by": "KND downloader",
+  "note": "El archivo de origen del usuario estaba truncado tras estas 65 URLs completas.",
+  "items": [
+    {
+      "path": "models/production/index.json",
+      "status": "downloaded",
+      "bytes": 1640
+    },
+    {
+      "path": "models/production/mobile-base.db1044963130.glb",
+      "status": "downloaded",
+      "bytes": 531224
+    },
+    {
+      "path": "models/production/op01-angled/manifest.4766068b1a4e.json",
+      "status": "downloaded",
+      "bytes": 4958
+    },
+    {
+      "path": "models/production/op01-angled/glass.7f7332263520.glb",
+      "status": "downloaded",
+      "bytes": 75060
+    },
+    {
+      "path": "models/production/op01-angled/poles.45157be4aea2.glb",
+      "status": "downloaded",
+      "bytes": 102408
+    },
+    {
+      "path": "models/production/op01/fence.23886c97ca0d.glb",
+      "status": "downloaded",
+      "bytes": 1809696
+    },
+    {
+      "path": "models/production/op01-angled/net.7c70cf5ddbcf.glb",
+      "status": "downloaded",
+      "bytes": 127404
+    },
+    {
+      "path": "models/production/op01/frame.e9d0a7050559.glb",
+      "status": "downloaded",
+      "bytes": 2858276
+    },
+    {
+      "path": "models/production/op01/manifest.737a9d508fb3.json",
+      "status": "downloaded",
+      "bytes": 5525
+    },
+    {
+      "path": "models/production/op01/glass.6fd099b38b02.glb",
+      "status": "downloaded",
+      "bytes": 75160
+    },
+    {
+      "path": "models/production/op01/net.7486954cd0da.glb",
+      "status": "downloaded",
+      "bytes": 128104
+    },
+    {
+      "path": "models/production/op01/poles.8388eb6ee54f.glb",
+      "status": "downloaded",
+      "bytes": 125580
+    },
+    {
+      "path": "models/production/op01-angled/frame.b2fad570c487.glb",
+      "status": "downloaded",
+      "bytes": 2329292
+    },
+    {
+      "path": "models/production/op02-angled/manifest.f2bab0264e00.json",
+      "status": "downloaded",
+      "bytes": 4931
+    },
+    {
+      "path": "models/production/op01-angled/fence.9fb03cafa0e7.glb",
+      "status": "downloaded",
+      "bytes": 1808692
+    },
+    {
+      "path": "models/production/op02-angled/glass.23acf414ab96.glb",
+      "status": "downloaded",
+      "bytes": 74568
+    },
+    {
+      "path": "models/production/op02-angled/fence.540cf19083da.glb",
+      "status": "downloaded",
+      "bytes": 1799352
+    },
+    {
+      "path": "models/production/op02-angled/frame.5a8b521050bd.glb",
+      "status": "downloaded",
+      "bytes": 3122820
+    },
+    {
+      "path": "models/production/op02-angled/poles.ede76e55491f.glb",
+      "status": "downloaded",
+      "bytes": 105644
+    },
+    {
+      "path": "models/production/op02/fence.6c95075794be.glb",
+      "status": "downloaded",
+      "bytes": 1800092
+    },
+    {
+      "path": "models/production/op02-angled/net.17c8167c45f7.glb",
+      "status": "downloaded",
+      "bytes": 128060
+    },
+    {
+      "path": "models/production/op02/manifest.c3371b49abf2.json",
+      "status": "downloaded",
+      "bytes": 5486
+    },
+    {
+      "path": "models/production/op02/glass.4acbdc89ca2a.glb",
+      "status": "downloaded",
+      "bytes": 74924
+    },
+    {
+      "path": "models/production/op02/net.e314ad99a8bd.glb",
+      "status": "downloaded",
+      "bytes": 128040
+    },
+    {
+      "path": "models/production/op02/frame.8e21ac9e6e46.glb",
+      "status": "downloaded",
+      "bytes": 3750984
+    },
+    {
+      "path": "models/production/op02/poles.b9fc0de33e85.glb",
+      "status": "downloaded",
+      "bytes": 125384
+    },
+    {
+      "path": "models/production/op03-mobile/manifest.78f770654ee9.json",
+      "status": "downloaded",
+      "bytes": 5311
+    },
+    {
+      "path": "models/production/op03-mobile/fence.0cf917ad22d2.glb",
+      "status": "downloaded",
+      "bytes": 1252108
+    },
+    {
+      "path": "models/production/op03-mobile/glass.fd384900bc00.glb",
+      "status": "downloaded",
+      "bytes": 74880
+    },
+    {
+      "path": "models/production/op03-mobile/frame.92647cdc66d1.glb",
+      "status": "downloaded",
+      "bytes": 2840464
+    },
+    {
+      "path": "models/production/op03-mobile/net.c8153b52853d.glb",
+      "status": "downloaded",
+      "bytes": 126404
+    },
+    {
+      "path": "models/production/op03/fence.7c62b7e088d1.glb",
+      "status": "downloaded",
+      "bytes": 1254572
+    },
+    {
+      "path": "models/production/op03-mobile/poles.31bed0cf144f.glb",
+      "status": "downloaded",
+      "bytes": 175540
+    },
+    {
+      "path": "models/production/op03/manifest.26724a0f6f28.json",
+      "status": "downloaded",
+      "bytes": 4881
+    },
+    {
+      "path": "models/production/op03/glass.a208880e2b49.glb",
+      "status": "downloaded",
+      "bytes": 74904
+    },
+    {
+      "path": "models/production/op03/net.a902f7f4667f.glb",
+      "status": "downloaded",
+      "bytes": 125888
+    },
+    {
+      "path": "models/production/op03/poles.c35ba5b474bf.glb",
+      "status": "downloaded",
+      "bytes": 175652
+    },
+    {
+      "path": "models/production/op03/frame.2357e53be2e2.glb",
+      "status": "downloaded",
+      "bytes": 3174476
+    },
+    {
+      "path": "models/production/op04/glass.39690c78d16c.glb",
+      "status": "downloaded",
+      "bytes": 74628
+    },
+    {
+      "path": "models/production/op04/manifest.79a9704764b2.json",
+      "status": "downloaded",
+      "bytes": 4813
+    },
+    {
+      "path": "models/production/op04/frame.d3aacce097c5.glb",
+      "status": "downloaded",
+      "bytes": 1852352
+    },
+    {
+      "path": "models/production/op04/fence.7428eec7d519.glb",
+      "status": "downloaded",
+      "bytes": 3547844
+    },
+    {
+      "path": "models/production/op04/poles.f7a4160e1c4b.glb",
+      "status": "downloaded",
+      "bytes": 113384
+    },
+    {
+      "path": "models/production/op05/glass.6def7ee68100.glb",
+      "status": "downloaded",
+      "bytes": 91416
+    },
+    {
+      "path": "models/production/op05/fence.8fd98ccdece9.glb",
+      "status": "downloaded",
+      "bytes": 1771928
+    },
+    {
+      "path": "models/production/op04/net.abacc346a8b5.glb",
+      "status": "downloaded",
+      "bytes": 125700
+    },
+    {
+      "path": "models/production/op05/frame.88358684f9f9.glb",
+      "status": "downloaded",
+      "bytes": 4468772
+    },
+    {
+      "path": "models/production/op05/manifest.080e8ece5490.json",
+      "status": "downloaded",
+      "bytes": 5263
+    },
+    {
+      "path": "models/production/op05/net.3a55eb98ff43.glb",
+      "status": "downloaded",
+      "bytes": 125616
+    },
+    {
+      "path": "models/production/op05/frame-150.253d43bc8c9f.glb",
+      "status": "downloaded",
+      "bytes": 4470060
+    },
+    {
+      "path": "models/production/op06/fence.00256bae2c0d.glb",
+      "status": "downloaded",
+      "bytes": 1791708
+    },
+    {
+      "path": "models/production/op06/glass.859f8f66bf1e.glb",
+      "status": "downloaded",
+      "bytes": 108824
+    },
+    {
+      "path": "models/production/op06/manifest.6e89cee74714.json",
+      "status": "downloaded",
+      "bytes": 4872
+    },
+    {
+      "path": "models/production/op06/net.5e7d98890272.glb",
+      "status": "downloaded",
+      "bytes": 126504
+    },
+    {
+      "path": "models/production/op05/poles.2ed741a24821.glb",
+      "status": "downloaded",
+      "bytes": 174920
+    },
+    {
+      "path": "models/production/op06/poles.95d49b764477.glb",
+      "status": "downloaded",
+      "bytes": 78796
+    },
+    {
+      "path": "models/production/op06/frame.bf0f9e3c114f.glb",
+      "status": "downloaded",
+      "bytes": 4682188
+    },
+    {
+      "path": "models/production/op07/manifest.b289c1c4b77e.json",
+      "status": "downloaded",
+      "bytes": 4984
+    },
+    {
+      "path": "models/production/op07/glass.7db2ab33d0ad.glb",
+      "status": "downloaded",
+      "bytes": 58528
+    },
+    {
+      "path": "models/production/op07/frame.2371d0d1902e.glb",
+      "status": "downloaded",
+      "bytes": 3116388
+    },
+    {
+      "path": "models/production/op07/fence.5f8fb06ff916.glb",
+      "status": "downloaded",
+      "bytes": 1124864
+    },
+    {
+      "path": "models/production/op07/poles.6844fbfb20ad.glb",
+      "status": "downloaded",
+      "bytes": 176572
+    },
+    {
+      "path": "models/production/op07/net.09e80b21b1a0.glb",
+      "status": "downloaded",
+      "bytes": 81008
+    }
+  ]
+}

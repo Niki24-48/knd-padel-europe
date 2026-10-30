@@ -149,6 +149,8 @@ export const imageManifest = [
     ['op01-render', '/media/knd/courts/superpanormamicrender.jpg', 'OP-01 Super Panoramic'],
     ['op02-render', '/media/knd/courts/panoramicrender.jpg', 'OP-02 Panoramic'],
     ['op03-render', '/media/knd/courts/tournamentrender.jpg', 'OP-03 Signature Tournament'],
+    ['op04-render', '/media/knd/courts/fullsuperpanoramicrender.webp', 'OP-04 Full Super Panoramic'],
+    ['op05-render', '/media/knd/courts/extremerender.webp', 'OP-05 Extreme'],
     ['op06-render', '/media/knd/courts/classicrender.jpg', 'OP-06 Classic'],
     ['op07-render', '/media/knd/courts/singlecourtrender.jpg', 'OP-07 Single Court'],
   ].map(([id, path, product]) => ({
@@ -162,7 +164,7 @@ export const imageManifest = [
       en: `Provisional ${product} render`,
     },
     status: IMAGE_STATUS.PROVISIONAL,
-    usage: ['catalogo', 'megamenu', 'tarjetas-de-pista'],
+    usage: ['catalogo', 'megamenu', 'tarjetas-de-pista', 'fichas-tecnicas'],
     note: 'Asignación nominal aportada en la biblioteca local. Validar contra planos y render maestro antes de considerarla imagen definitiva.',
   })),
   ...[
@@ -197,7 +199,7 @@ export const imageManifest = [
   },
   {
     id: 'roof-render-canopy',
-    path: '/media/knd/roofs/r1-canopy-reference.jpg',
+    path: '/media/knd/roofs/r1-canopy-reference.png',
     category: 'roof',
     product: 'Canopy Roof',
     type: 'render',
@@ -211,7 +213,7 @@ export const imageManifest = [
   },
   {
     id: 'roof-render-semi-enclosed',
-    path: '/media/knd/roofs/r2-semi-enclosed-reference.jpg',
+    path: '/media/knd/roofs/r2-semi-enclosed-reference.png',
     category: 'roof',
     product: 'Semi-Enclosed Roof',
     type: 'render',
@@ -225,7 +227,7 @@ export const imageManifest = [
   },
   {
     id: 'roof-render-enclosed',
-    path: '/media/knd/roofs/r3-enclosed-reference.jpg',
+    path: '/media/knd/roofs/r3-enclosed-reference.png',
     category: 'roof',
     product: 'Fully Enclosed Roof',
     type: 'render',
@@ -239,7 +241,7 @@ export const imageManifest = [
   },
   {
     id: 'roof-render-retractable',
-    path: '/media/knd/roofs/r4-retractable-reference.jpg',
+    path: '/media/knd/roofs/r4-retractable-reference.png',
     category: 'roof',
     product: 'Electric Retractable Roof',
     type: 'render',
@@ -253,7 +255,7 @@ export const imageManifest = [
   },
   {
     id: 'turf-colour-black',
-    path: '/media/knd/turf/sample-black.jpg',
+    path: '/media/knd/turf/sample-black.png',
     category: 'turf',
     product: 'Muestra de color negro',
     type: 'material-sample',
@@ -267,7 +269,7 @@ export const imageManifest = [
   },
   {
     id: 'turf-colour-turquoise',
-    path: '/media/knd/turf/sample-turquoise.jpg',
+    path: '/media/knd/turf/sample-turquoise.png',
     category: 'turf',
     product: 'Muestra de color turquesa',
     type: 'material-sample',
@@ -281,7 +283,7 @@ export const imageManifest = [
   },
   {
     id: 'turf-colour-green',
-    path: '/media/knd/turf/sample-green.jpg',
+    path: '/media/knd/turf/sample-green.png',
     category: 'turf',
     product: 'Muestra de color verde',
     type: 'material-sample',
@@ -295,7 +297,7 @@ export const imageManifest = [
   },
   {
     id: 'turf-colour-blue',
-    path: '/media/knd/turf/sample-blue.jpg',
+    path: '/media/knd/turf/sample-blue.png',
     category: 'turf',
     product: 'Muestra de color azul',
     type: 'material-sample',
@@ -309,7 +311,7 @@ export const imageManifest = [
   },
   {
     id: 'turf-colour-red',
-    path: '/media/knd/turf/sample-red.jpg',
+    path: '/media/knd/turf/sample-red.png',
     category: 'turf',
     product: 'Muestra de color rojo',
     type: 'material-sample',

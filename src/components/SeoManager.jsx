@@ -73,6 +73,7 @@ function entityPage(path, locale) {
       title: `${item.code} ${item.name} — ${isEnglish ? 'Padel court' : 'Pista de pádel'}`,
       description: clip(isEnglish ? `KND ${item.code} ${item.name} padel court. ${item.facts.join(' · ')}` : `${item.description} ${item.facts.join(' · ')}`),
       type: 'product',
+      image: item.heroImage || item.image,
     }
   }
 
@@ -83,6 +84,7 @@ function entityPage(path, locale) {
       title: `${item.code} ${item.name} — ${isEnglish ? 'Padel turf' : 'Césped de pádel'}`,
       description: clip(isEnglish ? `KND ${item.code} ${item.name} padel turf system. ${item.facts.join(' · ')}` : `${item.description} ${item.facts.join(' · ')}`),
       type: 'product',
+      image: item.heroImage || item.image,
     }
   }
 
@@ -93,6 +95,7 @@ function entityPage(path, locale) {
       title: `${item.code} ${item.name} — ${isEnglish ? 'Padel canopy' : 'Cubierta de pádel'}`,
       description: clip(isEnglish ? `KND ${item.code} ${item.name} padel canopy system. ${item.facts.join(' · ')}` : `${item.description} ${item.facts.join(' · ')}`),
       type: 'product',
+      image: item.image,
     }
   }
 
@@ -102,8 +105,9 @@ function entityPage(path, locale) {
     const year = item.year ? ` · ${item.year}` : ''
     return {
       title: `${item.name} — ${item.location}`,
-      description: clip(`${item.courtModelCode} ${item.courtModelName} · ${item.location}${year}`),
+      description: clip(item.description || `${item.courtModelCode} ${item.courtModelName} · ${item.location}${year}`),
       type: 'article',
+      image: item.image,
     }
   }
 
@@ -137,7 +141,7 @@ export function resolveSeo(pathname = '/', locale = 'es') {
     description: clip(description),
     canonical: `${SITE_URL}${canonicalPath === '/' ? '/' : canonicalPath}`,
     type: entity?.type || 'website',
-    image: SOCIAL_IMAGE,
+    image: entity?.image ? `${SITE_URL}${entity.image}` : SOCIAL_IMAGE,
     robots: found ? 'index,follow' : 'noindex,follow',
     language,
   }

@@ -76,23 +76,141 @@ export const images = {
 
 const renderReference = 'Render de referencia aportado por KND. La correspondencia exacta con el modelo se valida en la especificación del proyecto.'
 const turfVisualReference = 'Muestra visual de césped aportada por KND. La disponibilidad de color por sistema se confirma en la propuesta.'
+const courtFinishReference = {
+  text: 'El color y el nivel de protección se especifican alrededor de la sede, el clima y la identidad del proyecto.',
+  facts: ['Grafito', 'Blanco mineral', 'Azul KND', 'RAL personalizado bajo petición'],
+}
+const courtCustomisationReference = 'Color de estructura, superficie, iluminación, accesos, branding y protección se confirman en una propuesta coordinada para cada ubicación.'
 
 export const courts = [
-  { id: 'super-panoramic', code: 'OP-01', name: 'Super Panoramic', strap: 'Visión total. Cero óxido.', best: 'Clubes premium, espacios interiores y complejos de élite', price: 'A consultar', image: media.courts.superpanoramic, visual: 'super-panoramic', imageNote: renderReference, sheet: '/brand/brandbook-02.png', description: 'Una envolvente panorámica de líneas limpias para proyectos donde la visibilidad manda.', facts: ['20 × 10 m', 'Vidrio templado 12 mm', '4 × 300 W LED'] },
-  { id: 'panoramic', code: 'OP-02', name: 'Panoramic', strap: 'Maduro, estable y práctico', best: 'Operación diaria de club', price: 'A consultar', image: media.courts.panoramic, visual: 'panoramic', imageNote: renderReference, sheet: '/brand/brandbook-03.png', description: 'La combinación precisa de presencia panorámica, mantenimiento práctico y consistencia de juego.', facts: ['20 × 10 m', 'Vidrio templado 12 mm', '4 × 300 W LED'] },
-  { id: 'signature-tournament', code: 'OP-03', name: 'Signature Tournament', strap: 'Modelo insignia de nivel torneo', best: 'Torneos y eventos', price: 'A consultar', image: media.courts.signature, visual: 'signature', imageNote: renderReference, sheet: '/brand/brandbook-04.png', description: 'Pensada para la presión de la competición: sightlines, detalle y una presencia que se recuerda.', facts: ['20 × 10 m', 'Vidrio templado 12 mm', '4 × 400 W Pro'] },
-  { id: 'full-super-panoramic', code: 'OP-04', name: 'Full Super Panoramic', strap: 'Presencia premium, refinada y emblemática', best: 'Destinos premium', price: 'A consultar', image: media.courts.fullSuper, visual: 'full-super-panoramic', imageNote: 'Ficha visual provisional del brandbook. Sustituir por un render de producto confirmado.', sheet: '/brand/brandbook-05.png', description: 'Una plataforma de juego abierta y refinada para los entornos que exigen máxima transparencia.', facts: ['20 × 10 m', 'S12 Endurance', 'Galvanizado opcional'] },
-  { id: 'extreme', code: 'OP-05', name: 'Extreme', strap: 'Modelo reforzado para entornos exigentes', best: 'Climas expuestos, costa y alta rotación', price: 'A consultar', image: media.courts.extremeSheet, visual: 'extreme', imageNote: 'Ficha visual provisional del brandbook. Sustituir por un render de producto confirmado.', sheet: '/brand/brandbook-06.png', description: 'Refuerzo, protección y especificación técnica para condiciones de viento, costa o uso exigente.', facts: ['20 × 10 m', 'Postes 150 × 150 mm', 'Galvanizado 120 μm'] },
-  { id: 'classic', code: 'OP-06', name: 'Classic', strap: 'Modelo tradicional multi-post estable', best: 'Clubs y comunidades', price: 'A consultar', image: media.courts.classic, visual: 'classic', imageNote: renderReference, sheet: '/brand/brandbook-07.png', description: 'Un sistema completo, robusto y adaptable que convierte una buena ubicación en un gran lugar para jugar.', facts: ['20 × 10 m', 'Vidrio de seguridad 12 mm', '8 × 200 W LED'] },
-  { id: 'single-court', code: 'OP-07', name: 'Single Court', strap: 'Compacto y flexible', best: 'Entrenamiento, residencial y medidas especiales', price: 'A consultar', image: media.courts.singlecourts, visual: 'single', imageNote: renderReference, sheet: '/brand/brandbook-08.png', description: 'Una pista compacta y configurable para academias, hoteles, residencias y activaciones.', facts: ['20 × 6 m y especiales', 'Vidrio de seguridad 12 mm', '8 × 200 W LED'] },
+  {
+    id: 'super-panoramic', code: 'OP-01', name: 'Super Panoramic', strap: 'Visión total. Cero óxido.', best: 'Clubes premium, espacios interiores y complejos de élite', price: 'A consultar', image: media.courts.superpanoramic, heroImage: media.courts.superpanoramic, visual: 'super-panoramic', imageNote: renderReference, sheet: '/brand/brandbook-02.png',
+    description: 'Una envolvente panorámica de líneas limpias para proyectos donde la visibilidad manda.', facts: ['20 × 10 m', 'Vidrio templado 12 mm', '4 × 300 W LED'],
+    applications: ['Clubes premium', 'Complejos de élite', 'Espacios interiores'],
+    advantages: [
+      { title: 'Lectura panorámica', text: 'La configuración sin poste trasero de apoyo mantiene despejada la perspectiva principal documentada para OP-01.' },
+      { title: 'Presencia arquitectónica', text: 'Una estructura visualmente ligera para sedes donde la pista forma parte de la experiencia del lugar.' },
+      { title: 'Paquete documentado', text: 'Área de juego, vidrio e iluminación parten de una base recogida en la ficha KND.' },
+    ],
+    standardConfiguration: [
+      { label: 'Área de juego', value: '20 × 10 m' }, { label: 'Césped de partida', value: 'OP S9 STD · 9.000 Dtex' }, { label: 'Vidrio', value: 'Templado · 12 mm' }, { label: 'Iluminación', value: 'OP L300 Lineal · 4 × 300 W' },
+    ],
+    structure: { title: 'La visibilidad define la estructura.', text: 'La ficha KND documenta una perspectiva trasera sin poste de apoyo y un sistema de abrazadera de vidrio de presencia mínima.', facts: ['Perspectiva trasera sin poste de apoyo', 'Acabado y protección según proyecto'] },
+    turf: { code: 'OP S9 STD', text: 'La configuración de partida documentada utiliza OP S9 STD de 9.000 Dtex. La superficie final se confirma con el uso y el proyecto.', facts: ['9.000 Dtex'] },
+    glass: { text: 'Vidrio templado de 12 mm con paneles documentados de 1996 × 2998 mm.', facts: ['12 mm', '1996 × 2998 mm'] },
+    lighting: { text: 'Paquete OP L300 Lineal documentado para esta configuración.', facts: ['4 × 300 W LED'] },
+    finishes: courtFinishReference, customisation: courtCustomisationReference, relatedIds: ['panoramic', 'full-super-panoramic'],
+  },
+  {
+    id: 'panoramic', code: 'OP-02', name: 'Panoramic', strap: 'Maduro, estable y práctico', best: 'Operación diaria de club', price: 'A consultar', image: media.courts.panoramic, heroImage: media.courts.panoramic, visual: 'panoramic', imageNote: renderReference, sheet: '/brand/brandbook-03.png',
+    description: 'La combinación precisa de presencia panorámica, mantenimiento práctico y consistencia de juego.', facts: ['20 × 10 m', 'Vidrio templado 12 mm', '4 × 300 W LED'], applications: ['Clubes', 'Operación diaria', 'Proyectos multicancha'],
+    advantages: [
+      { title: 'Formato equilibrado', text: 'Una propuesta panorámica orientada a la operación cotidiana del club.' },
+      { title: 'Especificación clara', text: 'Dimensión, vidrio, superficie e iluminación disponen de una base documentada.' },
+      { title: 'Adaptación al lugar', text: 'Acabados y protección se cierran con las condiciones reales de cada sede.' },
+    ],
+    standardConfiguration: [
+      { label: 'Área de juego', value: '20 × 10 m' }, { label: 'Césped de partida', value: 'OP S9 STD · 9.000 Dtex' }, { label: 'Vidrio', value: '12 mm · 1996 × 2998 mm' }, { label: 'Iluminación', value: 'OP L300 · 4 × 300 W' },
+    ],
+    structure: { title: 'Una base panorámica para el día a día.', text: 'La disposición final de apoyos y protección se valida contra el plano y las cargas del proyecto. La ficha disponible contiene afirmaciones contradictorias sobre los postes, por lo que no se publica una configuración no confirmada.', facts: [] },
+    turf: { code: 'OP S9 STD', text: 'Sistema de partida documentado con 9.000 Dtex.', facts: ['9.000 Dtex'] },
+    glass: { text: 'Vidrio de 12 mm con paneles documentados de 1996 × 2998 mm.', facts: ['12 mm', '1996 × 2998 mm'] },
+    lighting: { text: 'Paquete OP L300 documentado para esta configuración.', facts: ['4 × 300 W LED'] },
+    finishes: courtFinishReference, customisation: courtCustomisationReference, relatedIds: ['super-panoramic', 'classic'],
+  },
+  {
+    id: 'signature-tournament', code: 'OP-03', name: 'Signature Tournament', strap: 'Modelo insignia de nivel torneo', best: 'Torneos y eventos', price: 'A consultar', image: media.courts.signature, heroImage: media.courts.signature, visual: 'signature', imageNote: renderReference, sheet: '/brand/brandbook-04.png',
+    description: 'Pensada para la presión de la competición: perspectivas, detalle y una presencia que se recuerda.', facts: ['20 × 10 m', 'Vidrio templado 12 mm', '4 × 400 W Pro'], applications: ['Torneos', 'Eventos', 'Sedes de alta visibilidad'],
+    advantages: [
+      { title: 'Escena de competición', text: 'Una especificación orientada a sedes donde la pista y su presencia visual forman parte del evento.' },
+      { title: 'Detalle identificable', text: 'La documentación recoge placa plegada, marco de malla de una pieza y opciones de grabado.' },
+      { title: 'Movilidad compatible', text: 'La ficha KND documenta compatibilidad con base móvil para proyectos que la requieran.' },
+    ],
+    standardConfiguration: [
+      { label: 'Área de juego', value: '20 × 10 m' }, { label: 'Césped de partida', value: 'OP S9 STD · actualizable' }, { label: 'Vidrio', value: 'Templado · 12 mm' }, { label: 'Iluminación', value: 'OP L400 Pro · 4 × 400 W' },
+    ],
+    structure: { title: 'Detalle preparado para el evento.', text: 'Estructura de acero con acabado anticorrosión, placa plegada de 20 cm y marco de malla de una pieza documentados por KND.', facts: ['Placa plegada · 20 cm', 'Marco de malla · placa de 2 mm', 'Base móvil compatible'] },
+    turf: { code: 'OP S9 STD', text: 'Configuración de partida documentada y actualizable según el proyecto.', facts: ['9.000 Dtex'] },
+    glass: { text: 'Vidrio templado de 12 mm documentado para la configuración de partida.', facts: ['12 mm'] },
+    lighting: { text: 'Paquete OP L400 Pro documentado para el modelo.', facts: ['4 × 400 W'] },
+    finishes: courtFinishReference, customisation: courtCustomisationReference, relatedIds: ['full-super-panoramic', 'super-panoramic'],
+  },
+  {
+    id: 'full-super-panoramic', code: 'OP-04', name: 'Full Super Panoramic', strap: 'Presencia premium, refinada y emblemática', best: 'Destinos premium', price: 'A consultar', image: media.courts.fullSuper, heroImage: media.courts.fullSuper, visual: 'full-super-panoramic', imageNote: 'Ficha visual provisional del brandbook. Sustituir por un render de producto confirmado.', sheet: '/brand/brandbook-05.png',
+    description: 'Una plataforma de juego abierta y refinada para los entornos que exigen máxima transparencia.', facts: ['20 × 10 m', 'S12 Endurance', 'Galvanizado opcional'], applications: ['Destinos premium', 'Hospitality', 'Sedes emblemáticas'],
+    advantages: [
+      { title: 'Máxima transparencia', text: 'Una propuesta concebida para dar prioridad visual al vidrio y a la apertura del perímetro.' },
+      { title: 'Acabado de proyecto', text: 'Branding, marco superior y protección se coordinan con la identidad de la sede.' },
+      { title: 'Protección opcional', text: 'La documentación contempla opciones de galvanizado que deben especificarse en cada propuesta.' },
+    ],
+    standardConfiguration: [
+      { label: 'Área de juego', value: '20 × 10 m' }, { label: 'Césped de partida', value: 'OP S12 Endurance · 12.000 Dtex' }, { label: 'Vidrio', value: 'Templado · 12 mm' }, { label: 'Iluminación documentada', value: 'OP L400 Pro · 4 × 400 W' },
+    ],
+    structure: { title: 'Una envolvente reducida a lo esencial.', text: 'Placa plegada, alambre doblado de seguridad y marco de malla de una pieza aparecen documentados en la ficha KND.', facts: ['Marco de malla · placa de 2 mm', 'Galvanizado opcional · 80/120 μm'] },
+    turf: { code: 'OP S12 Endurance', text: 'Configuración de partida documentada con OP S12 Endurance.', facts: ['12.000 Dtex'] },
+    glass: { text: 'Vidrio templado de 12 mm documentado para la configuración de partida.', facts: ['12 mm'] },
+    lighting: { text: 'La ficha de producto documenta OP L400 Pro; la compatibilidad final se confirma con el proyecto.', facts: ['4 × 400 W'] },
+    finishes: courtFinishReference, customisation: courtCustomisationReference, relatedIds: ['super-panoramic', 'signature-tournament'],
+  },
+  {
+    id: 'extreme', code: 'OP-05', name: 'Extreme', strap: 'Modelo reforzado para entornos exigentes', best: 'Climas expuestos, costa y alta rotación', price: 'A consultar', image: media.courts.extremeSheet, heroImage: media.courts.extremeSheet, visual: 'extreme', imageNote: 'Ficha visual provisional del brandbook. Sustituir por un render de producto confirmado.', sheet: '/brand/brandbook-06.png',
+    description: 'Refuerzo, protección y especificación técnica para condiciones de viento, costa o uso exigente.', facts: ['20 × 10 m', 'Postes 150 × 150 mm', 'Galvanizado opcional ≥120 μm'], applications: ['Climas expuestos', 'Costa', 'Alta rotación'],
+    advantages: [
+      { title: 'Punto de partida reforzado', text: 'La documentación parte de postes de 150 × 150 mm y acero de al menos 3 mm.' },
+      { title: 'Protección especificable', text: 'El galvanizado de al menos 120 μm figura como opción, no como acabado estándar.' },
+      { title: 'Ingeniería ligada al sitio', text: 'Las cargas de viento y las condiciones locales determinan el ajuste final de estructura y anclajes.' },
+    ],
+    standardConfiguration: [
+      { label: 'Área de juego', value: '20 × 10 m' }, { label: 'Césped de partida', value: 'OP S9 STD · 9.000 Dtex' }, { label: 'Vidrio', value: 'Templado · 12 mm' }, { label: 'Iluminación documentada', value: 'OP L300 · 4 × 300 W' },
+    ],
+    structure: { title: 'La estructura se ajusta al entorno.', text: 'La ficha documenta postes de 150 × 150 mm, acero de al menos 3 mm y ajuste según carga de viento.', facts: ['Postes · 150 × 150 mm', 'Acero · ≥3 mm', 'Galvanizado opcional · ≥120 μm'] },
+    turf: { code: 'OP S9 STD', text: 'Configuración de partida documentada con OP S9 STD.', facts: ['9.000 Dtex'] },
+    glass: { text: 'Vidrio templado de 12 mm documentado para el modelo.', facts: ['12 mm'] },
+    lighting: { text: 'La ficha de producto documenta OP L300; la propuesta final valida su adecuación.', facts: ['4 × 300 W'] },
+    finishes: courtFinishReference, customisation: courtCustomisationReference, relatedIds: ['classic', 'panoramic'],
+  },
+  {
+    id: 'classic', code: 'OP-06', name: 'Classic', strap: 'Modelo tradicional multi-post estable', best: 'Clubes y comunidades', price: 'A consultar', image: media.courts.classic, heroImage: media.courts.classic, visual: 'classic', imageNote: renderReference, sheet: '/brand/brandbook-07.png',
+    description: 'Un sistema completo, robusto y adaptable que convierte una buena ubicación en un gran lugar para jugar.', facts: ['20 × 10 m', 'Vidrio de seguridad 12 mm', '8 × 200 W LED'], applications: ['Clubes', 'Comunidades', 'Operación cotidiana'],
+    advantages: [
+      { title: 'Configuración multi-poste', text: 'Una arquitectura tradicional documentada para una lectura clara y repetible del sistema.' },
+      { title: 'Paquete conocido', text: 'Dimensión, vidrio, césped e iluminación disponen de una configuración de partida KND.' },
+      { title: 'Adaptación práctica', text: 'Acabados, accesos y protección se definen alrededor del lugar y de la operación.' },
+    ],
+    standardConfiguration: [
+      { label: 'Área de juego', value: '20 × 10 m' }, { label: 'Césped de partida', value: 'OP S9 STD · 9.000 Dtex' }, { label: 'Vidrio', value: 'Seguridad · 12 mm' }, { label: 'Iluminación', value: 'OP L200 Compact · 8 × 200 W' },
+    ],
+    structure: { title: 'Una estructura multi-poste reconocible.', text: 'La configuración Classic mantiene la arquitectura multi-poste documentada en la ficha de producto.', facts: ['Configuración multi-poste'] },
+    turf: { code: 'OP S9 STD', text: 'Configuración de partida documentada con OP S9 STD.', facts: ['9.000 Dtex'] },
+    glass: { text: 'Vidrio de seguridad de 12 mm documentado para la configuración estándar.', facts: ['12 mm'] },
+    lighting: { text: 'Paquete OP L200 Compact documentado para el modelo.', facts: ['8 × 200 W'] },
+    finishes: courtFinishReference, customisation: courtCustomisationReference, relatedIds: ['panoramic', 'single-court'],
+  },
+  {
+    id: 'single-court', code: 'OP-07', name: 'Single Court', strap: 'Compacto y flexible', best: 'Entrenamiento, residencial y medidas especiales', price: 'A consultar', image: media.courts.singlecourts, heroImage: media.courts.singlecourts, visual: 'single', imageNote: renderReference, sheet: '/brand/brandbook-08.png',
+    description: 'Una pista compacta y configurable para academias, hoteles, residencias y activaciones.', facts: ['20 × 6 m y especiales', 'Vidrio de seguridad 12 mm', '8 × 200 W LED'], applications: ['Academias', 'Hospitality', 'Residencial'],
+    advantages: [
+      { title: 'Formato compacto', text: 'La medida documentada de 20 × 6 m abre una alternativa para espacios y programas específicos.' },
+      { title: 'Medidas bajo petición', text: 'La ficha contempla dimensiones especiales que deben validarse con el proyecto.' },
+      { title: 'Sistema completo', text: 'Vidrio, superficie e iluminación parten de una configuración KND documentada.' },
+    ],
+    standardConfiguration: [
+      { label: 'Área de juego', value: '20 × 6 m y especiales' }, { label: 'Césped de partida', value: 'OP S9 STD · 9.000 Dtex' }, { label: 'Vidrio', value: 'Seguridad · 12 mm' }, { label: 'Iluminación', value: 'OP L200 Compact · 8 × 200 W' },
+    ],
+    structure: { title: 'Compacta no significa genérica.', text: 'Las medidas especiales se estudian bajo petición; estructura, anclajes y accesos se confirman para el lugar real.', facts: ['20 × 6 m', 'Medidas especiales bajo petición'] },
+    turf: { code: 'OP S9 STD', text: 'Configuración de partida documentada con OP S9 STD.', facts: ['9.000 Dtex'] },
+    glass: { text: 'Vidrio de seguridad de 12 mm documentado para la configuración de partida.', facts: ['12 mm'] },
+    lighting: { text: 'Paquete OP L200 Compact documentado para el modelo.', facts: ['8 × 200 W'] },
+    finishes: courtFinishReference, customisation: courtCustomisationReference, relatedIds: ['classic', 'panoramic'],
+  },
 ]
 
 export const turfSystems = [
-  { id: 'x10-super-match', code: 'OP X10', name: 'Super Match', role: 'Selección por proyecto', image: media.turf.blue , imageNote: turfVisualReference, description: 'Sistema de césped con especificaciones verificadas en el catálogo KND.', facts: ['10 mm', '9.000 Dtex', '46.000 fibras / m²'] },
-  { id: 'r9-control', code: 'OP R9', name: 'Control', role: 'Selección por proyecto', image: media.turf.turquoise, imageNote: turfVisualReference, description: 'Sistema de césped con especificaciones verificadas en el catálogo KND.', facts: ['12 mm', '9.000 Dtex', '60.000 fibras / m²'] },
-  { id: 's12-endurance', code: 'OP S12', name: 'Endurance', role: 'Selección por proyecto', image: media.turf.green, imageNote: turfVisualReference, description: 'Sistema de césped con especificaciones verificadas en el catálogo KND.', facts: ['12 mm', '12.000 Dtex', '46.000 fibras / m²'] },
-  { id: 's9-standard', code: 'OP S9', name: 'Standard', role: 'Selección por proyecto', image: media.turf.red, imageNote: turfVisualReference, description: 'Sistema de césped con especificaciones verificadas en el catálogo KND.', facts: ['12 mm', '9.000 Dtex', '60.000 fibras / m²'] },
-  { id: 's7-training', code: 'OP S7', name: 'Training', role: 'Selección por proyecto', image: media.turf.black, detailImage: media.turf.detallenegro ,imageNote: turfVisualReference, description: 'Sistema de césped con especificaciones verificadas en el catálogo KND.', facts: ['12 mm', '7.000 Dtex', '63.000 fibras / m²'] },
+  { id: 'x10-super-match', code: 'OP X10', name: 'Super Match', role: 'Selección por proyecto', image: media.turf.blue, heroImage: media.turf.blue, catalogImage: media.turf.blue, gallery: [media.turf.blue], imageNote: turfVisualReference, description: 'Sistema de 10 mm con especificaciones dimensionales verificadas en el catálogo KND.', facts: ['10 mm', '9.000 Dtex', '46.000 fibras / m²'], technicalSpecs: [{ label: 'Altura', value: '10 mm' }, { label: 'Dtex', value: '9.000' }, { label: 'Densidad', value: '46.000 fibras / m²' }], application: 'La recomendación se confirma según uso, clima, horas de pista y mantenimiento previsto.', evidenceNote: 'La construcción de fibra, el backing, las puntadas, el relleno y el perfil de juego todavía requieren ficha técnica confirmada.', relatedIds: ['r9-control', 's12-endurance'] },
+  { id: 'r9-control', code: 'OP R9', name: 'Control', role: 'Selección por proyecto', image: media.turf.turquoise, heroImage: media.turf.turquoise, catalogImage: media.turf.turquoise, gallery: [media.turf.turquoise], imageNote: turfVisualReference, description: 'Sistema de 12 mm y 60.000 fibras por m² según el catálogo KND disponible.', facts: ['12 mm', '9.000 Dtex', '60.000 fibras / m²'], technicalSpecs: [{ label: 'Altura', value: '12 mm' }, { label: 'Dtex', value: '9.000' }, { label: 'Densidad', value: '60.000 fibras / m²' }], application: 'La recomendación se confirma según uso, clima, horas de pista y mantenimiento previsto.', evidenceNote: 'Los datos disponibles coinciden en altura, Dtex y densidad con OP S9; falta la ficha de construcción para explicar su diferencia sin especular.', relatedIds: ['x10-super-match', 's9-standard'] },
+  { id: 's12-endurance', code: 'OP S12', name: 'Endurance', role: 'Selección por proyecto', image: media.turf.green, heroImage: media.turf.green, catalogImage: media.turf.green, gallery: [media.turf.green], imageNote: turfVisualReference, description: 'Sistema de 12 mm y 12.000 Dtex con densidad documentada de 46.000 fibras por m².', facts: ['12 mm', '12.000 Dtex', '46.000 fibras / m²'], technicalSpecs: [{ label: 'Altura', value: '12 mm' }, { label: 'Dtex', value: '12.000' }, { label: 'Densidad', value: '46.000 fibras / m²' }], application: 'La recomendación se confirma según uso, clima, horas de pista y mantenimiento previsto.', evidenceNote: 'El perfil de fibra y las prestaciones de juego se publicarán cuando exista documentación técnica específica.', relatedIds: ['x10-super-match', 's9-standard'] },
+  { id: 's9-standard', code: 'OP S9', name: 'Standard', role: 'Selección por proyecto', image: media.turf.red, heroImage: media.turf.red, catalogImage: media.turf.red, gallery: [media.turf.red], imageNote: turfVisualReference, description: 'Sistema de 12 mm y 60.000 fibras por m² según el catálogo KND disponible.', facts: ['12 mm', '9.000 Dtex', '60.000 fibras / m²'], technicalSpecs: [{ label: 'Altura', value: '12 mm' }, { label: 'Dtex', value: '9.000' }, { label: 'Densidad', value: '60.000 fibras / m²' }], application: 'La recomendación se confirma según uso, clima, horas de pista y mantenimiento previsto.', evidenceNote: 'Los datos disponibles coinciden en altura, Dtex y densidad con OP R9; falta la ficha de construcción para explicar su diferencia sin especular.', relatedIds: ['r9-control', 's7-training'] },
+  { id: 's7-training', code: 'OP S7', name: 'Training', role: 'Selección por proyecto', image: media.turf.black, heroImage: media.turf.black, catalogImage: media.turf.black, detailImage: media.turf.detallenegro, gallery: [media.turf.black, media.turf.detallenegro], imageNote: turfVisualReference, description: 'Sistema de 12 mm, 7.000 Dtex y 63.000 fibras por m² según el catálogo KND.', facts: ['12 mm', '7.000 Dtex', '63.000 fibras / m²'], technicalSpecs: [{ label: 'Altura', value: '12 mm' }, { label: 'Dtex', value: '7.000' }, { label: 'Densidad', value: '63.000 fibras / m²' }], application: 'La recomendación se confirma según uso, clima, horas de pista y mantenimiento previsto.', evidenceNote: 'La imagen de detalle se muestra como material aportado; su asociación constructiva exacta debe confirmarse antes de describir perfiles de fibra.', relatedIds: ['s9-standard', 'r9-control'] },
 ]
 
 export const turfFinishes = [
@@ -136,13 +254,13 @@ export const lightingPackages = [
 ]
 
 export const projects = [
-  { slug: 'hk-open-2026', courtModelCode: 'OP-03', courtModelName: 'Signature Tournament', name: 'HK Open 2026', location: 'Hong Kong, China', region: 'Asia', segment: 'Competición', year: '2026', status: 'Proyecto publicado', image: media.courts.torneo, imageNote: 'Imagen de referencia aportada por KND. La fotografía final del proyecto se asignará tras su validación.' },
-  { slug: 'gutech-university-sports-project', courtModelCode: 'OP-01', courtModelName: 'Super Panoramic', name: 'GUtech University Sports Project', location: 'Oman', region: 'Oriente Medio', segment: 'Universidad', status: 'Proyecto publicado', image: media.courts.germanproject, imageNote: 'Imagen de referencia aportada por KND. La fotografía final del proyecto se asignará tras su validación.' },
-  { slug: 'indoor-padel-club-new-jersey', courtModelCode: 'OP-04', courtModelName: 'Full Super Panoramic', name: 'Indoor Padel Club', location: 'New Jersey, USA', region: 'América', segment: 'Club indoor', status: 'Proyecto publicado', image: media.courts.newjerseyproject, imageNote: 'Imagen de referencia aportada por KND. La fotografía final del proyecto se asignará tras su validación.' },
-  { slug: 'covered-court-guangzhou', courtModelCode: 'OP-02', courtModelName: 'Panoramic', name: 'Covered Court', location: 'Guangzhou, China', region: 'Asia', segment: 'Club cubierto', status: 'Proyecto publicado', image: media.courts.guangzhouproject, imageNote: 'Imagen de referencia aportada por KND. La fotografía final del proyecto se asignará tras su validación.' },
-  { slug: 'in-construction-batam', courtModelCode: 'OP-01', courtModelName: 'Super Panoramic', name: 'In Construction', location: 'Batam, Indonesia', region: 'Asia', segment: 'En construcción', status: 'En construcción', image: media.courts.indonesiaproject, imageNote: 'Imagen de referencia aportada por KND. La fotografía final del proyecto se asignará tras su validación.' },
-  { slug: 'panoramic-club-colombia', courtModelCode: 'OP-02', courtModelName: 'Panoramic', name: 'Panoramic Club', location: 'Colombia', region: 'América', segment: 'Club', status: 'Proyecto publicado', image: media.courts.colombiaproject, imageNote: 'Imagen de referencia aportada por KND. La fotografía final del proyecto se asignará tras su validación.' },
-  { slug: 'outdoor-club-kenya', courtModelCode: 'OP-02', courtModelName: 'Panoramic', name: 'Outdoor Club', location: 'Kenya', region: 'África', segment: 'Club outdoor', status: 'Proyecto publicado', image: media.courts.kenyaproject, imageNote: 'Imagen de referencia aportada por KND. La fotografía final del proyecto se asignará tras su validación.' },
+  { slug: 'hk-open-2026', featured: true, courtModelCode: 'OP-03', courtModelName: 'Signature Tournament', name: 'HK Open 2026', subtitle: 'Competición internacional', location: 'Hong Kong, China', country: 'China', region: 'Asia', segment: 'Competición', year: '2026', status: 'Proyecto publicado', description: 'Referencia publicada para una sede de competición en Hong Kong con el modelo OP-03 Signature Tournament.', verifiedFacts: ['Hong Kong, China', 'OP-03 · Signature Tournament', 'Año publicado: 2026'], image: media.courts.torneo, imageStatus: 'provisional', imageNote: 'Archivo aportado por KND; confirmar autoría, alcance y permiso de publicación antes del lanzamiento comercial definitivo.', gallery: [], relatedProjects: ['gutech-university-sports-project', 'covered-court-guangzhou'] },
+  { slug: 'gutech-university-sports-project', featured: true, courtModelCode: 'OP-01', courtModelName: 'Super Panoramic', name: 'GUtech University Sports Project', subtitle: 'Proyecto deportivo universitario', location: 'Oman', country: 'Oman', region: 'Oriente Medio', segment: 'Universidad', status: 'Proyecto publicado', description: 'Proyecto universitario publicado en Oman asociado al modelo OP-01 Super Panoramic.', verifiedFacts: ['Oman', 'OP-01 · Super Panoramic', 'Segmento: universidad'], image: media.courts.germanproject, imageStatus: 'provisional', imageNote: 'Archivo aportado por KND; confirmar autoría, alcance y permiso de publicación antes del lanzamiento comercial definitivo.', gallery: [], relatedProjects: ['hk-open-2026', 'indoor-padel-club-new-jersey'] },
+  { slug: 'indoor-padel-club-new-jersey', featured: true, courtModelCode: 'OP-04', courtModelName: 'Full Super Panoramic', name: 'Indoor Padel Club', subtitle: 'Club indoor', location: 'New Jersey, USA', country: 'Estados Unidos', region: 'América', segment: 'Club indoor', status: 'Proyecto publicado', description: 'Club indoor publicado en New Jersey asociado al modelo OP-04 Full Super Panoramic.', verifiedFacts: ['New Jersey, USA', 'OP-04 · Full Super Panoramic', 'Segmento: club indoor'], image: media.courts.newjerseyproject, imageStatus: 'provisional', imageNote: 'Archivo aportado por KND; confirmar autoría, alcance y permiso de publicación antes del lanzamiento comercial definitivo.', gallery: [], relatedProjects: ['panoramic-club-colombia', 'gutech-university-sports-project'] },
+  { slug: 'covered-court-guangzhou', courtModelCode: 'OP-02', courtModelName: 'Panoramic', name: 'Covered Court', subtitle: 'Club cubierto', location: 'Guangzhou, China', country: 'China', region: 'Asia', segment: 'Club cubierto', status: 'Proyecto publicado', description: 'Proyecto cubierto publicado en Guangzhou asociado al modelo OP-02 Panoramic.', verifiedFacts: ['Guangzhou, China', 'OP-02 · Panoramic', 'Segmento: club cubierto'], image: media.courts.guangzhouproject, imageStatus: 'provisional', imageNote: 'Archivo aportado por KND; confirmar autoría, alcance y permiso de publicación antes del lanzamiento comercial definitivo.', gallery: [], relatedProjects: ['hk-open-2026', 'in-construction-batam'] },
+  { slug: 'in-construction-batam', courtModelCode: 'OP-01', courtModelName: 'Super Panoramic', name: 'In Construction', subtitle: 'Proyecto en construcción', location: 'Batam, Indonesia', country: 'Indonesia', region: 'Asia', segment: 'En construcción', status: 'En construcción', description: 'Proyecto publicado en fase de construcción en Batam asociado al modelo OP-01 Super Panoramic.', verifiedFacts: ['Batam, Indonesia', 'OP-01 · Super Panoramic', 'Estado: en construcción'], image: media.courts.indonesiaproject, imageStatus: 'provisional', imageNote: 'Archivo aportado por KND; confirmar autoría, alcance y permiso de publicación antes del lanzamiento comercial definitivo.', gallery: [], relatedProjects: ['covered-court-guangzhou', 'gutech-university-sports-project'] },
+  { slug: 'panoramic-club-colombia', courtModelCode: 'OP-02', courtModelName: 'Panoramic', name: 'Panoramic Club', subtitle: 'Club de pádel', location: 'Colombia', country: 'Colombia', region: 'América', segment: 'Club', status: 'Proyecto publicado', description: 'Club publicado en Colombia asociado al modelo OP-02 Panoramic.', verifiedFacts: ['Colombia', 'OP-02 · Panoramic', 'Segmento: club'], image: media.courts.colombiaproject, imageStatus: 'provisional', imageNote: 'Archivo aportado por KND; confirmar autoría, alcance y permiso de publicación antes del lanzamiento comercial definitivo.', gallery: [], relatedProjects: ['indoor-padel-club-new-jersey', 'outdoor-club-kenya'] },
+  { slug: 'outdoor-club-kenya', courtModelCode: 'OP-02', courtModelName: 'Panoramic', name: 'Outdoor Club', subtitle: 'Club outdoor', location: 'Kenya', country: 'Kenya', region: 'África', segment: 'Club outdoor', status: 'Proyecto publicado', description: 'Club exterior publicado en Kenya asociado al modelo OP-02 Panoramic.', verifiedFacts: ['Kenya', 'OP-02 · Panoramic', 'Segmento: club outdoor'], image: media.courts.kenyaproject, imageStatus: 'provisional', imageNote: 'Archivo aportado por KND; confirmar autoría, alcance y permiso de publicación antes del lanzamiento comercial definitivo.', gallery: [], relatedProjects: ['panoramic-club-colombia', 'gutech-university-sports-project'] },
 ]
 
 export const articles = [
