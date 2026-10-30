@@ -24,9 +24,17 @@ export default function ProductSectionNav({ sections = [], label = 'Navegación 
   }, [visibleSections.map((section) => section.id).join('|')])
 
   useEffect(() => {
-    if (!active || !linksRef.current) return
-    const activeLink = linksRef.current.querySelector(`[href="#${active}"]`)
-    activeLink?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' })
+    const rail = linksRef.current
+    if (!active || !rail) return
+    const activeLink = Array.from(rail.querySelectorAll('a')).find((link) => link.getAttribute('href') === `#${active}`)
+    if (!activeLink) return
+    // Scroll only the horizontal link rail. scrollIntoView() also moves the
+    // document vertically, which was causing jumps between court sections.
+    const railLeft = rail.getBoundingClientRect().left
+    const linkLeft = activeLink.getBoundingClientRect().left
+    const targetLeft = rail.scrollLeft + linkLeft - railLeft - (rail.clientWidth - activeLink.clientWidth) / 2
+    const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+    rail.scrollTo({ left: Math.max(0, targetLeft), behavior: reduced ? 'auto' : 'smooth' })
   }, [active])
 
   const goToSection = (event, id) => {
