@@ -34,6 +34,15 @@ const OP01_GALLERY = [
   '/media/knd/courts/superpanormamicrender.jpg',
 ]
 
+const OP02_MEDIA = {
+  hero: '/media/knd/op-2/portada-y-estructura.webp',
+  why: '/media/knd/op-2/portada-y-estructura.webp',
+  structure: '/media/knd/op-2/soporte.webp',
+  turf: '/media/knd/op-2/sample-blue.png',
+  glass: '/media/knd/op-2/cristaldetail.webp',
+  lighting: '/media/knd/op-2/foco.webp',
+}
+
 const errors = []
 const warnings = []
 
@@ -140,6 +149,12 @@ const op01 = courtProductContent['super-panoramic']
 if (op01?.media?.galleryOnly !== true) fail('OP-01: galleryOnly must remain enabled')
 const op01Gallery = op01?.media?.gallery?.map((image) => image.src) || []
 if (JSON.stringify(op01Gallery) !== JSON.stringify(OP01_GALLERY)) fail('OP-01: curated gallery order changed')
+
+const op02 = courtProductContent.panoramic
+for (const [section, expectedPath] of Object.entries(OP02_MEDIA)) {
+  if (op02?.media?.[section]?.src !== expectedPath) fail(`OP-02: media.${section} must use ${expectedPath}`)
+  if (op02?.media?.[section]?.status !== 'verified') fail(`OP-02: media.${section} must be marked verified`)
+}
 
 if (errors.length) {
   console.error(`Court copy verification failed with ${errors.length} error(s):`)

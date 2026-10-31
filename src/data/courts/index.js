@@ -529,6 +529,55 @@ const mediaFor = (model) => {
     }
   }
 
+  if (model.id === 'panoramic') {
+    const hero = imageSpec(
+      '/media/knd/op-2/portada-y-estructura.webp',
+      'OP-02 Panoramic · vista exterior de la pista',
+      'OP-02 Panoramic · exterior court view',
+      'verified',
+      { objectPosition: '50% 54%', aspectRatio: '16 / 9' },
+    )
+
+    return {
+      render,
+      hero,
+      overview: hero,
+      why: hero,
+      configuration: render,
+      structure: imageSpec(
+        '/media/knd/op-2/soporte.webp',
+        'OP-02 Panoramic · detalle del poste de soporte reforzado',
+        'OP-02 Panoramic · reinforced support-post detail',
+        'verified',
+        { objectPosition: '50% 44%', aspectRatio: '4 / 5' },
+      ),
+      turf: imageSpec(
+        '/media/knd/op-2/sample-blue.png',
+        'Muestra azul de césped OP S9',
+        'Blue OP S9 turf sample',
+        'verified',
+        { objectPosition: '50% 50%', aspectRatio: '1 / 1' },
+      ),
+      glass: imageSpec(
+        '/media/knd/op-2/cristaldetail.webp',
+        'OP-02 Panoramic · detalle de la unión del vidrio',
+        'OP-02 Panoramic · glass connection detail',
+        'verified',
+        { objectPosition: '50% 50%', aspectRatio: '4 / 3' },
+      ),
+      lighting: imageSpec(
+        '/media/knd/op-2/foco.webp',
+        'Módulo de iluminación OP-02 Panoramic',
+        'OP-02 Panoramic lighting module',
+        'verified',
+        { objectPosition: '50% 50%', aspectRatio: '1 / 1' },
+      ),
+      finish: pendingSpec(model, 'acabado'),
+      galleryOnly: true,
+      gallery: [render],
+    }
+  }
+
   return {
     render,
     hero: render,

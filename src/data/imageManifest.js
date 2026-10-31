@@ -168,6 +168,26 @@ export const imageManifest = [
     note: 'Asignación nominal aportada en la biblioteca local. Validar contra planos y render maestro antes de considerarla imagen definitiva.',
   })),
   ...[
+    ['op02-hero', '/media/knd/op-2/portada-y-estructura.webp', 'hero y bloque editorial'],
+    ['op02-structure', '/media/knd/op-2/soporte.webp', 'estructura y soporte'],
+    ['op02-glass', '/media/knd/op-2/cristaldetail.webp', 'detalle de vidrio'],
+    ['op02-lighting', '/media/knd/op-2/foco.webp', 'iluminación'],
+    ['op02-turf', '/media/knd/op-2/sample-blue.png', 'césped'],
+  ].map(([id, path, usage]) => ({
+    id,
+    path,
+    category: 'court',
+    product: 'OP-02 Panoramic',
+    type: 'photograph',
+    alt: {
+      es: `OP-02 Panoramic · ${usage}`,
+      en: `OP-02 Panoramic · ${usage}`,
+    },
+    status: IMAGE_STATUS.VERIFIED,
+    usage: [`ficha-op-02-${usage}`],
+    note: 'Fotografía aportada y asignada expresamente por KND para la ficha OP-02.',
+  })),
+  ...[
     ['hk-open-2026-photo', '/media/knd/courts/torneo.jpg', 'HK Open 2026'],
     ['gutech-project-photo', '/media/knd/courts/germanproject.webp', 'GUtech University Sports Project'],
     ['new-jersey-project-photo', '/media/knd/courts/newjersey.webp', 'Indoor Padel Club · New Jersey'],
