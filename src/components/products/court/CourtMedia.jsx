@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { mediaSpec } from './courtUtils.js'
 
 const labels = {
@@ -16,11 +17,16 @@ export default function CourtMedia({
 }) {
   const language = locale === 'en' ? 'en' : 'es'
   const spec = mediaSpec(media, language, alt)
+  const [usingFallback, setUsingFallback] = useState(false)
+  useEffect(() => { setUsingFallback(false) }, [spec.src])
+  const isFallback = usingFallback && Boolean(spec.fallbackSrc)
+  const source = isFallback ? spec.fallbackSrc : spec.src
+  const status = isFallback ? 'provisional' : spec.status
   const style = {
     ...(spec.aspectRatio ? { aspectRatio: spec.aspectRatio } : {}),
     ...(spec.background ? { background: spec.background } : {}),
   }
-  const statusLabel = label || (spec.status === 'provisional' ? labels[language].provisional : '')
+  const statusLabel = label || (status === 'provisional' ? labels[language].provisional : '')
 
   if (!spec.src) {
     return <figure
@@ -34,9 +40,10 @@ export default function CourtMedia({
     </figure>
   }
 
-  return <figure className={`court-media court-media--${spec.status} ${className}`.trim()} style={style}>
+  return <figure className={`court-media court-media--${status} ${className}`.trim()} style={style}>
     <img
-      src={spec.src}
+      src={source}
+      onError={() => { if (!usingFallback && spec.fallbackSrc && spec.fallbackSrc !== spec.src) setUsingFallback(true) }}
       alt={decorative ? '' : spec.alt}
       loading={priority ? 'eager' : 'lazy'}
       decoding="async"
