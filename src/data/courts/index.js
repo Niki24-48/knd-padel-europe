@@ -788,6 +788,52 @@ const mediaFor = (model) => {
     }
   }
 
+  // OP-07 Single Court: verified user-supplied images.
+  // Keep the local model render for the standard configuration and gallery.
+  // The same pink court photography belongs to the hero, overview and
+  // compact-structure editorial sections, as requested.
+  if (model.id === 'single-court') {
+    const cover = imageSpec(
+      '/media/knd/op-7/portada.webp',
+      'OP-07 Single Court · pista individual rosa en entorno ajardinado',
+      'OP-07 Single Court · pink singles court in landscaped grounds',
+      'verified',
+      { objectPosition: '50% 50%', aspectRatio: '4 / 3', fallbackSrc: render.src },
+    )
+    return {
+      render,
+      hero: cover,
+      overview: cover,
+      why: cover,
+      configuration: render,
+      structure: cover,
+      turf: imageSpec(
+        '/media/knd/op-7/sample-blue.webp',
+        'OP-07 Single Court · muestra de césped azul',
+        'OP-07 Single Court · blue turf sample',
+        'verified',
+        { objectPosition: '50% 50%', aspectRatio: '1 / 1', fallbackSrc: '/media/knd/turf/sample-blue.png' },
+      ),
+      glass: imageSpec(
+        '/media/knd/op-7/cristal.webp',
+        'OP-07 Single Court · detalle del vidrio y pista azul',
+        'OP-07 Single Court · glass panel detail and blue court',
+        'verified',
+        { objectPosition: '50% 50%', aspectRatio: '1 / 1', fallbackSrc: render.src },
+      ),
+      lighting: imageSpec(
+        '/media/knd/op-7/foco.webp',
+        'OP-07 Single Court · proyector LED de exterior',
+        'OP-07 Single Court · outdoor LED floodlight',
+        'verified',
+        { objectPosition: '50% 50%', aspectRatio: '1 / 1', fallbackSrc: render.src },
+      ),
+      finish: pendingSpec(model, 'acabado'),
+      galleryOnly: true,
+      gallery: [render],
+    }
+  }
+
   return {
     render,
     hero: render,
