@@ -736,6 +736,58 @@ const mediaFor = (model) => {
     }
   }
 
+
+  // OP-06 Classic: user-supplied photographs, isolated from every other model.
+  // The product render stays in the standard-configuration section.
+  if (model.id === 'classic') {
+    const cover = imageSpec(
+      '/media/knd/op-6/portada.webp',
+      'OP-06 Classic · pista azul en Hong Kong Padel Club',
+      'OP-06 Classic · blue court at Hong Kong Padel Club',
+      'verified',
+      { objectPosition: '50% 46%', aspectRatio: '4 / 3', fallbackSrc: render.src },
+    )
+    const structure = imageSpec(
+      '/media/knd/op-6/estructura.webp',
+      'OP-06 Classic · pista con estructura multiposte bajo un puente',
+      'OP-06 Classic · multipost court structure under a bridge',
+      'verified',
+      { objectPosition: '50% 50%', aspectRatio: '4 / 3', fallbackSrc: render.src },
+    )
+    return {
+      render,
+      hero: cover,
+      overview: structure,
+      why: structure,
+      configuration: render,
+      structure,
+      turf: imageSpec(
+        '/media/knd/op-6/sample-blue.webp',
+        'OP-06 Classic · muestra de césped azul',
+        'OP-06 Classic · blue turf sample',
+        'verified',
+        { objectPosition: '50% 50%', aspectRatio: '1 / 1', fallbackSrc: '/media/knd/turf/sample-blue.png' },
+      ),
+      glass: imageSpec(
+        '/media/knd/op-6/cristal.webp',
+        'OP-06 Classic · detalle del vidrio de la pista',
+        'OP-06 Classic · court glass panel detail',
+        'verified',
+        { objectPosition: '50% 50%', aspectRatio: '1 / 1', fallbackSrc: render.src },
+      ),
+      lighting: imageSpec(
+        '/media/knd/op-6/foco.webp',
+        'OP-06 Classic · luminaria LED',
+        'OP-06 Classic · LED lighting fixture',
+        'verified',
+        { objectPosition: '50% 50%', aspectRatio: '1 / 1', fallbackSrc: render.src },
+      ),
+      finish: pendingSpec(model, 'acabado'),
+      galleryOnly: true,
+      gallery: [render],
+    }
+  }
+
   return {
     render,
     hero: render,
