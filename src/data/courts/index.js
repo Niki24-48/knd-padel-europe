@@ -631,6 +631,59 @@ const mediaFor = (model) => {
     }
   }
 
+
+  // OP-04 Full Super Panoramic: individual user-supplied images, independent
+  // of the seven other court profiles. Keep the original model render as the
+  // third editorial section (the standard configuration).
+  if (model.id === 'full-super-panoramic') {
+    const cover = imageSpec(
+      '/media/knd/op-4/portada.webp',
+      'OP-04 Full Super Panoramic · pista exterior con césped azul',
+      'OP-04 Full Super Panoramic · outdoor court with blue turf',
+      'verified',
+      { objectPosition: '50% 48%', aspectRatio: '4 / 3', fallbackSrc: render.src },
+    )
+
+    return {
+      render,
+      hero: cover,
+      overview: cover,
+      why: cover,
+      configuration: render,
+      structure: imageSpec(
+        '/media/knd/op-4/estructura.webp',
+        'OP-04 Full Super Panoramic · detalle de la unión estructural',
+        'OP-04 Full Super Panoramic · structural corner connection',
+        'verified',
+        { objectPosition: '50% 50%', aspectRatio: '1 / 1', fallbackSrc: render.src },
+      ),
+      turf: imageSpec(
+        '/media/knd/op-4/sample-red.webp',
+        'OP-04 Full Super Panoramic · muestra de césped rojo',
+        'OP-04 Full Super Panoramic · red turf sample',
+        'verified',
+        { objectPosition: '50% 50%', aspectRatio: '1 / 1', fallbackSrc: '/media/knd/turf/sample-red.png' },
+      ),
+      glass: imageSpec(
+        '/media/knd/op-4/cristal.webp',
+        'OP-04 Full Super Panoramic · vista de los paneles de vidrio',
+        'OP-04 Full Super Panoramic · glass-panel close-up',
+        'verified',
+        { objectPosition: '50% 50%', aspectRatio: '1 / 1', fallbackSrc: render.src },
+      ),
+      lighting: imageSpec(
+        '/media/knd/op-4/event-light.webp',
+        'OP-04 Full Super Panoramic · luminaria LED de competición',
+        'OP-04 Full Super Panoramic · competition LED light',
+        'verified',
+        { objectPosition: '50% 50%', aspectRatio: '1 / 1', fallbackSrc: render.src },
+      ),
+      finish: pendingSpec(model, 'acabado'),
+      galleryOnly: true,
+      gallery: [render],
+    }
+  }
+
   return {
     render,
     hero: render,
