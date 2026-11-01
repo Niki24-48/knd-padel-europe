@@ -684,6 +684,58 @@ const mediaFor = (model) => {
     }
   }
 
+
+  // OP-05 Extreme: customer-provided visual sequence. All images are scoped to
+  // this model; the original 3D render stays in standard configuration.
+  if (model.id === 'extreme') {
+    const cover = imageSpec(
+      '/media/knd/op-5/portada.webp',
+      'OP-05 Extreme · pista exterior al atardecer con estructura roja',
+      'OP-05 Extreme · red-framed outdoor court at sunset',
+      'verified',
+      { objectPosition: '50% 48%', aspectRatio: '4 / 3', fallbackSrc: render.src },
+    )
+
+    return {
+      render,
+      hero: cover,
+      overview: cover,
+      why: cover,
+      configuration: render,
+      structure: imageSpec(
+        '/media/knd/op-5/estructura.webp',
+        'OP-05 Extreme · detalle de poste estructural reforzado',
+        'OP-05 Extreme · reinforced structural post detail',
+        'verified',
+        { objectPosition: '50% 50%', aspectRatio: '1 / 1', fallbackSrc: render.src },
+      ),
+      turf: imageSpec(
+        '/media/knd/op-5/sample-blue.webp',
+        'OP-05 Extreme · muestra de césped azul',
+        'OP-05 Extreme · blue turf sample',
+        'verified',
+        { objectPosition: '50% 50%', aspectRatio: '1 / 1', fallbackSrc: '/media/knd/turf/sample-blue.png' },
+      ),
+      glass: imageSpec(
+        '/media/knd/op-5/cristal.webp',
+        'OP-05 Extreme · vista de paneles de vidrio en pista',
+        'OP-05 Extreme · glass panel view on court',
+        'verified',
+        { objectPosition: '50% 50%', aspectRatio: '1 / 1', fallbackSrc: render.src },
+      ),
+      lighting: imageSpec(
+        '/media/knd/op-5/foco.webp',
+        'OP-05 Extreme · detalle de foco LED nocturno',
+        'OP-05 Extreme · outdoor LED fixture at night',
+        'verified',
+        { objectPosition: '50% 50%', aspectRatio: '1 / 1', fallbackSrc: render.src },
+      ),
+      finish: pendingSpec(model, 'acabado'),
+      galleryOnly: true,
+      gallery: [render],
+    }
+  }
+
   return {
     render,
     hero: render,
