@@ -578,6 +578,59 @@ const mediaFor = (model) => {
     }
   }
 
+
+  // OP-03 Signature Tournament: exact user-supplied images, independent of all
+  // other models. Files live in public/media/knd/op-3 after uploading the image bundle.
+  // Until they exist, fallbackSrc keeps the live page free of broken images.
+  if (model.id === 'signature-tournament') {
+    const cover = imageSpec(
+      '/media/knd/op-3/portada.webp',
+      'OP-03 Signature Tournament · pista en recinto de competición',
+      'OP-03 Signature Tournament · court in competition arena',
+      'verified',
+      { objectPosition: '50% 50%', aspectRatio: '4 / 3', fallbackSrc: render.src },
+    )
+    return {
+      render,
+      hero: cover,
+      overview: cover,
+      why: cover,
+      // The third editorial block retains the existing 3D product render.
+      configuration: render,
+      structure: imageSpec(
+        '/media/knd/op-3/estructura.webp',
+        'OP-03 Signature Tournament · detalle de la unión estructural',
+        'OP-03 Signature Tournament · structural connection close-up',
+        'verified',
+        { objectPosition: '50% 50%', aspectRatio: '1 / 1', fallbackSrc: render.src },
+      ),
+      turf: imageSpec(
+        '/media/knd/op-3/sample-blue.png',
+        'OP-03 Signature Tournament · muestra de césped azul',
+        'OP-03 Signature Tournament · blue turf sample',
+        'verified',
+        { objectPosition: '50% 50%', aspectRatio: '1 / 1', fallbackSrc: '/media/knd/turf/sample-blue.png' },
+      ),
+      glass: imageSpec(
+        '/media/knd/op-3/cristal.webp',
+        'OP-03 Signature Tournament · vista de los paneles de vidrio',
+        'OP-03 Signature Tournament · glass panel view',
+        'verified',
+        { objectPosition: '50% 50%', aspectRatio: '1 / 1', fallbackSrc: render.src },
+      ),
+      lighting: imageSpec(
+        '/media/knd/op-3/event-light.webp',
+        'OP-03 Signature Tournament · luminaria Event Light',
+        'OP-03 Signature Tournament · Event Light fixture',
+        'verified',
+        { objectPosition: '50% 50%', aspectRatio: '1 / 1', fallbackSrc: render.src },
+      ),
+      finish: pendingSpec(model, 'acabado'),
+      galleryOnly: true,
+      gallery: [render],
+    }
+  }
+
   return {
     render,
     hero: render,
