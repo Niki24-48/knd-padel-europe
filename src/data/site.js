@@ -38,6 +38,7 @@ export const media = {
     colombiaproject: '/media/knd/courts/colombiaproject.webp',
     kenyaproject: '/media/knd/courts/kenyaproject.webp',
     indonesiaproject: '/media/knd/courts/indonesiaproject.webp',
+    airview: '/media/knd/courts/airview.png',
 
   },
   roofs: {
@@ -72,6 +73,7 @@ export const images = {
   projectTwo: media.courts.newjerseyproject,
   projectThree: media.courts.guangzhouproject,
   player: media.courts.torneo,
+  airview: media.courts.airview
 }
 
 const renderReference = 'Render de referencia aportado por KND. La correspondencia exacta con el modelo se valida en la especificación del proyecto.'
