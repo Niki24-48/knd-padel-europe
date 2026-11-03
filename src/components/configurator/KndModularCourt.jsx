@@ -6,6 +6,7 @@ import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.j
 import OntoCodePoles from './OntoCodePoles.jsx'
 import MappedSourcePoles from './MappedSourcePoles.jsx'
 import KndProtectionKit from './KndProtectionKit.jsx'
+import KndMobileBaseBrand from './KndMobileBaseBrand.jsx'
 import {
   PROVIDED_MODEL_CATALOG,
   getProvidedModelRecord,
@@ -671,6 +672,7 @@ function ProvidedCatalogCourt({
           frameColor={frameColor}
         />
       )}
+      {asset.mobileBase && <KndMobileBaseBrand />}
       {protection && <KndProtectionKit layout={asset.layout} />}
       {(asset.mounts || []).map((mount, index) => (
         <ProvidedFixture
