@@ -645,6 +645,16 @@ const MODEL_SELECTION_INDEX = deepFreeze({
   'single-court': { defaultAssetId: 'op07' },
 })
 
+// Pilot only: OP-01 keeps its own frame, glass, fence, net and exact CAD
+// coordinates. Signature and Straight borrow actual supplier pole-only GLBs.
+// Z/T use the source configurator's upper-pole paths, not invented full poles.
+const OP01_SOURCE_POLE_OPTIONS = deepFreeze({
+  'signature-curved': { donor: 'op03', sourceMount: 'curved' },
+  straight: { donor: 'op04', sourceMount: 'straight' },
+  z: { sourceCode: true },
+  t: { sourceCode: true },
+})
+
 const MODEL_ID_ALIASES = deepFreeze({
   signature: 'signature-tournament',
   'full-super': 'full-super-panoramic',
@@ -668,6 +678,9 @@ export function resolveProvidedModelSelection({
   const requestedModelId = normaliseSelectionKey(modelId)
   const aliasedModelId = MODEL_ID_ALIASES[requestedModelId] ?? requestedModelId
   const requestedPoleStyle = normaliseSelectionKey(poleStyle) || null
+  const op01AdditionalPole = aliasedModelId === 'super-panoramic'
+    ? OP01_SOURCE_POLE_OPTIONS[requestedPoleStyle]
+    : null
   const notes = ['publication-rights-blocked']
 
   let selection = MODEL_SELECTION_INDEX[aliasedModelId]
@@ -704,9 +717,9 @@ export function resolveProvidedModelSelection({
 
   const model = getProvidedModelRecord(assetId)
   const requestedPoleUnsupported = Boolean(
-    requestedPoleStyle && !model.compatibility.mountTypes.includes(requestedPoleStyle),
+    requestedPoleStyle && !model.compatibility.mountTypes.includes(requestedPoleStyle) && !op01AdditionalPole,
   )
-  const mountType = requestedPoleUnsupported
+  const mountType = requestedPoleUnsupported || op01AdditionalPole
     ? model.compatibility.defaultMountType
     : requestedPoleStyle || model.compatibility.defaultMountType
   const frameVariant = reinforcedFrame ? 'frame150' : 'standard'
@@ -723,7 +736,30 @@ export function resolveProvidedModelSelection({
   // reinforced frame outside OP-05) never invalidate the structural court.
   // Keep the audited base bundle visible and report the request as pending.
   const resolvedFrameVariant = requestedFrameUnsupported ? 'standard' : frameVariant
-  const asset = selectProvidedModelComponents(assetId, { mountType, frameVariant: resolvedFrameVariant })
+  const baseAsset = selectProvidedModelComponents(assetId, { mountType, frameVariant: resolvedFrameVariant })
+  let asset = baseAsset
+  if (op01AdditionalPole?.donor) {
+    const donor = getProvidedModelRecord(op01AdditionalPole.donor)
+    // The donor's poles are a standalone, world-positioned CAD component.
+    // No donor frame, fence, glass, net, or global scaling is copied.
+    asset = deepFreeze({
+      ...baseAsset,
+      poles: donor.components.poles[op01AdditionalPole.sourceMount],
+      mounts: donor.mounts[op01AdditionalPole.sourceMount],
+      previewPoleStyle: requestedPoleStyle,
+      poleSourceId: donor.id,
+    })
+    notes.push('borrowed-original-pole-glb:' + donor.id)
+  } else if (op01AdditionalPole?.sourceCode) {
+    // Keep the original reference in the loader's atomic bundle, but replace
+    // only its upper-pole draw with the source site's exact Z/T paths.
+    asset = deepFreeze({
+      ...baseAsset,
+      previewPoleStyle: requestedPoleStyle,
+      proceduralPoleStyle: requestedPoleStyle,
+    })
+    notes.push('source-code-pole:' + requestedPoleStyle)
+  }
 
   return deepFreeze({
     assetId,
@@ -736,7 +772,7 @@ export function resolveProvidedModelSelection({
     requested: { modelId: requestedModelId, poleStyle: requestedPoleStyle, mobileBase, reinforcedFrame },
     resolved: {
       catalogueModelId: aliasedModelId,
-      poleStyle: mountType,
+      poleStyle: op01AdditionalPole ? requestedPoleStyle : mountType,
       mobileBase: model.compatibility.mobileBase,
       frameVariant: resolvedFrameVariant,
     },
