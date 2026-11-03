@@ -3,6 +3,7 @@ import { useGLTF } from '@react-three/drei'
 import * as THREE from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js'
+import { Op01PreviewFixture, Op01PreviewPoles, isGeneratedOp01Pole } from './PreviewAccessories.jsx'
 import {
   PROVIDED_MODEL_CATALOG,
   getProvidedModelRecord,
@@ -534,6 +535,10 @@ function ProvidedCatalogCourt({
   onStatusChange,
 }) {
   const { assetId, asset } = selection
+  const op01Pilot = assetId === 'op01' || assetId === 'op01-angled'
+  const requestedPoleStyle = selection.requested?.poleStyle || selection.resolved?.poleStyle || asset.mountType
+  const visualPoleStyle = requestedPoleStyle === 'signature-curved' ? 'signature' : requestedPoleStyle
+  const generatedPoles = isGeneratedOp01Pole(assetId, visualPoleStyle)
   const componentEntries = useMemo(() => providedComponentEntries(asset), [asset])
   const paths = useMemo(() => componentEntries.map((entry) => entry.url), [componentEntries])
   // One array request is the atomic boundary: R3F reveals no component until
@@ -636,7 +641,7 @@ function ProvidedCatalogCourt({
   // to match the scene's width-X / length-Z convention; never transform parts.
   return (
     <group name={`provided-${assetId}-assembly`} rotation={[0, Math.PI / 2, 0]} position={[0, 0, 0]} scale={[1, 1, 1]}>
-      {loadedEntries.map((entry) => {
+      {loadedEntries.filter((entry) => !(generatedPoles && entry.key === 'poles')).map((entry) => {
         const Component = PROVIDED_COMPONENT_RENDERERS[entry.key] || ProvidedGlbModule
         return (
           <Component
@@ -649,14 +654,34 @@ function ProvidedCatalogCourt({
           />
         )
       })}
-      {(asset.mounts || []).map((mount, index) => (
-        <ProvidedFixture
-          key={`${assetId}-fixture-${index}`}
-          mount={mount}
-          lighting={lighting}
-          environment={environment}
-          lightsOn={lightsOn}
+      {generatedPoles && (
+        <Op01PreviewPoles
+          mounts={asset.mounts}
+          poleBases={asset.layout?.poleBases}
+          style={visualPoleStyle}
+          frameColor={frameColor}
         />
+      )}
+      {(asset.mounts || []).map((mount, index) => (
+        op01Pilot ? (
+          <Op01PreviewFixture
+            key={`${assetId}-fixture-${index}`}
+            mount={mount}
+            poleBase={asset.layout?.poleBases?.[index]}
+            poleStyle={visualPoleStyle}
+            lighting={lighting}
+            environment={environment}
+            lightsOn={lightsOn}
+          />
+        ) : (
+          <ProvidedFixture
+            key={`${assetId}-fixture-${index}`}
+            mount={mount}
+            lighting={lighting}
+            environment={environment}
+            lightsOn={lightsOn}
+          />
+        )
       ))}
     </group>
   )
