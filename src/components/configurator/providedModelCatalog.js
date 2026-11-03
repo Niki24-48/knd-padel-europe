@@ -737,13 +737,31 @@ export function resolveProvidedModelSelection({
   // Keep the audited base bundle visible and report the request as pending.
   const resolvedFrameVariant = requestedFrameUnsupported ? 'standard' : frameVariant
   const baseAsset = selectProvidedModelComponents(assetId, { mountType, frameVariant: resolvedFrameVariant })
-  let asset = baseAsset
+  // The supplier's real OP-03 mobile-base GLB is a 20 × 10 m steel
+  // perimeter. Keep the audited OP-03 mobile bundle intact; for other
+  // full-size courts overlay ONLY that GLB, not any OP-03 frame/glass/fence.
+  // OP-07 is 20 × 6 m and must not receive the 10 m-wide base.
+  const mobileBasePreview = mobileBase && aliasedModelId !== 'single-court'
+    && !baseAsset.mobileBase
+    && model.dimensions.playingSurface[0] === 20
+    && model.dimensions.playingSurface[1] === 10
+  let asset = mobileBasePreview
+    ? deepFreeze({
+      ...baseAsset,
+      mobileBase: PROVIDED_MODEL_CATALOG['op03-mobile'].components.mobileBase,
+      mobileBasePreview: true,
+    })
+    : baseAsset
+  if (mobileBasePreview) {
+    notes.push('op03-mobile-base-visual-preview-not-engineering-validated')
+    requestedMobileUnsupported = false
+  }
   if (op01AdditionalPole?.donor) {
     const donor = getProvidedModelRecord(op01AdditionalPole.donor)
     // The donor's poles are a standalone, world-positioned CAD component.
     // No donor frame, fence, glass, net, or global scaling is copied.
     asset = deepFreeze({
-      ...baseAsset,
+      ...asset,
       poles: donor.components.poles[op01AdditionalPole.sourceMount],
       mounts: donor.mounts[op01AdditionalPole.sourceMount],
       previewPoleStyle: requestedPoleStyle,
@@ -754,7 +772,7 @@ export function resolveProvidedModelSelection({
     // Keep the original reference in the loader's atomic bundle, but replace
     // only its upper-pole draw with the source site's exact Z/T paths.
     asset = deepFreeze({
-      ...baseAsset,
+      ...asset,
       previewPoleStyle: requestedPoleStyle,
       proceduralPoleStyle: requestedPoleStyle,
     })
@@ -773,7 +791,7 @@ export function resolveProvidedModelSelection({
     resolved: {
       catalogueModelId: aliasedModelId,
       poleStyle: op01AdditionalPole ? requestedPoleStyle : mountType,
-      mobileBase: model.compatibility.mobileBase,
+      mobileBase: Boolean(asset.mobileBase),
       frameVariant: resolvedFrameVariant,
     },
     compatibility: model.compatibility,
