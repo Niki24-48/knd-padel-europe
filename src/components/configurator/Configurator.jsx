@@ -418,7 +418,7 @@ export default function Configurator({ navigate, openProject, search = '', local
 
             <section className="knd-studio-section">
               <SectionHeading number="06" title={text.installation} />
-              <div className="knd-studio-installation"><CardChoice selected={config.installation === 'anchored'} onClick={() => update({ installation: 'anchored' })}><strong>{text.anchored}</strong><small>{text.anchoredSub}</small></CardChoice><CardChoice selected={config.installation === 'mobile-request'} onClick={() => update({ installation: 'mobile-request' })}><strong>{text.mobile}</strong><small>{compatibility.hasMobileGeometry ? text.mobileSub : text.mobilePending}</small></CardChoice></div>
+              <div className="knd-studio-installation"><CardChoice selected={config.installation === 'anchored'} onClick={() => update({ installation: 'anchored' })}><strong>{text.anchored}</strong><small>{text.anchoredSub}</small></CardChoice><CardChoice selected={config.installation === 'mobile-request'} onClick={() => update({ installation: 'mobile-request' })}><strong>{text.mobile}</strong><small>{compatibility.hasMobileGeometry ? (config.modelId === 'signature-tournament' ? text.mobileSub : (locale === 'en' ? 'Original OP-03 base · visual preview, not engineering approved' : 'Base original OP-03 · vista previa, pendiente de validar')) : text.mobilePending}</small></CardChoice></div>
             </section>
 
             <details className="knd-studio-project-options">
