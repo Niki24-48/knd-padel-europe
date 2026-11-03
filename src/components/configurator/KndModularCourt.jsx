@@ -5,6 +5,7 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js'
 import OntoCodePoles from './OntoCodePoles.jsx'
 import MappedSourcePoles from './MappedSourcePoles.jsx'
+import KndProtectionKit from './KndProtectionKit.jsx'
 import {
   PROVIDED_MODEL_CATALOG,
   getProvidedModelRecord,
@@ -529,6 +530,7 @@ function ProvidedCatalogCourt({
   selection,
   frameColor,
   glassThickness,
+  protection,
   lighting,
   environment,
   lightsOn,
@@ -669,6 +671,7 @@ function ProvidedCatalogCourt({
           frameColor={frameColor}
         />
       )}
+      {protection && <KndProtectionKit layout={asset.layout} />}
       {(asset.mounts || []).map((mount, index) => (
         <ProvidedFixture
           key={`${assetId}-fixture-${index}`}
@@ -808,6 +811,7 @@ export default function KndModularCourt({
         selection={selection}
         frameColor={frameColor}
         glassThickness={glassThickness}
+        protection={protection}
         lighting={lighting}
         environment={environment}
         lightsOn={lightsOn}
