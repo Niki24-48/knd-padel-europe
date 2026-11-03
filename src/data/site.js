@@ -258,10 +258,10 @@ export const frameFinishes = [
 // instead of exposing unsupported technical choices.
 export const lightingPackages = [
   { id: 'lineal-4x300', name: '4 × 300 W LED', lamps: 4, style: 'linear', models: ['super-panoramic', 'panoramic'] },
-  { id: 'pro-4x400', name: '4 × 400 W Pro', lamps: 4, style: 'pro', models: ['signature-tournament', 'super-panoramic'] }
-  { id: 'compact-8x200', name: '8 × 200 W LED', lamps: 8, style: 'compact', models: ['classic', 'single-court', 'super-panoramic'] }
+  { id: 'pro-4x400', name: '4 × 400 W Pro', lamps: 4, style: 'pro', models: ['signature-tournament', 'super-panoramic'] },
+  { id: 'compact-8x200', name: '8 × 200 W LED', lamps: 8, style: 'compact', models: ['classic', 'single-court', 'super-panoramic'] },
   { id: 'luma-indoor', name: 'OP Luma · interior', lamps: 0, style: 'suspended', models: ['super-panoramic'] },
-  { id: 'project-defined', name: 'A definir con el proyecto', lamps: 4, style: 'project', models: ['full-super-panoramic', 'extreme'] }
+  { id: 'project-defined', name: 'A definir con el proyecto', lamps: 4, style: 'project', models: ['full-super-panoramic', 'extreme'] },
 ]
 
 export const projects = [
