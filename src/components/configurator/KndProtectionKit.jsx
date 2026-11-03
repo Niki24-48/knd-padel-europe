@@ -13,6 +13,8 @@ import * as THREE from 'three'
  * Third-party trademark printing is deliberately omitted.
  */
 
+const pendingResourceDisposals = new WeakMap()
+
 const NET_SLEEVE_PROFILE = [
   [.055, -.451], [.115, -.451], [.135, -.445], [.146, -.434],
   [.155, -.416], [.159, -.39], [.16, -.35], [.16, .38],
@@ -153,7 +155,6 @@ function RoundFrameSleeve({ center, length, radius = .075, depth = .1, horizonta
 function SourceEntryPadding({ entry, materials }) {
   const height = entry.height || 1.99
   const jambs = entry.jambPositions || []
-  const lowerY = entry.center[1] - height / 2
   const vertical = jambs.map((jamb) => ({
     center: [jamb[0], jamb[1] + height / 2 + .01, jamb[2]],
     length: Math.max(.2, height + .03),
@@ -194,10 +195,24 @@ export default function KndProtectionKit({ layout }) {
     straps: new THREE.MeshStandardMaterial({ color: '#090d0f', roughness: .98 }),
   }), [texture])
 
-  useEffect(() => () => {
-    materials.fabric.dispose()
-    materials.straps.dispose()
-    texture?.dispose()
+  useEffect(() => {
+    // Defer disposal across React StrictMode's synthetic cleanup/remount.
+    // All children share the exact same two materials and canvas bump texture.
+    const resources = [materials.fabric, materials.straps, texture].filter(Boolean)
+    resources.forEach((resource) => {
+      const timer = pendingResourceDisposals.get(resource)
+      if (timer != null) {
+        clearTimeout(timer)
+        pendingResourceDisposals.delete(resource)
+      }
+    })
+    return () => resources.forEach((resource) => {
+      const timer = setTimeout(() => {
+        resource.dispose()
+        pendingResourceDisposals.delete(resource)
+      }, 0)
+      pendingResourceDisposals.set(resource, timer)
+    })
   }, [materials, texture])
 
   if (!layout) return null
