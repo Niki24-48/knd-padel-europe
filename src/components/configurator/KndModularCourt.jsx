@@ -3,6 +3,7 @@ import { useGLTF } from '@react-three/drei'
 import * as THREE from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js'
+import OntoCodePoles from './OntoCodePoles.jsx'
 import {
   PROVIDED_MODEL_CATALOG,
   getProvidedModelRecord,
@@ -636,7 +637,7 @@ function ProvidedCatalogCourt({
   // to match the scene's width-X / length-Z convention; never transform parts.
   return (
     <group name={`provided-${assetId}-assembly`} rotation={[0, Math.PI / 2, 0]} position={[0, 0, 0]} scale={[1, 1, 1]}>
-      {loadedEntries.map((entry) => {
+      {loadedEntries.filter((entry) => !(asset.proceduralPoleStyle && entry.key === 'poles')).map((entry) => {
         const Component = PROVIDED_COMPONENT_RENDERERS[entry.key] || ProvidedGlbModule
         return (
           <Component
@@ -649,6 +650,13 @@ function ProvidedCatalogCourt({
           />
         )
       })}
+      {asset.proceduralPoleStyle && (
+        <OntoCodePoles
+          style={asset.proceduralPoleStyle}
+          poleBases={asset.layout?.poleBases}
+          frameColor={frameColor}
+        />
+      )}
       {(asset.mounts || []).map((mount, index) => (
         <ProvidedFixture
           key={`${assetId}-fixture-${index}`}
