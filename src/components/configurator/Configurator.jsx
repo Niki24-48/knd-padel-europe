@@ -16,6 +16,14 @@ const SCHEMA_VERSION = 2
 const STORAGE_KEY = 'knd-configurator-studio-v2'
 const VALID_ENVIRONMENTS = ['day', 'evening', 'night']
 const VALID_POLES = ['curved', 'signature-curved', 'straight', 'angled', 'z', 't']
+// OP-01 ONLY: original GLB options plus source-derived Z and T.
+const OP01_PILOT_POLES = VALID_POLES
+const OP01_TEXT_ONLY_LIGHTS = {
+  'compact-8x200': 'OP L200 Compact',
+  'lineal-4x300': 'OP L300 Linear',
+  'pro-4x400': 'OP L400 Pro',
+  'luma-indoor': 'OP Luma',
+}
 const VALID_INSTALLATIONS = ['anchored', 'mobile-request']
 const VALID_GLASS = ['10', '12']
 const VALID_FRAME_VARIANTS = ['standard', 'frame150']
@@ -101,7 +109,9 @@ function getModelCompatibility(modelId) {
   }
 
   const compatibility = {
-    poles: allowed(['poleStyles', 'poleStyleIds', 'poles'], suppliedPoles.length ? suppliedPoles : ['curved']),
+    poles: modelId === 'super-panoramic'
+      ? OP01_PILOT_POLES
+      : allowed(['poleStyles', 'poleStyleIds', 'poles'], suppliedPoles.length ? suppliedPoles : ['curved']),
     installations: VALID_INSTALLATIONS,
     hasMobileGeometry: Boolean(mobileSelection.resolved?.mobileBase),
     frameVariants: modelId === 'extreme' ? VALID_FRAME_VARIANTS : ['standard'],
@@ -390,11 +400,12 @@ export default function Configurator({ navigate, openProject, search = '', local
               <SectionHeading number="04" title={text.lighting} detail={lighting.name} />
               <p className="knd-studio-help"><strong>{text.pole}</strong>{text.choosePole}</p>
               <div className="knd-studio-poles">
-                {poleLabels.map(([id, label, note]) => { const available = compatibility.poles.includes(id); return <CardChoice key={id} className="knd-studio-pole-choice" selected={id === config.poleStyle} disabled={!available} onClick={() => update({ poleStyle: id })}><span className={`knd-pole-icon knd-pole-icon--${id}`} aria-hidden="true"><i /></span><strong>{label}</strong><small>{available ? note : text.unavailable3d}</small></CardChoice> })}
+                {poleLabels.map(([id, label, note]) => { const available = compatibility.poles.includes(id); const sourceCode = config.modelId === 'super-panoramic' && ['z', 't'].includes(id); return <CardChoice key={id} className="knd-studio-pole-choice" selected={id === config.poleStyle} disabled={!available} onClick={() => update({ poleStyle: id })}><span className={`knd-pole-icon knd-pole-icon--${id}`} aria-hidden="true"><i /></span><strong>{label}</strong><small>{available ? (sourceCode ? (locale === 'en' ? 'Source-code profile' : 'Perfil del código original') : note) : text.unavailable3d}</small></CardChoice> })}
               </div>
+              {config.modelId === 'super-panoramic' && <p className="knd-studio-help">{locale === 'en' ? 'OP-01 pilot: four original supplier GLB pole types. Z and T follow the original configurator code. Lighting choices are text only; no LED fixture meshes are added.' : 'Prueba OP-01: cuatro tipos de poste GLB originales. Z y T siguen el código original del configurador. Los focos se indican solo en texto, sin añadir modelos LED.'}</p>}
               <p className="knd-studio-help"><strong>{text.fixture}</strong></p>
               <div className="knd-studio-fixtures">
-                {lightingPackages.map((item) => { const enabled = item.models.includes(config.modelId); return <CardChoice key={item.id} selected={item.id === config.lightingId} disabled={!enabled} onClick={() => update({ lightingId: item.id })}><strong>{item.name}</strong><small>{enabled ? item.style : '—'}</small></CardChoice> })}
+                {lightingPackages.map((item) => { const enabled = item.models.includes(config.modelId); const pilotLabel = config.modelId === 'super-panoramic' && OP01_TEXT_ONLY_LIGHTS[item.id]; return <CardChoice key={item.id} selected={item.id === config.lightingId} disabled={!enabled} onClick={() => update({ lightingId: item.id })}><strong>{pilotLabel || item.name}</strong><small>{enabled ? (pilotLabel ? (locale === 'en' ? 'Reference only · no 3D light' : 'Solo texto · sin foco 3D') : item.style) : '—'}</small></CardChoice> })}
               </div>
               <label className="knd-studio-toggle"><span><strong>{text.evening}</strong><small>{locale === 'en' ? 'See your court after hours.' : 'Mira tu pista después del atardecer.'}</small></span><input type="checkbox" checked={config.environment !== 'day'} onChange={(event) => update({ environment: event.target.checked ? 'evening' : 'day', lightsOn: true })} /><i /></label>
             </section>
