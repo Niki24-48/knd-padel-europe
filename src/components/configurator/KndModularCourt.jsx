@@ -4,6 +4,7 @@ import * as THREE from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js'
 import OntoCodePoles from './OntoCodePoles.jsx'
+import MappedSourcePoles from './MappedSourcePoles.jsx'
 import {
   PROVIDED_MODEL_CATALOG,
   getProvidedModelRecord,
@@ -638,6 +639,17 @@ function ProvidedCatalogCourt({
   return (
     <group name={`provided-${assetId}-assembly`} rotation={[0, Math.PI / 2, 0]} position={[0, 0, 0]} scale={[1, 1, 1]}>
       {loadedEntries.filter((entry) => !(asset.proceduralPoleStyle && entry.key === 'poles')).map((entry) => {
+        if (entry.key === 'poles' && asset.sourcePoleBases && asset.layout?.poleBases) {
+          return (
+            <MappedSourcePoles
+              key={entry.key}
+              scene={entry.scene}
+              frameColor={frameColor}
+              sourceBases={asset.sourcePoleBases}
+              targetBases={asset.layout.poleBases}
+            />
+          )
+        }
         const Component = PROVIDED_COMPONENT_RENDERERS[entry.key] || ProvidedGlbModule
         return (
           <Component
@@ -786,6 +798,8 @@ export default function KndModularCourt({
       selection.assetId,
       selection.asset.mountType,
       selection.asset.frame,
+      selection.asset.poles,
+      selection.asset.proceduralPoleStyle || 'original-glb',
       selection.asset.mobileBase || 'anchored',
     ].join(':')
     return (
