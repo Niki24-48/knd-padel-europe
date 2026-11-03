@@ -663,42 +663,6 @@ function ProtectionPads({ width }) {
   )
 }
 
-function sourcePointToScene(point) {
-  if (!Array.isArray(point) || point.length !== 3) return null
-  return [point[2], point[1], -point[0]]
-}
-
-function ManifestProtectionPads({ layout, fallbackWidth }) {
-  const netPads = (layout?.netPosts || [])
-    .map((post) => sourcePointToScene(post.protectionCenter || post.position))
-    .filter(Boolean)
-  const entryPads = (layout?.entries || []).flatMap((entry) => (
-    (entry.jambs || []).map((jamb) => ({
-      position: sourcePointToScene(jamb.position),
-      height: Math.min(1.5, Math.max(1.1, entry.height * 0.68)),
-    })).filter((item) => item.position)
-  ))
-
-  if (!netPads.length && !entryPads.length) return <ProtectionPads width={fallbackWidth} />
-
-  return (
-    <group name="orientative-protection-kit" userData={{ status: 'orientative-not-engineering-validated' }}>
-      {netPads.map((position, index) => (
-        <mesh key={`manifest-net-pad-${index}`} position={position} castShadow>
-          <cylinderGeometry args={[0.12, 0.12, 0.82, 16]} />
-          <meshStandardMaterial color="#121a1d" roughness={0.88} />
-        </mesh>
-      ))}
-      {entryPads.map(({ position, height }, index) => (
-        <mesh key={`manifest-entry-pad-${index}`} position={[position[0], height / 2, position[2]]} castShadow>
-          <cylinderGeometry args={[0.14, 0.14, height, 16]} />
-          <meshStandardMaterial color="#121a1d" roughness={0.9} />
-        </mesh>
-      ))}
-    </group>
-  )
-}
-
 function CourtNet({ width, frameColor, protection }) {
   return (
     <group>
@@ -1072,7 +1036,6 @@ function CourtWorld({
   const modularLighting = providedPreviewAvailable || (modularReady && moduleStatus.handlesLighting)
   const structuralGlbExpected = providedPreviewAvailable || modularReady
   const renderParametricCourt = !providedPreviewAvailable && !modularReady
-  const protectionLayout = providedSelection.asset?.layout || moduleStatus.manifest?.layout
   return (
     <group>
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, modularMobileBase ? -0.3 : -0.17, 0]} receiveShadow>
@@ -1119,9 +1082,6 @@ function CourtWorld({
           />
         </Suspense>
       </CourtModuleErrorBoundary>
-      {providedPreviewAvailable && protection && (
-        <ManifestProtectionPads layout={protectionLayout} fallbackWidth={width} />
-      )}
       {!providedPreviewAvailable && modularReady && protection && !modularProtection && <ProtectionPads width={width} />}
       {!providedPreviewAvailable && !modularLighting && (
         <CourtLighting
