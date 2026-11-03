@@ -645,15 +645,51 @@ const MODEL_SELECTION_INDEX = deepFreeze({
   'single-court': { defaultAssetId: 'op07' },
 })
 
-// Pilot only: OP-01 keeps its own frame, glass, fence, net and exact CAD
-// coordinates. Signature and Straight borrow actual supplier pole-only GLBs.
-// Z/T use the source configurator's upper-pole paths, not invented full poles.
-const OP01_SOURCE_POLE_OPTIONS = deepFreeze({
+// Each style has an original, owner-authorized source. For a court which has
+// that style natively, we use its own GLB instead of these fallback sources.
+// Z/T are genuine source-code profiles (there is no standalone Z/T GLB).
+const POLE_SOURCE_OPTIONS = deepFreeze({
+  curved: { donor: 'op02', sourceMount: 'curved' },
   'signature-curved': { donor: 'op03', sourceMount: 'curved' },
+  angled: { donor: 'op02-angled', sourceMount: 'angled' },
   straight: { donor: 'op04', sourceMount: 'straight' },
   z: { sourceCode: true },
   t: { sourceCode: true },
 })
+
+const NATIVE_POLE_STYLES = deepFreeze({
+  op01: ['curved'],
+  'op01-angled': ['angled'],
+  op02: ['curved'],
+  'op02-angled': ['angled'],
+  op03: ['signature-curved'],
+  'op03-mobile': ['signature-curved'],
+  op04: ['straight'],
+  op05: ['curved'],
+  op06: ['straight'],
+  op07: ['curved'],
+})
+
+// Source files bake four separated pole groups into one mesh. Move them by
+// audited base-anchor deltas (never scale geometry), keeping light positions
+// consistent with their corresponding genuine poles.
+function mapSourceMounts(mounts, sourceBases, destinationBases) {
+  const quadrant = (position) => (position[0] < 0 ? '-' : '+') + (position[2] < 0 ? '-' : '+')
+  const sources = new Map(sourceBases.map((base) => [quadrant(base), base]))
+  const destinations = new Map(destinationBases.map((base) => [quadrant(base), base]))
+  return mounts.map((m) => {
+    const key = quadrant(m.position)
+    const source = sources.get(key)
+    const destination = destinations.get(key)
+    if (!source || !destination) throw new Error('Cannot map original light mount to a court anchor.')
+    const delta = destination.map((value, axis) => value - source[axis])
+    return {
+      ...m,
+      position: m.position.map((value, axis) => value + delta[axis]),
+      lookAt: [m.lookAt[0] + delta[0], m.lookAt[1], m.lookAt[2] + delta[2]],
+    }
+  })
+}
 
 const MODEL_ID_ALIASES = deepFreeze({
   signature: 'signature-tournament',
@@ -678,9 +714,7 @@ export function resolveProvidedModelSelection({
   const requestedModelId = normaliseSelectionKey(modelId)
   const aliasedModelId = MODEL_ID_ALIASES[requestedModelId] ?? requestedModelId
   const requestedPoleStyle = normaliseSelectionKey(poleStyle) || null
-  const op01AdditionalPole = aliasedModelId === 'super-panoramic'
-    ? OP01_SOURCE_POLE_OPTIONS[requestedPoleStyle]
-    : null
+  const poleSource = POLE_SOURCE_OPTIONS[requestedPoleStyle] || null
   const notes = ['publication-rights-blocked']
 
   let selection = MODEL_SELECTION_INDEX[aliasedModelId]
@@ -717,9 +751,9 @@ export function resolveProvidedModelSelection({
 
   const model = getProvidedModelRecord(assetId)
   const requestedPoleUnsupported = Boolean(
-    requestedPoleStyle && !model.compatibility.mountTypes.includes(requestedPoleStyle) && !op01AdditionalPole,
+    requestedPoleStyle && !model.compatibility.mountTypes.includes(requestedPoleStyle) && !poleSource,
   )
-  const mountType = requestedPoleUnsupported || op01AdditionalPole
+  const mountType = requestedPoleUnsupported || (poleSource && !model.compatibility.mountTypes.includes(requestedPoleStyle))
     ? model.compatibility.defaultMountType
     : requestedPoleStyle || model.compatibility.defaultMountType
   const frameVariant = reinforcedFrame ? 'frame150' : 'standard'
@@ -756,27 +790,42 @@ export function resolveProvidedModelSelection({
     notes.push('op03-mobile-base-visual-preview-not-engineering-validated')
     requestedMobileUnsupported = false
   }
-  if (op01AdditionalPole?.donor) {
-    const donor = getProvidedModelRecord(op01AdditionalPole.donor)
-    // The donor's poles are a standalone, world-positioned CAD component.
-    // No donor frame, fence, glass, net, or global scaling is copied.
+  const nativeStyle = NATIVE_POLE_STYLES[assetId]?.includes(requestedPoleStyle)
+  if (poleSource?.donor && !nativeStyle) {
+    // On OP-03 Mobile, use the corresponding mobile Signature Curved GLB.
+    const donorId = requestedPoleStyle === 'signature-curved' && assetId === 'op03-mobile'
+      ? 'op03-mobile'
+      : poleSource.donor
+    const donor = getProvidedModelRecord(donorId)
+    const sourceBases = donor.layout.poleBases
+    const targetBases = asset.layout.poleBases
+    // OP-01 was previously approved visually by KND; leave that exact pilot
+    // unchanged. Other targets, especially narrow OP-07, use per-pole shifts.
+    const preserveOp01Pilot = aliasedModelId === 'super-panoramic'
     asset = deepFreeze({
       ...asset,
-      poles: donor.components.poles[op01AdditionalPole.sourceMount],
-      mounts: donor.mounts[op01AdditionalPole.sourceMount],
+      poles: donor.components.poles[poleSource.sourceMount],
+      mounts: preserveOp01Pilot
+        ? donor.mounts[poleSource.sourceMount]
+        : mapSourceMounts(donor.mounts[poleSource.sourceMount], sourceBases, targetBases),
+      ...(preserveOp01Pilot ? {} : { sourcePoleBases: sourceBases }),
       previewPoleStyle: requestedPoleStyle,
       poleSourceId: donor.id,
     })
     notes.push('borrowed-original-pole-glb:' + donor.id)
-  } else if (op01AdditionalPole?.sourceCode) {
-    // Keep the original reference in the loader's atomic bundle, but replace
-    // only its upper-pole draw with the source site's exact Z/T paths.
+    if (!preserveOp01Pilot) notes.push('position-only-pole-anchor-adaptation')
+  } else if (poleSource?.sourceCode) {
+    // Original Z/T profile code extends up from target poleBases at Y ≈ 3 m;
+    // do not replace the court structure or invent a new full pillar.
     asset = deepFreeze({
       ...asset,
       previewPoleStyle: requestedPoleStyle,
       proceduralPoleStyle: requestedPoleStyle,
     })
     notes.push('source-code-pole:' + requestedPoleStyle)
+  } else if (nativeStyle) {
+    asset = deepFreeze({ ...asset, previewPoleStyle: requestedPoleStyle })
+    notes.push('native-original-pole-glb:' + assetId)
   }
 
   return deepFreeze({
@@ -790,7 +839,7 @@ export function resolveProvidedModelSelection({
     requested: { modelId: requestedModelId, poleStyle: requestedPoleStyle, mobileBase, reinforcedFrame },
     resolved: {
       catalogueModelId: aliasedModelId,
-      poleStyle: op01AdditionalPole ? requestedPoleStyle : mountType,
+      poleStyle: poleSource ? requestedPoleStyle : mountType,
       mobileBase: Boolean(asset.mobileBase),
       frameVariant: resolvedFrameVariant,
     },
