@@ -17,7 +17,17 @@ const STORAGE_KEY = 'knd-configurator-studio-v2'
 const VALID_ENVIRONMENTS = ['day', 'evening', 'night']
 const VALID_POLES = ['curved', 'signature-curved', 'straight', 'angled', 'z', 't']
 // OP-01 ONLY: original GLB options plus source-derived Z and T.
-const OP01_PILOT_POLES = VALID_POLES
+const ALL_COURT_POLES = VALID_POLES
+const NATIVE_POLE_DEFAULTS = {
+  'super-panoramic': 'curved',
+  panoramic: 'curved',
+  'signature-tournament': 'signature-curved',
+  'full-super-panoramic': 'straight',
+  extreme: 'curved',
+  classic: 'straight',
+  'single-court': 'curved',
+}
+const nativePoleFor = (modelId) => NATIVE_POLE_DEFAULTS[modelId] || 'curved'
 const OP01_TEXT_ONLY_LIGHTS = {
   'compact-8x200': 'OP L200 Compact',
   'lineal-4x300': 'OP L300 Linear',
@@ -95,23 +105,10 @@ function lightingFor(modelId, requested) {
 function getModelCompatibility(modelId) {
   const cached = MODEL_COMPATIBILITY_CACHE.get(modelId)
   if (cached) return cached
-  const court = courts.find((item) => item.id === modelId)
-  const baseSelection = resolveProvidedModelSelection({ modelId })
-  const suppliedPoles = baseSelection.compatibility?.mountTypes || []
   const mobileSelection = resolveProvidedModelSelection({ modelId, mobileBase: true })
-  const catalogue = court?.configuratorOptions || court?.configurator || court?.configuration || {}
-  const allowed = (keys, fallback) => {
-    const configured = keys
-      .map((key) => catalogue?.[key] ?? court?.[key])
-      .find((value) => Array.isArray(value))
-    const valid = configured?.filter((value) => fallback.includes(value)) || []
-    return valid.length ? valid : fallback
-  }
 
   const compatibility = {
-    poles: modelId === 'super-panoramic'
-      ? OP01_PILOT_POLES
-      : allowed(['poleStyles', 'poleStyleIds', 'poles'], suppliedPoles.length ? suppliedPoles : ['curved']),
+    poles: ALL_COURT_POLES,
     installations: VALID_INSTALLATIONS,
     hasMobileGeometry: Boolean(mobileSelection.resolved?.mobileBase),
     frameVariants: modelId === 'extreme' ? VALID_FRAME_VARIANTS : ['standard'],
@@ -169,7 +166,7 @@ function readInitial(search, { restoreDraft = true } = {}) {
     roofId: 'none',
     protection: bool('protection', false),
     installation: VALID_INSTALLATIONS.includes(get('installation')) ? get('installation') : 'anchored',
-    poleStyle: VALID_POLES.includes(get('pole')) ? get('pole') : 'curved',
+    poleStyle: VALID_POLES.includes(get('pole')) ? get('pole') : nativePoleFor(modelId),
     glassThickness: VALID_GLASS.includes(get('glass')) ? get('glass') : '12',
     frameVariant: VALID_FRAME_VARIANTS.includes(get('structure')) ? get('structure') : 'standard',
     lightsOn: bool('lights', true),
@@ -272,6 +269,11 @@ export default function Configurator({ navigate, openProject, search = '', local
   const selectModel = (modelId) => setConfig((current) => normalizeModelOptions({
     ...current,
     modelId,
+    // Keep an explicitly chosen style across models. When switching from
+    // a native default, select the new model's native pole GLB by default.
+    poleStyle: current.poleStyle === nativePoleFor(current.modelId)
+      ? nativePoleFor(modelId)
+      : current.poleStyle,
     lightingId: lightingFor(modelId, current.lightingId),
     roofId: 'none',
   }, modelId))
@@ -402,7 +404,9 @@ export default function Configurator({ navigate, openProject, search = '', local
               <div className="knd-studio-poles">
                 {poleLabels.map(([id, label, note]) => { const available = compatibility.poles.includes(id); const sourceCode = config.modelId === 'super-panoramic' && ['z', 't'].includes(id); return <CardChoice key={id} className="knd-studio-pole-choice" selected={id === config.poleStyle} disabled={!available} onClick={() => update({ poleStyle: id })}><span className={`knd-pole-icon knd-pole-icon--${id}`} aria-hidden="true"><i /></span><strong>{label}</strong><small>{available ? (sourceCode ? (locale === 'en' ? 'Source-code profile' : 'Perfil del código original') : note) : text.unavailable3d}</small></CardChoice> })}
               </div>
-              {config.modelId === 'super-panoramic' && <p className="knd-studio-help">{locale === 'en' ? 'OP-01 pilot: four original supplier GLB pole types. Z and T follow the original configurator code. Lighting choices are text only; no LED fixture meshes are added.' : 'Prueba OP-01: cuatro tipos de poste GLB originales. Z y T siguen el código original del configurador. Los focos se indican solo en texto, sin añadir modelos LED.'}</p>}
+              <p className="knd-studio-help">{config.modelId === 'super-panoramic'
+                ? (locale === 'en' ? 'OP-01: four original GLB pole styles and Z/T source-code profiles. Lighting choices are text only.' : 'OP-01: cuatro estilos GLB originales y perfiles Z/T del código original. Los focos son solo texto.')
+                : (locale === 'en' ? 'Four original supplier GLB pole styles, positioned to this court. Z and T follow the original source code.' : 'Cuatro estilos de poste GLB originales, adaptados a los anclajes de esta pista. Z y T siguen el código original.')}</p>
               <p className="knd-studio-help"><strong>{text.fixture}</strong></p>
               <div className="knd-studio-fixtures">
                 {lightingPackages.map((item) => { const enabled = item.models.includes(config.modelId); const pilotLabel = config.modelId === 'super-panoramic' && OP01_TEXT_ONLY_LIGHTS[item.id]; return <CardChoice key={item.id} selected={item.id === config.lightingId} disabled={!enabled} onClick={() => update({ lightingId: item.id })}><strong>{pilotLabel || item.name}</strong><small>{enabled ? (pilotLabel ? (locale === 'en' ? 'Reference only · no 3D light' : 'Solo texto · sin foco 3D') : item.style) : '—'}</small></CardChoice> })}
