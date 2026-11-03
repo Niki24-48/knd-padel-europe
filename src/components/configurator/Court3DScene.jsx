@@ -225,7 +225,8 @@ function resolveMobileBase(installation, config) {
 
 function resolvePoleStyle(poleStyle, config) {
   const raw = normalized(poleStyle || config?.pole)
-  if (raw.includes('signature')) return 'signature'
+  // Keep the UI/catalogue key unchanged so the authentic OP-03 GLB is selected.
+  if (raw.includes('signature')) return 'signature-curved'
   if (raw.includes('angular') || raw.includes('angled')) return 'angled'
   if (raw.includes('recta') || raw.includes('straight')) return 'straight'
   if (raw === 'z' || raw.includes('zig')) return 'z'
