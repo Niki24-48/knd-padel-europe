@@ -199,6 +199,25 @@
   color: var(--studio-ink);
 }
 
+/* Compact moon/sun control within the existing camera toolbar. */
+.knd-studio-scene .knd-court3d-toolbar .knd-court3d-night-toggle {
+  display: grid;
+  flex: 0 0 2.7rem;
+  place-items: center;
+  width: 2.7rem;
+  min-width: 2.7rem;
+  padding: 0;
+  border-left: 1px solid #deddd6;
+}
+.knd-studio-scene .knd-court3d-toolbar .knd-court3d-night-toggle svg {
+  display: block;
+  pointer-events: none;
+}
+.knd-studio-scene .knd-court3d-toolbar .knd-court3d-night-toggle.is-active {
+  background: #e9eedf;
+  color: var(--studio-navy);
+}
+
 .knd-studio-editorial {
   position: absolute;
   top: 2.6rem;
@@ -695,10 +714,19 @@
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
+  width: 100%;
   margin-top: 1rem;
   padding: 0.95rem 0;
+  border: 0;
   border-top: 1px solid #e5e4de;
+  border-radius: 0;
+  background: transparent;
+  text-align: left;
   cursor: pointer;
+}
+.knd-studio-toggle:focus-visible {
+  outline: 2px solid var(--studio-navy);
+  outline-offset: 3px;
 }
 
 .knd-studio-toggle > span {
@@ -715,12 +743,7 @@
   font-size: 0.53rem;
 }
 
-.knd-studio-toggle input {
-  position: absolute;
-  opacity: 0;
-}
-
-.knd-studio-toggle > i {
+ .knd-studio-toggle > i {
   position: relative;
   width: 2.65rem;
   height: 1.42rem;
@@ -742,11 +765,11 @@
   transition: transform 160ms ease;
 }
 
-.knd-studio-toggle input:checked + i {
+ .knd-studio-toggle[aria-checked="true"] > i {
   background: var(--studio-navy);
 }
 
-.knd-studio-toggle input:checked + i::after {
+ .knd-studio-toggle[aria-checked="true"] > i::after {
   transform: translateX(1.23rem);
 }
 
@@ -1060,6 +1083,12 @@
     min-height: 2.25rem;
     padding: 0 0.45rem;
     font-size: 0.52rem;
+  }
+
+  .knd-studio-scene .knd-court3d-toolbar .knd-court3d-night-toggle {
+    flex: 0 0 2.3rem;
+    min-width: 2.3rem;
+    width: 2.3rem;
   }
 
   .knd-studio-panel {
