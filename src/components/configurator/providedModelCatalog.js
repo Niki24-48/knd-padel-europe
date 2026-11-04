@@ -638,7 +638,9 @@ export const isProvidedModelPublicationAllowed = (modelId) =>
 const MODEL_SELECTION_INDEX = deepFreeze({
   'super-panoramic': { defaultAssetId: 'op01', byPoleStyle: { curved: 'op01', angled: 'op01-angled' } },
   panoramic: { defaultAssetId: 'op02', byPoleStyle: { curved: 'op02', angled: 'op02-angled' } },
-  'signature-tournament': { defaultAssetId: 'op03', mobileAssetId: 'op03-mobile' },
+  // The OP-03 mobile bundle includes legacy ONTO-branded frame/fence/pole GLBs.
+  // Keep the KND-branded standard OP-03 bundle; overlay ONLY its mobile deck.
+  'signature-tournament': { defaultAssetId: 'op03' },
   'full-super-panoramic': { defaultAssetId: 'op04' },
   extreme: { defaultAssetId: 'op05' },
   classic: { defaultAssetId: 'op06' },
@@ -738,12 +740,12 @@ export function resolveProvidedModelSelection({
 
   let assetId = selection.defaultAssetId
   let requestedMobileUnsupported = false
-  if (mobileBase) {
-    if (selection.mobileAssetId) assetId = selection.mobileAssetId
-    else {
-      notes.push('mobile-base-not-supplied-for-model')
-      requestedMobileUnsupported = true
-    }
+  // Installing a steel mobile base is an ACCESSORY choice: never replace the
+  // branded frame, fence, glass, net or poles with an older mobile court bundle.
+  // The only unsupported width is OP-07 (20 x 6 m vs the 20 x 10 m base).
+  if (mobileBase && aliasedModelId === 'single-court') {
+    notes.push('mobile-base-not-supplied-for-model')
+    requestedMobileUnsupported = true
   }
   if (requestedPoleStyle && selection.byPoleStyle?.[requestedPoleStyle]) {
     assetId = selection.byPoleStyle[requestedPoleStyle]
@@ -771,9 +773,9 @@ export function resolveProvidedModelSelection({
   // Keep the audited base bundle visible and report the request as pending.
   const resolvedFrameVariant = requestedFrameUnsupported ? 'standard' : frameVariant
   const baseAsset = selectProvidedModelComponents(assetId, { mountType, frameVariant: resolvedFrameVariant })
-  // The supplier's real OP-03 mobile-base GLB is a 20 × 10 m steel
-  // perimeter. Keep the audited OP-03 mobile bundle intact; for other
-  // full-size courts overlay ONLY that GLB, not any OP-03 frame/glass/fence.
+  // The supplier's OP-03 mobile-base GLB is a 20 × 10 m steel perimeter.
+  // Overlay ONLY that GLB for every compatible court, INCLUDING OP-03.
+  // Never swap to legacy op03-mobile structural GLBs, which carry ONTO logos.
   // OP-07 is 20 × 6 m and must not receive the 10 m-wide base.
   const mobileBasePreview = mobileBase && aliasedModelId !== 'single-court'
     && !baseAsset.mobileBase
