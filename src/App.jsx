@@ -17,6 +17,7 @@ import CourtDetailPage from './components/products/CourtDetail.jsx'
 import TurfDetailPage from './components/products/TurfDetail.jsx'
 import EnquiryFormComponent from './components/EnquiryForm.jsx'
 import ProjectDialogComponent from './components/ProjectDialog.jsx'
+import WhatsAppFloatingButton from './components/WhatsAppFloatingButton.jsx'
 import SeoManager from './components/SeoManager.jsx'
 
 const ConfiguratorPage = lazy(() => import('./components/configurator/Configurator.jsx'))
@@ -247,6 +248,7 @@ function App() {
     {!isConfigurator && <Header path={path} navigate={navigate} locale={locale} setLocale={setLocale} t={t} openProject={openProject} />}
     <main className={isConfigurator ? 'configurator-main' : ''} key={`${locale}:${path}`}>{page}</main>
     {!isConfigurator && <Footer navigate={navigate} t={t} />}
+    {!isConfigurator && !projectOpen && <WhatsAppFloatingButton locale={locale} />}
     {projectOpen && <ProjectDialogComponent context={projectContext} onClose={() => setProjectOpen(false)} />}
   </>
 }
