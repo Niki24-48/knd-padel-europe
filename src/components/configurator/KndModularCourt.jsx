@@ -6,6 +6,7 @@ import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.j
 import OntoCodePoles from './OntoCodePoles.jsx'
 import MappedSourcePoles from './MappedSourcePoles.jsx'
 import KndProtectionKit from './KndProtectionKit.jsx'
+import KndSourceLighting, { LIGHT_MODEL_PATHS } from './KndSourceLighting.jsx'
 import {
   PROVIDED_MODEL_CATALOG,
   getProvidedModelRecord,
@@ -672,7 +673,14 @@ function ProvidedCatalogCourt({
         />
       )}
       {protection && <KndProtectionKit layout={asset.layout} />}
-      {(asset.mounts || []).map((mount, index) => (
+      {assetId.startsWith('op01') && LIGHT_MODEL_PATHS[lighting?.id] ? (
+        <KndSourceLighting
+          lighting={lighting}
+          mounts={asset.mounts}
+          environment={environment}
+          lightsOn={lightsOn}
+        />
+      ) : (asset.mounts || []).map((mount, index) => (
         <ProvidedFixture
           key={`${assetId}-fixture-${index}`}
           mount={mount}
