@@ -253,15 +253,18 @@ export const frameFinishes = [
   { id: 'custom-ral', name: 'RAL personalizado', color: '#385c4a', request: true },
 ]
 
-// These lighting packages are only enabled for the models whose starting
-// package is shown in the supplied brandbook. OP-04 and OP-05 stay project-led
-// instead of exposing unsupported technical choices.
+// These four visual lighting packages are available on all seven KND courts.
+// Previews are configurable demonstrations, not manufacturer-engineering approval.
+// OP-07's Luma layout is adapted to the narrower 20 × 6 m court.
+const ALL_LIGHTING_MODELS = [
+  'super-panoramic', 'panoramic', 'signature-tournament',
+  'full-super-panoramic', 'extreme', 'classic', 'single-court',
+]
 export const lightingPackages = [
-  { id: 'lineal-4x300', name: '4 × 300 W LED', lamps: 4, style: 'linear', models: ['super-panoramic', 'panoramic'] },
-  { id: 'pro-4x400', name: '4 × 400 W Pro', lamps: 4, style: 'pro', models: ['signature-tournament', 'super-panoramic'] },
-  { id: 'compact-8x200', name: '8 × 200 W LED', lamps: 8, style: 'compact', models: ['classic', 'single-court', 'super-panoramic'] },
-  { id: 'luma-indoor', name: 'OP Luma · interior', lamps: 0, style: 'suspended', models: ['super-panoramic'] },
-  { id: 'project-defined', name: 'A definir con el proyecto', lamps: 4, style: 'project', models: ['full-super-panoramic', 'extreme'] },
+  { id: 'lineal-4x300', name: 'L300 Linear · 4 focos', lamps: 4, style: 'linear', models: ALL_LIGHTING_MODELS },
+  { id: 'pro-4x400', name: 'L400 Pro · 4 focos', lamps: 4, style: 'pro', models: ALL_LIGHTING_MODELS },
+  { id: 'compact-8x200', name: 'L200 Compact · 8 focos', lamps: 8, style: 'compact', models: ALL_LIGHTING_MODELS },
+  { id: 'luma-indoor', name: 'Luma · sistema suspendido', lamps: 0, style: 'suspended', models: ALL_LIGHTING_MODELS },
 ]
 
 export const projects = [
