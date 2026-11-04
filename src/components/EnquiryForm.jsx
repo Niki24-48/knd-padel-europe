@@ -1,5 +1,41 @@
 import { useId, useMemo, useState } from 'react'
 
+/**
+ * Public Formspree form submission endpoint. This form ID is intentionally
+ * public; it is NOT an API key or a secret.
+ * Dashboard: https://formspree.io/forms/mpqjlobj/
+ */
+const FORMSPREE_ENDPOINT = 'https://formspree.io/f/mpqjlobj'
+
+function readableConfiguration(configuration) {
+  if (!configuration || typeof configuration !== 'object') return ''
+  const values = [
+    ['Modelo', [configuration.court?.code, configuration.court?.name].filter(Boolean).join(' · ')],
+    ['Dimensiones', configuration.court?.dimensions],
+    ['Césped', configuration.turfSystem?.name],
+    ['Color del césped', configuration.turfFinish?.name],
+    ['Color de estructura', configuration.frameFinish?.name],
+    ['Iluminación', configuration.lighting?.name],
+    ['Postes', configuration.lighting?.pole],
+    ['Cristales', configuration.glass?.thickness],
+    ['Estructura', configuration.structure?.variant],
+    ['Instalación', configuration.installation],
+    ['Kit de protección', configuration.protectionRequest ? 'Sí' : 'No'],
+    ['Luces encendidas', configuration.lightsOn ? 'Sí' : 'No'],
+    ['Ambiente', configuration.environment],
+    ['Número de pistas / escala', configuration.projectScale?.name],
+  ].filter(([, value]) => value !== undefined && value !== null && value !== '')
+  return values.map(([label, value]) => `${label}: ${value}`).join('\n')
+}
+
+function responseErrorMessage(status, result) {
+  if (status === 429) return 'Se han enviado demasiadas solicitudes en poco tiempo. Espera un momento e inténtalo otra vez.'
+  const providerMessages = Array.isArray(result?.errors)
+    ? result.errors.map((item) => item?.message).filter(Boolean)
+    : []
+  return providerMessages.join(' ') || 'No se ha podido enviar la solicitud. Revisa los datos y vuelve a intentarlo.'
+}
+
 const EMPTY_FORM = {
   name: '',
   email: '',
@@ -59,6 +95,7 @@ export default function EnquiryForm({
   const [errors, setErrors] = useState({})
   const [phase, setPhase] = useState('idle')
   const [statusMessage, setStatusMessage] = useState('')
+  const [honeypot, setHoneypot] = useState('')
   const label = useMemo(() => contextLabel(context), [context])
 
   const fieldId = (field) => `${uid}-${field}`
@@ -112,43 +149,63 @@ export default function EnquiryForm({
       configuration: configurationFromContext(context),
     }
 
-    const endpoint = import.meta.env.VITE_ENQUIRY_ENDPOINT
-    if (!endpoint) {
-      try {
-        sessionStorage.setItem('knd-project-enquiry', JSON.stringify(payload))
-        setPhase('local')
-        setStatusMessage('Solicitud guardada localmente, no enviada. Falta configurar el canal de recepción.')
-        onSubmitted?.({ payload, delivered: false, storedLocally: true })
-      } catch {
-        setPhase('error')
-        setStatusMessage('No se ha podido guardar la solicitud en este navegador. Tus datos siguen en el formulario.')
-      }
-      return
+    // Formspree expects ordinary named form fields. Keep the structured
+    // configuration both as a readable email summary and as JSON for follow-up.
+    const submission = new FormData()
+    submission.set('name', payload.contact.name)
+    submission.set('email', payload.contact.email)
+    submission.set('country', payload.contact.country)
+    submission.set('courts', payload.project.courts || 'Por determinar')
+    submission.set('message', payload.project.message || 'Sin descripción adicional')
+    submission.set('project_context', label || 'Contacto web')
+    submission.set('consent', 'Sí, para responder a esta solicitud')
+    submission.set('submitted_at', payload.createdAt)
+    submission.set('origin', typeof window !== 'undefined' ? window.location.href : 'KND Padel Europe')
+    submission.set('_subject', `Nueva solicitud KND Padel · ${label || 'Contacto web'}`)
+    submission.set('_gotcha', honeypot)
+    if (payload.configuration) {
+      submission.set('court_configuration', readableConfiguration(payload.configuration))
+      submission.set('court_configuration_json', JSON.stringify(payload.configuration))
     }
 
     setPhase('sending')
     setStatusMessage('Enviando solicitud…')
     try {
-      const response = await fetch(endpoint, {
+      const response = await fetch(FORMSPREE_ENDPOINT, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        headers: { Accept: 'application/json' },
+        body: submission,
       })
-      if (!response.ok) throw new Error(`HTTP ${response.status}`)
+      const result = await response.json().catch(() => null)
+      if (!response.ok || result?.ok === false) {
+        throw new Error(responseErrorMessage(response.status, result))
+      }
 
       setPhase('sent')
-      setStatusMessage('Solicitud enviada correctamente. El equipo de KND podrá revisar también la configuración adjunta.')
+      setStatusMessage('Solicitud enviada correctamente. Gracias por contactar con KND Padel; te responderemos lo antes posible.')
       onSubmitted?.({ payload, delivered: true, storedLocally: false })
-    } catch {
+    } catch (error) {
       setPhase('error')
-      setStatusMessage('No se ha podido enviar la solicitud. Tus datos siguen en el formulario para que puedas intentarlo de nuevo.')
+      setStatusMessage(error?.message || 'No se ha podido enviar la solicitud. Tus datos siguen en el formulario para que puedas intentarlo de nuevo.')
     }
   }
 
   const pending = phase === 'validating' || phase === 'sending'
+  const submitted = phase === 'sent'
 
   return (
-    <form className={`enquiry-form ${compact ? 'compact-form' : ''}`} noValidate onSubmit={submit}>
+    <form className={`enquiry-form ${compact ? 'compact-form' : ''}`} action={FORMSPREE_ENDPOINT} method="POST" noValidate onSubmit={submit}>
+      <div style={{ display: 'none' }} aria-hidden="true">
+        <label htmlFor={fieldId('gotcha')}>No rellenar este campo</label>
+        <input
+          id={fieldId('gotcha')}
+          name="_gotcha"
+          tabIndex={-1}
+          autoComplete="off"
+          value={honeypot}
+          onChange={(event) => setHoneypot(event.target.value)}
+        />
+      </div>
       {label && (
         <p className="form-context">
           Proyecto: <strong>{label}</strong>
@@ -242,10 +299,11 @@ export default function EnquiryForm({
       </label>
       {errors.consent && <small className="form-error" id={errorId('consent')}>{errors.consent}</small>}
 
-      <button className="button accent full" type="submit" disabled={pending}>
+      <button className="button accent full" type="submit" disabled={pending || submitted}>
         {phase === 'validating' && 'Validando…'}
         {phase === 'sending' && 'Enviando…'}
-        {!pending && `${submitLabel} →`}
+        {submitted && 'Solicitud enviada ✓'}
+        {!pending && !submitted && `${submitLabel} →`}
       </button>
 
       {statusMessage && (
