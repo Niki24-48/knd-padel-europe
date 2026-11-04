@@ -28,11 +28,11 @@ const NATIVE_POLE_DEFAULTS = {
   'single-court': 'curved',
 }
 const nativePoleFor = (modelId) => NATIVE_POLE_DEFAULTS[modelId] || 'curved'
-const OP01_3D_LIGHTS = {
+const KND_3D_LIGHTS = {
   'compact-8x200': 'L200 Compact · 8 focos', 
   'lineal-4x300': 'L300 Linear · 4 focos', 
   'pro-4x400': 'L400 Pro · 4 focos', 
-  'luma-indoor': 'Luma · sistema 20 × 10 m',
+  'luma-indoor': 'Luma · sistema suspendido',
 }
 const VALID_INSTALLATIONS = ['anchored', 'mobile-request']
 const VALID_GLASS = ['10', '12']
@@ -402,14 +402,14 @@ export default function Configurator({ navigate, openProject, search = '', local
               <SectionHeading number="04" title={text.lighting} detail={lighting.name} />
               <p className="knd-studio-help"><strong>{text.pole}</strong>{text.choosePole}</p>
               <div className="knd-studio-poles">
-                {poleLabels.map(([id, label, note]) => { const available = compatibility.poles.includes(id); const sourceCode = config.modelId === 'super-panoramic' && ['z', 't'].includes(id); return <CardChoice key={id} className="knd-studio-pole-choice" selected={id === config.poleStyle} disabled={!available} onClick={() => update({ poleStyle: id })}><span className={`knd-pole-icon knd-pole-icon--${id}`} aria-hidden="true"><i /></span><strong>{label}</strong><small>{available ? (sourceCode ? (locale === 'en' ? 'Source-code profile' : 'Perfil del código original') : note) : text.unavailable3d}</small></CardChoice> })}
+                {poleLabels.map(([id, label, note]) => { const available = compatibility.poles.includes(id) && config.lightingId !== 'luma-indoor'; const sourceCode = ['z', 't'].includes(id); return <CardChoice key={id} className="knd-studio-pole-choice" selected={id === config.poleStyle && config.lightingId !== 'luma-indoor'} disabled={!available} onClick={() => update({ poleStyle: id })}><span className={`knd-pole-icon knd-pole-icon--${id}`} aria-hidden="true"><i /></span><strong>{label}</strong><small>{config.lightingId === 'luma-indoor' ? (locale === 'en' ? 'No poles with Luma' : 'Sin postes con Luma') : available ? (sourceCode ? (locale === 'en' ? 'Source-code profile' : 'Perfil del código original') : note) : text.unavailable3d}</small></CardChoice> })}
               </div>
-              <p className="knd-studio-help">{config.modelId === 'super-panoramic'
-                ? (locale === 'en' ? 'OP-01: four original GLB pole styles, Z/T source-code profiles and four working 3D lighting previews.' : 'OP-01: cuatro estilos de poste GLB, perfiles Z/T y cuatro opciones de iluminación 3D para probar.')
-                : (locale === 'en' ? 'Four original supplier GLB pole styles, positioned to this court. Z and T follow the original source code.' : 'Cuatro estilos de poste GLB originales, adaptados a los anclajes de esta pista. Z y T siguen el código original.')}</p>
+              <p className="knd-studio-help">{config.lightingId === 'luma-indoor'
+                ? (locale === 'en' ? 'Luma uses a suspended light structure: lighting poles are hidden. Other light choices restore the poles.' : 'Luma utiliza una estructura de iluminación suspendida: se ocultan los postes de luz. Al elegir otro foco vuelven a aparecer.')
+                : (locale === 'en' ? 'Four supplied pole styles and source-code Z/T profiles, with four interactive 3D lighting previews on every court.' : 'Cuatro estilos de poste GLB y perfiles Z/T del código original, con cuatro opciones de iluminación 3D en cada pista.')}</p>
               <p className="knd-studio-help"><strong>{text.fixture}</strong></p>
               <div className="knd-studio-fixtures">
-                {lightingPackages.map((item) => { const enabled = item.models.includes(config.modelId); const pilotLabel = config.modelId === 'super-panoramic' && OP01_3D_LIGHTS[item.id]; return <CardChoice key={item.id} selected={item.id === config.lightingId} disabled={!enabled} onClick={() => update({ lightingId: item.id })}><strong>{pilotLabel || item.name}</strong><small>{enabled ? (pilotLabel ? (locale === 'en' ? '3D preview · original source geometry' : 'Vista 3D · geometría del código original') : item.style) : '—'}</small></CardChoice> })}
+                {lightingPackages.map((item) => { const enabled = item.models.includes(config.modelId); const pilotLabel = KND_3D_LIGHTS[item.id]; return <CardChoice key={item.id} selected={item.id === config.lightingId} disabled={!enabled} onClick={() => update({ lightingId: item.id })}><strong>{item.id === 'luma-indoor' && config.modelId === 'single-court' ? 'Luma · sistema 20 × 6 m' : pilotLabel || item.name}</strong><small>{enabled ? (locale === 'en' ? 'Interactive 3D preview' : 'Vista 3D interactiva') : '—'}</small></CardChoice> })}
               </div>
               <label className="knd-studio-toggle"><span><strong>{text.evening}</strong><small>{locale === 'en' ? 'See your court after hours.' : 'Mira tu pista después del atardecer.'}</small></span><input type="checkbox" checked={config.environment !== 'day'} onChange={(event) => update({ environment: event.target.checked ? 'evening' : 'day', lightsOn: true })} /><i /></label>
             </section>
