@@ -265,6 +265,13 @@ export default function Configurator({ navigate, openProject, search = '', local
   const scale = projectScales.find((item) => item.id === config.projectScaleId) || projectScales[0]
   const compatibility = getModelCompatibility(court.id)
   const update = (patch) => setConfig((current) => normalizeModelOptions({ ...current, ...patch, roofId: 'none' }, current.modelId, patch))
+  // Both the side-panel switch and the moon button share this exact action.
+  // A real button avoids focusing an invisible absolute-positioned input,
+  // which could scroll Chrome away from the 3D court.
+  const toggleEvening = () => update({
+    environment: config.environment === 'day' ? 'evening' : 'day',
+    lightsOn: true,
+  })
 
   const selectModel = (modelId) => setConfig((current) => normalizeModelOptions({
     ...current,
@@ -360,7 +367,7 @@ export default function Configurator({ navigate, openProject, search = '', local
           <Court3DScene
             ref={sceneRef} className="knd-studio-scene" locale={locale} config={config} court={court}
             turfFinish={turfFinish} frameFinish={frame} lighting={lighting} roof={null} view={config.view}
-            onViewChange={(view) => update({ view })} poleStyle={config.poleStyle} protection={config.protection}
+            onViewChange={(view) => update({ view })} onToggleNight={toggleEvening} poleStyle={config.poleStyle} protection={config.protection}
             installation={config.installation} environment={config.environment} glassThickness={config.glassThickness} lightsOn={config.lightsOn}
             reinforcedFrame={config.frameVariant === 'frame150'}
           />
@@ -411,7 +418,7 @@ export default function Configurator({ navigate, openProject, search = '', local
               <div className="knd-studio-fixtures">
                 {lightingPackages.map((item) => { const enabled = item.models.includes(config.modelId); const pilotLabel = KND_3D_LIGHTS[item.id]; return <CardChoice key={item.id} selected={item.id === config.lightingId} disabled={!enabled} onClick={() => update({ lightingId: item.id })}><strong>{item.id === 'luma-indoor' && config.modelId === 'single-court' ? 'Luma · sistema 20 × 6 m' : pilotLabel || item.name}</strong><small>{enabled ? (locale === 'en' ? 'Interactive 3D preview' : 'Vista 3D interactiva') : '—'}</small></CardChoice> })}
               </div>
-              <label className="knd-studio-toggle"><span><strong>{text.evening}</strong><small>{locale === 'en' ? 'See your court after hours.' : 'Mira tu pista después del atardecer.'}</small></span><input type="checkbox" checked={config.environment !== 'day'} onChange={(event) => update({ environment: event.target.checked ? 'evening' : 'day', lightsOn: true })} /><i /></label>
+              <button type="button" className="knd-studio-toggle" role="switch" aria-checked={config.environment !== 'day'} onClick={toggleEvening}><span><strong>{text.evening}</strong><small>{locale === 'en' ? 'See your court after hours.' : 'Mira tu pista después del atardecer.'}</small></span><i aria-hidden="true" /></button>
             </section>
 
             <section className="knd-studio-section">
