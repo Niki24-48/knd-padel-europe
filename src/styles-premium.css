@@ -1344,3 +1344,57 @@ button.pd-text-link { padding: 12px 0; }
     grid-template-columns: repeat(2,minmax(0,1fr));
   }
 }
+
+/* Quiet, always-available WhatsApp contact shortcut. Rendered outside <main>
+   so clipped editorial sections never hide the fixed floating pill. */
+.knd-whatsapp-float {
+  position: fixed;
+  right: 24px;
+  bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  z-index: 35;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-height: 44px;
+  padding: 10px 16px;
+  border: 1px solid rgba(255, 255, 255, .18);
+  border-radius: 999px;
+  background: rgba(24, 33, 28, .96);
+  box-shadow: 0 6px 22px rgba(0, 0, 0, .17);
+  color: #fff;
+  font: 600 12px/1.1 Inter, "Helvetica Neue", Arial, sans-serif;
+  letter-spacing: -.01em;
+  text-decoration: none;
+  white-space: nowrap;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  transition: background-color 180ms ease, border-color 180ms ease, transform 180ms ease;
+}
+.knd-whatsapp-float svg {
+  display: block;
+  width: 19px;
+  height: 19px;
+  flex: 0 0 19px;
+}
+.knd-whatsapp-float:hover {
+  background: rgba(31, 52, 40, .98);
+  border-color: rgba(255, 255, 255, .33);
+  color: #fff;
+  transform: translateY(-2px);
+}
+.knd-whatsapp-float:focus-visible {
+  outline: 2px solid #d3f605;
+  outline-offset: 3px;
+}
+@media (max-width: 780px) {
+  .knd-whatsapp-float {
+    right: 16px;
+    bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+    min-height: 44px;
+    padding: 10px 14px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .knd-whatsapp-float { transition: none; }
+}
