@@ -175,6 +175,9 @@ function resolveNamedColor(explicitColor, finish, configValue, table, fallback) 
 function resolveLighting(lighting, config) {
   if (lighting && typeof lighting === 'object') {
     return {
+      // Preserve the selected package identity all the way to KndSourceLighting.
+      // Without id, the OP-01 3D light switch falls back to invisible point lights.
+      id: lighting.id || '',
       lamps: Number(lighting.lamps) === 8 ? 8 : 4,
       style: normalized(lighting.style || lighting.id) || 'linear',
       name: lighting.name || lighting.id || 'Iluminación seleccionada',
@@ -182,6 +185,7 @@ function resolveLighting(lighting, config) {
   }
   const raw = normalized(lighting || config?.light)
   return {
+    id: raw,
     lamps: raw.includes('8') ? 8 : 4,
     style: raw.includes('suspend') || raw.includes('indoor')
       ? 'suspended'
