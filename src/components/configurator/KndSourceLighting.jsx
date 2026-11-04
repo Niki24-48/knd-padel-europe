@@ -26,7 +26,7 @@ const PACKAGE_TO_SOURCE = {
 const MODULE_LENGTH = 1.16
 const pendingDisposals = new WeakMap()
 
-function buildLighting({ packageId, mounts, environment, lightsOn }) {
+function buildLighting({ packageId, mounts, courtWidth = 10, environment, lightsOn }) {
   const type = PACKAGE_TO_SOURCE[packageId]
   const root = new THREE.Group()
   root.name = 'knd-op01-lighting-' + (type || 'unknown')
@@ -154,10 +154,10 @@ function buildLighting({ packageId, mounts, environment, lightsOn }) {
   function buildLuma() {
     const height = 7
     const nLong = Math.floor((20 - .2) / MODULE_LENGTH)
-    const nEnd = Math.floor((10 + .44) / MODULE_LENGTH)
-    const nCenter = Math.floor((10 - .5) / MODULE_LENGTH)
+    const nEnd = Math.floor((courtWidth + .44) / MODULE_LENGTH)
+    const nCenter = Math.floor((courtWidth - .5) / MODULE_LENGTH)
     const halfLength = nLong * MODULE_LENGTH / 2
-    const halfWidth = 10 / 2 + .22
+    const halfWidth = courtWidth / 2 + .22
     const modules = []
     for (const side of [-1, 1]) {
       for (let i = 0; i < nLong; i++)
@@ -168,7 +168,7 @@ function buildLighting({ packageId, mounts, environment, lightsOn }) {
     for (let i = 0; i < nCenter; i++)
       modules.push({position: [0, height, (i - (nCenter - 1) / 2) * MODULE_LENGTH], rotation: [0, Math.PI / 2, 0]})
     const group = new THREE.Group()
-    group.name = 'knd-luma-complete-20x10-system'
+    group.name = 'knd-luma-complete-20x' + courtWidth + '-system'
     for (const z of [-halfWidth, halfWidth]) box(group, halfLength * 2 + .04, .065, .055, aluminium, 0, height + .055, z, .006)
     for (const x of [-halfLength, 0, halfLength]) box(group, .055, .065, halfWidth * 2 + .04, aluminium, x, height + .055, 0, .006)
     instances(group, boxGeo(1.16, .045, .11, .005), aluminium, modules, 'luma-module-housings')
@@ -198,7 +198,7 @@ function buildLighting({ packageId, mounts, environment, lightsOn }) {
     instances(group, boxGeo(.024, .06, .024, .004), aluminium,
       anchors.map(([x, z]) => ({position: [x, height + .11, z]})), 'luma-suspension-grippers')
     root.add(group)
-    for (const x of [-6.8, 0, 6.8]) for (const z of [-2.9, 2.9])
+    for (const x of [-6.8, 0, 6.8]) for (const z of [-.29 * courtWidth, .29 * courtWidth])
       spot([x, height - .1, z], [x * .9, 0, z * .75], true)
   }
 
@@ -214,10 +214,10 @@ function buildLighting({ packageId, mounts, environment, lightsOn }) {
   return { root, geometries, materials, instanced, spots }
 }
 
-export default function KndSourceLighting({ lighting, mounts, environment, lightsOn }) {
+export default function KndSourceLighting({ lighting, mounts, courtWidth = 10, environment, lightsOn }) {
   const packageId = lighting?.id
-  const built = useMemo(() => buildLighting({ packageId, mounts, environment, lightsOn }),
-    [packageId, mounts, environment, lightsOn])
+  const built = useMemo(() => buildLighting({ packageId, mounts, courtWidth, environment, lightsOn }),
+    [packageId, mounts, courtWidth, environment, lightsOn])
   useEffect(() => {
     const pending = pendingDisposals.get(built)
     if (pending != null) {
