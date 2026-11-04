@@ -632,6 +632,11 @@ function ProvidedCatalogCourt({
 
   if (!active || manifestState.phase !== 'ready') return null
 
+  // Luma is a suspended system: no lighting poles should remain visible.
+  // Keep the court frame, fence and other structural geometry untouched.
+  const suspendedLuma = lighting?.id === 'luma-indoor'
+  const lumaCourtWidth = selection.resolved?.catalogueModelId === 'single-court' ? 6 : 10
+
   const missing = REQUIRED_PROVIDED_COMPONENTS.filter(
     (key) => !loadedEntries.some((entry) => entry.key === key && entry.scene),
   )
@@ -641,7 +646,7 @@ function ProvidedCatalogCourt({
   // to match the scene's width-X / length-Z convention; never transform parts.
   return (
     <group name={`provided-${assetId}-assembly`} rotation={[0, Math.PI / 2, 0]} position={[0, 0, 0]} scale={[1, 1, 1]}>
-      {loadedEntries.filter((entry) => !(asset.proceduralPoleStyle && entry.key === 'poles')).map((entry) => {
+      {loadedEntries.filter((entry) => entry.key !== 'poles' || (!suspendedLuma && !asset.proceduralPoleStyle)).map((entry) => {
         if (entry.key === 'poles' && asset.sourcePoleBases && asset.layout?.poleBases) {
           return (
             <MappedSourcePoles
@@ -665,7 +670,7 @@ function ProvidedCatalogCourt({
           />
         )
       })}
-      {asset.proceduralPoleStyle && (
+      {!suspendedLuma && asset.proceduralPoleStyle && (
         <OntoCodePoles
           style={asset.proceduralPoleStyle}
           poleBases={asset.layout?.poleBases}
@@ -673,10 +678,11 @@ function ProvidedCatalogCourt({
         />
       )}
       {protection && <KndProtectionKit layout={asset.layout} />}
-      {assetId.startsWith('op01') && LIGHT_MODEL_PATHS[lighting?.id] ? (
+      {LIGHT_MODEL_PATHS[lighting?.id] ? (
         <KndSourceLighting
           lighting={lighting}
           mounts={asset.mounts}
+          courtWidth={lumaCourtWidth}
           environment={environment}
           lightsOn={lightsOn}
         />
