@@ -1,8 +1,13 @@
 {
-  "rewrites": [
-    {
-      "source": "/((?!assets/|models/|favicon.ico|robots.txt|sitemap.xml).*)",
-      "destination": "/index.html"
-    }
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "redirects": [
+    { "source": "/why", "destination": "/about", "permanent": true },
+    { "source": "/journal", "destination": "/news", "permanent": true },
+    { "source": "/blog", "destination": "/news", "permanent": true },
+    { "source": "/en/why", "destination": "/en/about", "permanent": true },
+    { "source": "/en/journal", "destination": "/en/news", "permanent": true },
+    { "source": "/en/blog", "destination": "/en/news", "permanent": true }
   ]
 }

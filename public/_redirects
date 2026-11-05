@@ -1,1 +1,2 @@
-/*  /index.html  200
+# SPA fallback intentionally removed.
+# Vercel serves build-time prerendered clean URLs and its own 404 response.

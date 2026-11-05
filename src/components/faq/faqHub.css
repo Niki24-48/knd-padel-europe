@@ -1,0 +1,40 @@
+.faq-hub { background: #f0f0eb; color: var(--ink); }
+.faq-hub__intro { max-width: 700px; }
+.faq-hub__intro .eyebrow { color: #446034; }
+.faq-hub__intro h2 { margin: 16px 0; }
+.faq-hub__intro p { max-width: 560px; }
+.faq-hub__tools { border-block: 1px solid rgba(11, 15, 13, .2); margin-top: 50px; padding: 27px 0 25px; }
+.faq-hub__search { display: grid; gap: 8px; max-width: 560px; }
+.faq-hub__search label, .faq-hub__answer > div > span { font: 10px 'DM Mono', monospace; letter-spacing: .09em; text-transform: uppercase; }
+.faq-hub__search > div { align-items: center; background: #fff; border: 1px solid rgba(11, 15, 13, .22); display: flex; min-height: 49px; }
+.faq-hub__search input { background: transparent; border: 0; color: var(--ink); flex: 1; font: inherit; min-height: 47px; outline-offset: -3px; padding: 10px 14px; }
+.faq-hub__search button { color: var(--ink); font-size: 22px; line-height: 1; padding: 7px 14px; }
+.faq-hub__filters { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 21px; }
+.faq-hub__filters button { border: 1px solid rgba(11, 15, 13, .22); border-radius: 999px; font-size: 11px; line-height: 1.2; padding: 9px 12px; text-align: left; transition: background .2s ease, color .2s ease; }
+.faq-hub__filters button:hover, .faq-hub__filters button:focus-visible, .faq-hub__filters button.is-active { background: var(--ink); color: #fff; }
+.faq-hub__count { color: #53614d; font: 10px 'DM Mono', monospace; letter-spacing: .09em; margin: 24px 0 8px; text-transform: uppercase; }
+.faq-hub__list { border-top: 1px solid rgba(11, 15, 13, .25); }
+.faq-hub__list article { border-bottom: 1px solid rgba(11, 15, 13, .25); }
+.faq-hub__list article > button { align-items: center; color: var(--ink); display: grid; gap: 16px; grid-template-columns: 35px minmax(0, 1fr) 28px; padding: 20px 0; text-align: left; width: 100%; }
+.faq-hub__number { color: #53614d; font: 10px 'DM Mono', monospace; }
+.faq-hub__list small { color: #53614d; display: block; font: 10px 'DM Mono', monospace; letter-spacing: .07em; margin-bottom: 6px; text-transform: uppercase; }
+.faq-hub__list strong { display: block; font-size: clamp(17px, 2vw, 23px); font-weight: 600; letter-spacing: -.03em; line-height: 1.1; }
+.faq-hub__list b { font-size: 24px; font-weight: 400; text-align: right; }
+.faq-hub__answer { display: grid; gap: 20px; grid-template-columns: minmax(0, 1fr) minmax(180px, .45fr); padding: 0 44px 26px 51px; }
+.faq-hub__answer p { font-size: 14px; line-height: 1.6; margin: 0; max-width: 700px; }
+.faq-hub__answer > div { align-content: start; display: grid; gap: 7px; }
+.faq-hub__answer a { color: var(--ink); font-size: 12px; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+.faq-hub__answer a:hover, .faq-hub__answer a:focus-visible { color: #456432; }
+.faq-hub__answer a i { font-style: normal; }
+.faq-hub__empty { background: #fff; margin-top: 8px; padding: 38px; }
+.faq-hub__empty h3 { font-size: 26px; margin: 0 0 8px; }
+.faq-hub__empty p { margin-bottom: 22px; max-width: 560px; }
+
+@media (max-width: 680px) {
+  .faq-hub__tools { margin-top: 35px; }
+  .faq-hub__filters { max-height: 165px; overflow: auto; padding-right: 5px; }
+  .faq-hub__list article > button { gap: 12px; grid-template-columns: 27px minmax(0, 1fr) 20px; padding: 18px 0; }
+  .faq-hub__list strong { font-size: 17px; }
+  .faq-hub__answer { gap: 18px; grid-template-columns: 1fr; padding: 0 8px 22px 39px; }
+  .faq-hub__empty { padding: 28px 22px; }
+}
