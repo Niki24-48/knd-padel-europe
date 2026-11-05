@@ -5,6 +5,7 @@ import './styles.css'
 import './styles-home-premium.css'
 import './styles-premium.css'
 import './seo-enhancements.css'
+import './visual-pages.css'
 
 const root = document.getElementById('root')
 const tree = <StrictMode><App /></StrictMode>
