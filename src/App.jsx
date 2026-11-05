@@ -194,8 +194,10 @@ function localizeRenderedContent(locale) {
   })
 }
 
-function useRouter() {
-  const readLocation = () => ({ path: window.location.pathname || '/', search: window.location.search || '', hash: window.location.hash || '' })
+function useRouter(initialPath = '/') {
+  const readLocation = () => typeof window === 'undefined'
+    ? { path: initialPath, search: '', hash: '' }
+    : { path: window.location.pathname || '/', search: window.location.search || '', hash: window.location.hash || '' }
   const [location, setLocation] = useState(readLocation)
   useEffect(() => {
     const onPop = () => setLocation(readLocation())
@@ -214,8 +216,8 @@ function useRouter() {
   return { ...location, navigate }
 }
 
-function App() {
-  const { path: requestedPath, search, hash, navigate: navigateBrowser } = useRouter()
+function App({ initialPath = '/' } = {}) {
+  const { path: requestedPath, search, hash, navigate: navigateBrowser } = useRouter(initialPath)
   const routeLocale = splitLocalePath(requestedPath)
   const locale = routeLocale.locale
   const path = routeLocale.basePath
@@ -295,7 +297,7 @@ function App() {
 function Header({ path, navigate, locale, setLocale, t, openProject }) {
   const [activeMenu, setActiveMenu] = useState(null)
   const [mobileOpen, setMobileOpen] = useState(false)
-  const [scrolled, setScrolled] = useState(() => typeof window !== 'undefined' && window.scrollY > 24)
+  const [scrolled, setScrolled] = useState(false)
   const headerRef = useRef(null)
   const closeTimer = useRef(null)
   const navLabel = { Pistas: t.courts, Césped: t.turf, Cubiertas: t.roof }
