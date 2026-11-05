@@ -1,5 +1,6 @@
 import { articles, brand, courts, projects, roofSystems, turfSystems } from '../data/site.js'
 import { courtProductContent } from '../data/courts/index.js'
+import { commercialGuides } from '../data/commercialGuides.js'
 import { faqItems } from '../components/faq/faqData.js'
 
 /**
@@ -147,6 +148,20 @@ const pageCopy = {
       intro: 'Filter answers by topic and find the related product or project page.',
     },
   },
+  '/guides': {
+    es: {
+      title: 'Guías para comprar y construir pistas de pádel',
+      description: 'Guías prácticas de KND Padel sobre precios, construcción, modelos, césped, cubiertas, clubes, hoteles e iluminación de pistas de pádel.',
+      h1: 'Guías para comprar, instalar y gestionar pistas de pádel.',
+      intro: 'Información clara y orientada a proyectos para tomar decisiones antes de solicitar un presupuesto.',
+    },
+    en: {
+      title: 'Padel court buying and construction guides',
+      description: 'Practical KND Padel guides covering court costs, construction, models, turf, roofing, clubs, hospitality and lighting.',
+      h1: 'Guides to buying, building and running padel courts.',
+      intro: 'Project-focused information to make informed decisions before requesting a quotation.',
+    },
+  },
   '/contact': {
     es: {
       title: 'Contacto y presupuesto para pistas de pádel',
@@ -209,6 +224,8 @@ export function getCanonicalRoutes() {
     staticRoute('/projects', 'collection'),
     ...projects.map((item) => staticRoute(`/projects/${item.slug}`, 'project')),
     staticRoute('/about'),
+    staticRoute('/guides', 'collection'),
+    ...commercialGuides.map((guide) => staticRoute(guide.path, 'guide')),
     staticRoute('/news', 'collection'),
     ...articles.map((item) => staticRoute(`/news/${item.slug}`, 'article')),
     staticRoute('/faq'),
@@ -295,6 +312,11 @@ export function getRouteInfo(pathname = '/', requestedLocale) {
       intro: english ? `Published project in ${item.location}.` : `Proyecto publicado en ${item.location}.`,
     }
   }
+  if (basePath.startsWith('/guides/')) {
+    const item = commercialGuides.find((guide) => guide.path === basePath)
+    if (!item) return null
+    return { basePath, path, locale, type: 'guide', item, ...item[locale] }
+  }
   if (basePath.startsWith('/news/')) {
     const item = articleFor(basePath)
     if (!item) return null
@@ -327,7 +349,8 @@ function breadcrumbSchema(info) {
     '/turf': info.locale === 'en' ? 'Turf' : 'Césped',
     '/roof': info.locale === 'en' ? 'Roofs' : 'Cubiertas',
     '/projects': info.locale === 'en' ? 'Projects' : 'Proyectos',
-    '/news': info.locale === 'en' ? 'Guides' : 'Guías',
+    '/news': info.locale === 'en' ? 'Journal' : 'Artículos',
+    '/guides': info.locale === 'en' ? 'Buying guides' : 'Guías de compra',
   }
   const parent = Object.keys(labels).find((candidate) => info.basePath.startsWith(`${candidate}/`))
   if (parent) crumbs.push({ name: labels[parent], item: absoluteUrl(localizedPath(parent, info.locale)) })
@@ -365,7 +388,7 @@ function productSchema(info) {
 }
 
 function articleSchema(info) {
-  if (info.type !== 'article') return null
+  if (!['article', 'guide'].includes(info.type)) return null
   const schema = {
     '@context': 'https://schema.org',
     '@type': 'BlogPosting',
@@ -449,7 +472,7 @@ export function getSeoMetadata(pathname = '/', locale) {
     locale: info.locale,
     alternates,
     image: imageUrl(info.item) || `${SITE_ORIGIN}${brand.logo}`,
-    type: ['article', 'project'].includes(info.type) ? 'article' : 'website',
+    type: ['article', 'guide'].includes(info.type) ? 'article' : 'website',
     structuredData: getStructuredData(info),
     info,
   }
