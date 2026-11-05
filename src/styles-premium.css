@@ -1470,3 +1470,105 @@ button.pd-text-link { padding: 12px 0; }
   .turf-index-hero__samples > div:nth-child(4),
   .turf-index-hero__samples > div:nth-child(5) { margin-left: 0; }
 }
+
+
+/* KND ROOF COLLECTION V3 — supplier-audited systems, 2026-11-05 */
+.knd-roof-detail { background: #f0f1ec; color: #12251d; }
+.knd-roof-detail__hero { background: #0b1e2d; color: #f5f7f2; min-height: 700px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, .94fr); padding-top: 70px; }
+.knd-roof-detail__intro { align-self: end; padding: clamp(60px, 7vw, 130px) clamp(28px, 6vw, 110px) 80px; }
+.knd-roof-detail__back { display: inline-block; padding: 0; color: #c9d3c9; font: 10px 'DM Mono', monospace; margin-bottom: 66px; text-decoration: none; }
+.knd-roof-detail__eyebrow { color: #d3f605; font: 10px 'DM Mono', monospace; letter-spacing: .14em; }
+.knd-roof-detail__intro h1 { font-size: clamp(52px, 6.3vw, 106px); line-height: .9; letter-spacing: -.055em; max-width: 790px; margin: 24px 0; }
+.knd-roof-detail__intro > p { color: #c8d3cf; font-size: 14px; line-height: 1.8; max-width: 580px; }
+.knd-roof-detail__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 15px; margin-top: 31px; }
+.knd-roof-detail__actions a { color: #d3f605; font: 11px 'DM Mono', monospace; text-decoration: none; }
+.knd-roof-detail__visual { background: #e8ebe5; min-height: 550px; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+.knd-roof-detail__visual img { width: 100%; height: 100%; position: absolute; inset: 0; object-fit: cover; }
+.knd-roof-detail__visual-note { position: absolute; bottom: 20px; left: 24px; right: 24px; color: #435249; font: 9px/1.5 'DM Mono', monospace; max-width: 420px; }
+.knd-roof-detail__placeholder { display: block; width: 100%; min-height: 100%; background: #f7f8f4; }
+.knd-roof-detail__placeholder-caption { font: 10px 'DM Mono', monospace; color: #68766d; max-width: 240px; text-align: center; }
+.knd-roof-detail__anchors { background: #111c1a; }
+.knd-roof-detail__anchors .container { display: flex; overflow-x: auto; gap: 25px; align-items: center; min-height: 66px; scrollbar-width: thin; }
+.knd-roof-detail__anchors a { color: #e2e8e0; text-decoration: none; white-space: nowrap; font: 10px 'DM Mono', monospace; }
+.knd-roof-detail__anchors a:first-child { color: #d3f605; }
+.knd-roof-detail__section { padding: clamp(74px, 8vw, 122px) 0; scroll-margin-top: 115px; }
+.knd-roof-detail__section .eyebrow { color: #53665b; }
+.knd-roof-detail__section h2 { font-size: clamp(44px, 5.6vw, 79px); line-height: .98; max-width: 930px; margin: 20px 0 30px; }
+.knd-roof-detail__section p { color: #4b6255; max-width: 700px; font-size: 14px; line-height: 1.8; }
+.knd-roof-detail__facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 1px solid #b5c0b5; margin-top: 50px; }
+.knd-roof-detail__facts > div { padding: 25px 25px 32px; border-right: 1px solid #b5c0b5; }
+.knd-roof-detail__facts > div:last-child { border: 0; }
+.knd-roof-detail__facts dt { color: #67766c; font: 10px 'DM Mono', monospace; }
+.knd-roof-detail__facts dd { margin: 32px 0 0; font-size: clamp(18px, 2vw, 29px); line-height: 1.2; overflow-wrap: anywhere; }
+.knd-roof-detail__benefits { background: #0b1e2d; color: #fff; }
+.knd-roof-detail__benefits .eyebrow { color: #d3f605; }
+.knd-roof-detail__benefits p { color: #c0cdc9; }
+.knd-roof-detail__benefit-grid { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid rgba(255,255,255,.25); margin-top: 52px; }
+.knd-roof-detail__benefit-grid > article { padding: 30px; min-height: 250px; border-right: 1px solid rgba(255,255,255,.25); }
+.knd-roof-detail__benefit-grid > article:last-child { border-right: 0; }
+.knd-roof-detail__benefit-grid span { color: #d3f605; font: 11px 'DM Mono',monospace; }
+.knd-roof-detail__benefit-grid h3 { font-size: 27px; margin: 54px 0 14px; }
+.knd-roof-detail__benefit-grid p { font-size: 12px; }
+.knd-roof-detail__specs { background: #e5e9e3; }
+.knd-roof-detail__spec-grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); margin-top: 55px; border-top: 1px solid #bbc4ba; }
+.knd-roof-detail__spec-grid > div { padding: 26px; border-right: 1px solid #bbc4ba; border-bottom: 1px solid #bbc4ba; min-height: 144px; }
+.knd-roof-detail__spec-grid > div:nth-child(3n) { border-right: 0; }
+.knd-roof-detail__spec-grid dt { color: #5b6b61; font: 10px 'DM Mono',monospace; }
+.knd-roof-detail__spec-grid dd { margin: 34px 0 0; font-size: clamp(17px,1.7vw,23px); line-height: 1.26; overflow-wrap: anywhere; }
+.knd-roof-detail__caveat { border-left: 3px solid #7c8d80; padding-left: 16px; font-size: 12px !important; margin-top: 40px; }
+.knd-roof-detail__planning { background: #f7f8f4; }
+.knd-roof-detail__steps { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 20px; margin-top: 45px; }
+.knd-roof-detail__steps > article { border-top: 1px solid #aebbb0; padding: 22px 8px 0 0; }
+.knd-roof-detail__steps > article > span { color: #4d7262; font: 10px 'DM Mono',monospace; }
+.knd-roof-detail__steps h3 { font-size: 22px; margin: 22px 0 12px; }
+.knd-roof-detail__steps p { font-size: 12px; }
+.knd-roof-detail__faq details { border-top: 1px solid #b8c4b9; padding: 20px 0; }
+.knd-roof-detail__faq details:last-child { border-bottom: 1px solid #b8c4b9; }
+.knd-roof-detail__faq summary { font-size: clamp(16px,2vw,23px); cursor: pointer; list-style-position: outside; }
+.knd-roof-detail__faq details p { margin-top: 14px; }
+.knd-roof-detail__related { background: #e9ece6; }
+.knd-roof-detail__related-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 16px; margin-top: 55px; }
+.knd-roof-detail__related-grid > a { display: flex; flex-direction: column; justify-content: end; background: #122c36; color: #fff; min-height: 240px; padding: 30px; text-decoration: none; }
+.knd-roof-detail__related-grid small { color: #d3f605; font: 10px 'DM Mono',monospace; }
+.knd-roof-detail__related-grid strong { margin-top: 18px; font-size: clamp(24px,3vw,37px); }
+.knd-roof-detail__related-grid em { color: #c9d4cd; font-size: 12px; margin-top: 8px; }
+.knd-roof-detail__final { background: #0b1e2d; color: #fff; }
+.knd-roof-detail__final h2 { max-width: 900px; }
+.knd-roof-detail__final p { color: #c8d3cf; }
+.roof-list .knd-roof-card__media { display: flex; align-items: center; justify-content: center; background: #f7f8f4; min-height: 330px; }
+.roof-list .knd-roof-card__media img { width: 100%; height: 100%; object-fit: cover; }
+.roof-list .knd-roof-card__media--empty { background: #fff; }
+.roof-list .knd-roof-card__media--empty span { color: #64726c; font: 10px 'DM Mono',monospace; text-align: center; max-width: 230px; }
+.roof-list .knd-roof-card__fineprint { color: #5e6b63; font: 10px/1.55 'DM Mono',monospace; }
+.roof-list .knd-roof-card__facts { display: grid; grid-template-columns: 1fr; gap: 4px; margin-top: 14px; }
+.roof-list .knd-roof-card__facts small { display: block; color: #607063; font: 10px 'DM Mono',monospace; }
+.roof-list .knd-roof-card__facts strong { display: block; margin-top: 6px; font-size: 16px; font-weight: 500; }
+.knd-roof-guide { background: #f7f8f4; color: #12251d; }
+.knd-roof-guide__grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 18px; margin-top: 55px; }
+.knd-roof-guide__grid > article { border-top: 1px solid #b6c2b8; padding: 24px 0; }
+.knd-roof-guide__grid span { color: #3f7164; font: 10px 'DM Mono',monospace; }
+.knd-roof-guide__grid h3 { font-size: 23px; margin: 22px 0 12px; }
+.knd-roof-guide__grid p { color: #536258; font-size: 13px; max-width: 370px; line-height: 1.65; }
+@media (max-width: 900px) {
+  .knd-roof-detail__hero { grid-template-columns: 1fr; }
+  .knd-roof-detail__visual { min-height: 350px; }
+  .knd-roof-detail__intro { padding: 65px 28px 55px; }
+  .knd-roof-detail__back { margin-bottom: 45px; }
+  .knd-roof-detail__spec-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .knd-roof-detail__spec-grid > div:nth-child(3n) { border-right: 1px solid #bbc4ba; }
+  .knd-roof-detail__spec-grid > div:nth-child(2n) { border-right: 0; }
+}
+@media (max-width: 680px) {
+  .knd-roof-detail__hero { min-height: 0; }
+  .knd-roof-detail__intro h1 { font-size: clamp(46px,12vw,69px); }
+  .knd-roof-detail__facts, .knd-roof-detail__benefit-grid, .knd-roof-detail__steps,
+  .knd-roof-guide__grid { grid-template-columns: 1fr; }
+  .knd-roof-detail__facts > div, .knd-roof-detail__benefit-grid > article { border-right: 0; border-bottom: 1px solid #b5c0b5; min-height: auto; }
+  .knd-roof-detail__benefit-grid > article { border-bottom-color: rgba(255,255,255,.25); }
+  .knd-roof-detail__benefit-grid h3 { margin-top: 28px; }
+  .knd-roof-detail__spec-grid { grid-template-columns: 1fr; }
+  .knd-roof-detail__spec-grid > div, .knd-roof-detail__spec-grid > div:nth-child(3n) { border-right: 0; }
+  .knd-roof-detail__related-grid { grid-template-columns: 1fr; }
+  .knd-roof-detail__related-grid > a { min-height: 180px; }
+  .knd-roof-detail__section { padding: 76px 0; }
+}
