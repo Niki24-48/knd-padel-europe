@@ -1,5 +1,6 @@
 import { articleGuides } from './data/articleGuides.js'
 import { commercialGuides } from './data/commercialGuides.js'
+import { courtProductContent } from './data/courts/index.js'
 import { GuidesIndex, GuideDetail } from './components/CommercialGuides.jsx'
 import { lazy, Suspense, useEffect, useRef, useState } from 'react'
 import {
@@ -582,12 +583,48 @@ function ContactCta({ openProject, locale = 'es' }) {
   </div></section>
 }
 
-function CourtsIndex({ navigate, openProject }) { return <>
-  <section className="catalogue-hero hero-short" style={{ '--hero-image': `url(${images.airview})` }}><div className="hero-shade"></div><div className="container"><Eyebrow>SISTEMAS DE PISTA · OP-01—OP-07</Eyebrow><h1>La pista correcta<br/><em>empieza con el proyecto.</em></h1><p>Siete sistemas completos, diseñados alrededor de distintas formas de mirar, jugar, operar e invertir.</p><div className="hero-actions"><button className="button accent" onClick={() => document.getElementById('court-systems')?.scrollIntoView({ behavior: 'smooth' })}>Explorar sistemas <Arrow /></button><button className="button outline" onClick={() => navigate('/configurator')}>Configurar una pista <Arrow /></button></div></div></section>
-  <section className="jump-nav"><div className="container"><span>ELIGE UN MODELO</span>{courts.map((court, index) => <button key={court.id} onClick={() => document.getElementById(court.id)?.scrollIntoView({ behavior: 'smooth' })}>0{index + 1}</button>)}</div></section>
-  <section className="section catalogue-section" id="court-systems"><div className="container"><SectionHead eyebrow="01 · SIETE SISTEMAS DE PISTA" title={<>Compara los formatos.<br/><em>Encuentra tu punto de partida.</em></>} text="Cada sistema parte de un paquete completo y se adapta al lugar. Empieza por el modelo; después, afina superficie, iluminación, acabado y protección."/><div className="catalogue-list">{courts.map((court, index) => <article id={court.id} key={court.id} className="catalogue-card"><div className="catalogue-image"><img src={court.image} alt={`Render de referencia ${court.code} ${court.name}`} loading="lazy" decoding="async"/><span>0{index + 1}</span></div><div><Eyebrow>{court.code} · SISTEMA DE PISTA</Eyebrow><h2>{court.name}</h2><p className="catalogue-lead">{court.strap}</p><p>{court.description}</p><p className="asset-status">VISUAL DE REFERENCIA · VALIDAR CONTRA PLANOS DEL FABRICANTE</p><dl><dt>MEJOR PARA</dt><dd>{court.best}</dd><dt>FORMATO</dt><dd>{court.facts[0]}</dd></dl><div className="inline-actions"><button className="button dark" onClick={() => navigate(`/courts/${court.id}`)}>Ver sistema <Arrow /></button><button className="text-link" onClick={() => navigate(`/configurator?model=${court.id}`)}>Configurar <Arrow /></button></div></div></article>)}</div></div></section>
-  <ContactCta openProject={() => openProject('Sistema de pista')} />
-</> }
+function CourtsIndex({ navigate, openProject, locale = 'es' }) {
+  const en = locale === 'en'
+  return <>
+    <section className="catalogue-hero hero-short" style={{ '--hero-image': `url(${images.airview})` }}>
+      <div className="hero-shade"></div><div className="container">
+        <span className="eyebrow">{en ? 'COURT SYSTEMS · OP-01—OP-07' : 'SISTEMAS DE PISTA · OP-01—OP-07'}</span>
+        <h1>{en ? <>The right padel court<br/><em>starts with the project.</em></> : <>La pista correcta<br/><em>empieza con el proyecto.</em></>}</h1>
+        <p>{en ? 'Seven court formats to match playing experience, visibility, venue conditions and project goals.' : 'Siete formatos para conectar experiencia de juego, visibilidad, condiciones del lugar y objetivos del proyecto.'}</p>
+        <div className="hero-actions">
+          <a className="button accent" href="#court-systems">{en ? 'Explore court systems' : 'Explorar sistemas'} <Arrow /></a>
+          <RouteLink className="button outline" to="/configurator" navigate={navigate} locale={locale}>{en ? 'Configure a court' : 'Configurar una pista'} <Arrow /></RouteLink>
+        </div>
+      </div>
+    </section>
+    <nav className="jump-nav" aria-label={en ? 'Court model navigation' : 'Navegación por modelos'}>
+      <div className="container"><span>{en ? 'CHOOSE A MODEL' : 'ELIGE UN MODELO'}</span>
+        {courts.map((court,i)=><a href={`#${court.id}`} key={court.id}>{String(i + 1).padStart(2,'0')}</a>)}
+      </div>
+    </nav>
+    <section className="section catalogue-section" id="court-systems"><div className="container">
+      <SectionHead eyebrow={en ? 'SEVEN PADEL COURT SYSTEMS' : 'SIETE SISTEMAS DE PISTA'}
+        title={en ? <>Compare the formats.<br/><em>Choose with clarity.</em></> : <>Compara los formatos.<br/><em>Elige con criterio.</em></>}
+        text={en ? 'Start with court format, then coordinate turf, lighting, finishes and weather protection around the site.' : 'Empieza por el modelo y coordina después césped, iluminación, acabados y protección según el emplazamiento.'}/>
+      <div className="catalogue-list">{courts.map((court,index)=>{
+        const hero = courtProductContent[court.id]?.copy?.[locale]?.hero
+        const description = hero?.description || court.description
+        const applications = hero?.applications?.join(' · ') || court.best
+        return <article id={court.id} key={court.id} className="catalogue-card">
+          <div className="catalogue-image"><img src={court.image} alt={`${court.code} ${court.name} · KND Padel`} loading={index===0?'eager':'lazy'} decoding="async"/><span>{String(index + 1).padStart(2,'0')}</span></div>
+          <div><span className="eyebrow">{court.code} · {en ? 'PADEL COURT SYSTEM' : 'SISTEMA DE PISTA'}</span>
+            <h2>{court.name}</h2><p className="catalogue-lead">{hero?.tagline || court.strap}</p><p>{description}</p>
+            <dl><dt>{en ? 'IDEAL FOR' : 'IDEAL PARA'}</dt><dd>{applications}</dd><dt>{en ? 'FORMAT' : 'FORMATO'}</dt><dd>{en ? '20 × 10 m doubles court (model specifications apply)' : court.facts[0]}</dd></dl>
+            <div className="inline-actions"><RouteLink to={`/courts/${court.id}`} navigate={navigate} locale={locale} className="button dark">{en ? 'View court' : 'Ver pista'} <Arrow /></RouteLink>
+              <RouteLink to={`/configurator?model=${court.id}`} navigate={navigate} locale={locale} className="text-link">{en ? 'Configure' : 'Configurar'} <Arrow /></RouteLink>
+            </div>
+          </div>
+        </article>
+      })}</div></div>
+    </section>
+    <ContactCta openProject={() => openProject(en ? 'Court system enquiry' : 'Sistema de pista')} locale={locale}/>
+  </>
+}
 
 function TurfIndex({ navigate, openProject, locale = 'es' }) {
   const c = locale === 'en' ? {
