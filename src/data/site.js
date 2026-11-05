@@ -228,8 +228,8 @@ const turfColourOptions = [
 const turfSpec = (es, en, value) => ({ label: { es, en }, value })
 const turfSharedQuality = {
   text: {
-    es: 'La ficha de referencia del proveedor contempla fibra de PE, backing PU, líneas blancas integradas y relleno de arena de cuarzo lavada y clasificada. KND confirma el producto, color, plano de rollos, cantidades y condiciones de instalación al preparar la propuesta.',
-    en: 'The supplier reference specifies PE fibre, PU backing, integrated white lines and washed, graded quartz sand. KND confirms product, colour, roll plan, quantities and installation conditions in its proposal.',
+    es: 'La documentación técnica de partida contempla fibra de PE, backing PU, líneas blancas integradas y relleno de arena de cuarzo lavada y clasificada. KND confirma el producto, color, plano de rollos, cantidades y condiciones de instalación al preparar la propuesta.',
+    en: 'The starting technical specification includes PE fibre, PU backing, integrated white lines and washed, graded quartz sand. KND confirms product, colour, roll plan, quantities and installation conditions in its proposal.',
   },
   features: [
     { title: { es: 'Materiales', en: 'Materials' }, text: { es: 'Fibra 100 % polietileno (PE) y sistema de backing PU.', en: '100% polyethylene (PE) fibre and PU backing system.' } },
@@ -259,7 +259,7 @@ const makeTurfProduct = (p) => ({
     turfSpec('Altura del pelo', 'Pile height', p.height + ' mm'),
     turfSpec('Dtex', 'Dtex', p.dtex.toLocaleString('es-ES') + ' D'),
     turfSpec('Densidad', 'Density', p.density.toLocaleString('es-ES') + ' / m²'),
-    turfSpec('Puntadas (valor proveedor)', 'Stitch (supplier value)', String(p.stitch)),
+    turfSpec('Puntadas (dato de catálogo)', 'Stitch (catalogue value)', String(p.stitch)),
     turfSpec('Sistema de fibra', 'Fibre system', { es: p.fibre, en: p.fibreEn }),
     turfSpec('Perfil de fibra', 'Fibre profile', { es: p.profile, en: p.profileEn || p.profile }),
     turfSpec('Material principal', 'Primary material', { es: '100 % polietileno (PE)', en: '100% polyethylene (PE)' }),
@@ -273,8 +273,8 @@ const makeTurfProduct = (p) => ({
   playFeel: { es: p.playFeel, en: p.playFeelEn },
   fiberConstruction: {
     text: {
-      es: p.fibre + ' (' + p.profile + '). Especificación de referencia del proveedor.',
-      en: p.fibreEn + ' (' + (p.profileEn || p.profile) + '). Supplier-reference specification.',
+      es: p.fibre + ' (' + p.profile + '). Especificación técnica de referencia.',
+      en: p.fibreEn + ' (' + (p.profileEn || p.profile) + '). Reference technical specification.',
     },
     features: p.features.map(([title, es, en]) => ({
       title: { es: title, en: ({
@@ -290,7 +290,7 @@ const makeTurfProduct = (p) => ({
   },
   availableColors: turfColourOptions,
   quality: turfSharedQuality,
-  evidenceNote: 'Datos de referencia del proveedor Onto Padel, comprobados el 05/11/2026; confirmar ficha y configuración de suministro en la oferta KND.',
+  evidenceNote: 'Datos técnicos de referencia actualizados el 05/11/2026; confirmar la ficha específica y la configuración de suministro en la oferta KND.',
 })
 
 export const turfSystems = [
@@ -491,8 +491,8 @@ export const turfSystems = [
       ],
       [
         "63.000/m²",
-        "Densidad indicada en la ficha de referencia del proveedor.",
-        "Density stated in the supplier reference sheet."
+        "Densidad indicada en la ficha técnica de referencia.",
+        "Density stated in the reference technical sheet."
       ],
       [
         "Formación",
@@ -576,8 +576,8 @@ const roofModel = (p) => ({
     ? 'Render de referencia aportado por KND; representación final sujeta a validación técnica.'
     : 'Fotografía original de esta variante pendiente. No mostramos un render de otra cubierta.',
   engineeringNote: {
-    es: 'Datos de referencia del proveedor, no una garantía estructural ni límites seguros de operación. Alturas, viento, cargas, cimentación, anclajes, accesos y permisos requieren ingeniería local antes de confirmar el suministro.',
-    en: 'Supplier reference data, not a structural warranty or safe operating limits. Heights, wind, loads, foundations, anchors, access and permits require project-specific engineering before supply is confirmed.',
+    es: 'Datos técnicos de referencia, no una garantía estructural ni límites seguros de operación. Alturas, viento, cargas, cimentación, anclajes, accesos y permisos requieren ingeniería local antes de confirmar el suministro.',
+    en: 'Reference technical data, not a structural warranty or safe operating limits. Heights, wind, loads, foundations, anchors, access and permits require project-specific engineering before supply is confirmed.',
   },
   sourceUrl: 'https://ontopadel.com/roof/' + p.id,
   sourceChecked: '2026-11-05',
