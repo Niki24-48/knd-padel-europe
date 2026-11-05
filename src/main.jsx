@@ -4,6 +4,7 @@ import App from './App.jsx'
 import './styles.css'
 import './styles-home-premium.css'
 import './styles-premium.css'
+import './seo-enhancements.css'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
