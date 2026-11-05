@@ -19,4 +19,5 @@ jobs:
       - run: npm run verify:seo
       - run: npm run verify:journal
       - run: npm run verify:guides
+      - run: npm run verify:ssg
       - run: npm run verify:courts
