@@ -494,11 +494,12 @@ function HomePage({ navigate, openProject, t, locale }) {
     </section>
     <section className="section why-section home-why-section"><div className="container section-top"><SectionHead eyebrow="POR QUÉ KND" title={<>Construido por gente de pádel,<br/><em>para proyectos reales.</em></>} text="Equilibramos experiencia de competición, fabricación atenta y un soporte de proyecto claro para hacer cada entrega más fácil de definir y operar."/></div><div className="container why-grid home-why-grid"><article className="image-story image-story--editorial"><figure className="image-story-media"><img src={images.torneo} alt="Vista de referencia del Hong Kong Open 2026" loading="lazy" decoding="async"/><figcaption>01 · REFERENCIA DE COMPETICIÓN</figcaption></figure><footer className="image-story-copy"><h3>Proyectos que se ven<br/>y se viven bien.</h3><p>Referencia visual del Hong Kong Open 2026; el alcance exacto de KND y los derechos de publicación requieren validación final.</p></footer></article><article className="image-story image-story--editorial"><figure className="image-story-media"><img src={images.fabrica} alt="Proceso de fabricación identificado con KND Padel" loading="lazy" decoding="async"/><figcaption>02 · HECHO CON CONTROL</figcaption></figure><footer className="image-story-copy"><h3>Fabricar importa.</h3><p>Menos interpretaciones, más trazabilidad y una especificación que se mantiene íntegra.</p></footer></article><article className="why-project-gateway"><figure><img src={images.airview} alt="Vista de obra aportada por KND Padel" loading="lazy" decoding="async"/></figure><div><Eyebrow>{homeCopy.projectEyebrow}</Eyebrow><h3>{homeCopy.projectTitle}</h3><p>{homeCopy.projectText}</p><button className="button accent" onClick={() => navigate('/projects')}>{homeCopy.projectCta}<Arrow /></button></div></article><div className="why-points">{['Diseño y coordinación completos', 'Sistemas realmente personalizables', 'Logística conectada al proyecto', 'Instalación respaldada'].map((point, index) => <article key={point}><span>0{index + 1}</span><h3>{point}</h3><Arrow /></article>)}</div></div></section>
     <ProjectsPortfolioPreview navigate={navigate} locale={locale} />
-    <ProjectProcess openProject={openProject} />
-    <NewsPreview navigate={navigate} />
-    <Capabilities />
+    <ProjectProcess openProject={openProject} locale={locale} />
+    <GuidesPreview locale={locale} navigate={navigate} />
+    <NewsPreview navigate={navigate} locale={locale} />
+    <Capabilities locale={locale} />
     <FaqBlock />
-    <ContactCta openProject={openProject} />
+    <ContactCta openProject={openProject} locale={locale} />
   </>
 }
 
@@ -519,11 +520,67 @@ function SectionHead({ eyebrow, title, text }) { return <div className="section-
 function Eyebrow({ children }) { return <span className="eyebrow">{children}</span> }
 function SystemCard({ item, path, navigate }) { return <article className={`system-card ${item.name.length > 18 ? 'is-long-title' : ''}`}><img src={item.image} alt={`${item.name} — sistema KND Padel`} loading="lazy" decoding="async"/><div className="system-card-shade"></div><div className="system-card-content"><span>{item.code}</span><h3>{item.name}</h3><p>{item.strap || item.role}</p><button aria-label={`Explorar ${item.name}`} onClick={() => navigate(`${path}/${item.id}`)}>Explorar <Arrow /></button></div></article> }
 
-function ProjectProcess({ openProject }) { const steps = [['01', 'Entender el lugar', 'Ubicación, uso, calendario y los datos que cambian la solución.'], ['02', 'Definir el sistema', 'Pista, césped, iluminación, color y cubierta reunidos en una propuesta clara.'], ['03', 'Coordinar la entrega', 'Documentación, fabricación, logística e instalación alineadas con el proyecto.'], ['04', 'Preparar la apertura', 'Una revisión final orientada a que el espacio llegue listo para jugar.']]; return <section className="section process-section"><div className="container"><div className="section-top"><SectionHead eyebrow="DE BRIEF A PRIMER PARTIDO" title={<>Un proceso que<br/><em>mantiene unido el proyecto.</em></>} text="No hay dos ubicaciones iguales. Por eso empezamos con las decisiones que de verdad definen cómo se jugará y se operará la pista."/><button className="button accent" onClick={() => openProject('Brief de proyecto')}>Cuéntanos el proyecto <Arrow /></button></div><div className="process-grid">{steps.map(([number, title, text]) => <article key={number}><span>{number}</span><h3>{title}</h3><p>{text}</p><i>↓</i></article>)}</div></div></section> }
-function NewsPreview({ navigate }) { return <section className="section news-preview"><div className="container section-top"><SectionHead eyebrow="KND JOURNAL" title={<>Ideas que dan forma<br/><em>a la pista moderna.</em></>} /><button className="text-link" onClick={() => navigate('/news')}>Ver historias <Arrow /></button></div><div className="container news-grid">{articles.map((article, index) => <button className="article-card" key={article.slug} onClick={() => navigate(`/news/${article.slug}`)}><img src={article.image} alt=""/><span>0{index + 1} · {article.type.toUpperCase()} · {article.date}</span><h3>{article.title}</h3><i>Leer historia <Arrow /></i></button>)}</div></section> }
-function Capabilities() { return <section className="partners capabilities"><div className="container"><Eyebrow>UN SISTEMA · UNA CONVERSACIÓN</Eyebrow><div>{['PISTAS', 'CÉSPED', 'ILUMINACIÓN', 'CUBIERTAS', 'LOGÍSTICA', 'INSTALACIÓN'].map((capability, index) => <span key={capability}><small>0{index + 1}</small>{capability}</span>)}</div></div></section> }
+function ProjectProcess({ openProject, locale = 'es' }) {
+  const en = locale === 'en'
+  const steps = en ? [
+    ['01','Understand the site','Location, intended use, schedule and the conditions that shape a solution.'],
+    ['02','Define the system','Court, turf, lighting, colour and roofing coordinated in one scope.'],
+    ['03','Plan delivery','Documentation, logistics and installation responsibilities aligned with the project.'],
+    ['04','Prepare opening','Agree checks and handover requirements before the first game.'],
+  ] : [
+    ['01','Entender el lugar','Ubicación, uso, calendario y datos que condicionan la solución.'],
+    ['02','Definir el sistema','Pista, césped, iluminación, color y cubierta en una propuesta clara.'],
+    ['03','Coordinar la entrega','Documentación, logística y responsabilidades de montaje bien definidas.'],
+    ['04','Preparar la apertura','Acordar comprobaciones y entrega antes del primer partido.'],
+  ]
+  return <section className="section process-section"><div className="container">
+    <div className="section-top"><SectionHead eyebrow={en ? 'FROM BRIEF TO FIRST POINT' : 'DE BRIEF A PRIMER PARTIDO'}
+      title={en ? <>One process.<br/><em>A coordinated project.</em></> : <>Un proceso.<br/><em>Todo conectado.</em></>}
+      text={en ? 'Every venue is different. Start with the decisions that shape everyday play and operation.' : 'Cada ubicación es diferente. Empezamos por las decisiones que condicionan el juego y la operación.'}/>
+      <button className="button accent" onClick={() => openProject(en ? 'Project brief' : 'Brief de proyecto')}>{en ? 'Discuss your project' : 'Cuéntanos el proyecto'} <Arrow /></button></div>
+    <div className="process-grid">{steps.map(([no,heading,copy])=><article key={no}><span>{no}</span><h3>{heading}</h3><p>{copy}</p><i aria-hidden="true">↓</i></article>)}</div>
+  </div></section>
+}
+function GuidesPreview({ locale = 'es', navigate }) {
+  const en = locale === 'en'
+  return <section className="section knd-guides home-guides-preview"><div className="container section-top">
+    <SectionHead eyebrow={en ? 'KND BUYING GUIDES' : 'GUÍAS DE COMPRA KND'}
+      title={en ? <>Plan well.<br/><em>Build with clarity.</em></> : <>Decide mejor.<br/><em>Construye con criterio.</em></>}
+      text={en ? 'Practical buying guides about budgets, court formats and construction decisions.' : 'Información útil para comparar presupuestos, modelos y decisiones de obra.'}/>
+    <RouteLink className="text-link" to="/guides" locale={locale} navigate={navigate}>{en ? 'All buying guides' : 'Todas las guías'} <Arrow /></RouteLink>
+  </div><div className="container knd-guides-grid">{commercialGuides.slice(0,3).map(guide => <article className="knd-guides-card" key={guide.slug}>
+    <h3><RouteLink to={guide.path} locale={locale} navigate={navigate}>{guide[locale].title}</RouteLink></h3>
+    <p>{guide[locale].intro}</p>
+    <RouteLink className="text-link" to={guide.path} locale={locale} navigate={navigate}>{en ? 'Read guide' : 'Leer guía'} →</RouteLink>
+  </article>)}</div></section>
+}
+
+function NewsPreview({ navigate, locale = 'es' }) {
+  const en = locale === 'en'
+  return <section className="section news-preview"><div className="container section-top">
+    <SectionHead eyebrow="KND JOURNAL" title={en ? <>Ideas for<br/><em>modern padel venues.</em></> : <>Ideas que dan forma<br/><em>a la pista moderna.</em></>} />
+    <RouteLink className="text-link" to="/news" locale={locale} navigate={navigate}>{en ? 'Read stories' : 'Ver historias'} <Arrow /></RouteLink>
+  </div><div className="container news-grid">{articles.map((article,index) => <RouteLink className="article-card" to={`/news/${article.slug}`} locale={locale} navigate={navigate} key={article.slug}>
+    <img src={article.image} alt="" loading="lazy" decoding="async"/>
+    <span>{String(index + 1).padStart(2,'0')} · {article.type} · {article.date}</span>
+    <h3>{en ? (article.titleEn || article.title) : article.title}</h3><i>{en ? 'Read story' : 'Leer historia'} <Arrow /></i>
+  </RouteLink>)}</div></section>
+}
+function Capabilities({ locale = 'es' }) {
+  const items = locale === 'en' ? ['COURTS','TURF','LIGHTING','ROOFS','LOGISTICS','INSTALLATION'] : ['PISTAS','CÉSPED','ILUMINACIÓN','CUBIERTAS','LOGÍSTICA','INSTALACIÓN']
+  return <section className="partners capabilities"><div className="container"><span className="eyebrow">{locale === 'en' ? 'ONE SYSTEM · ONE PROJECT BRIEF' : 'UN SISTEMA · UNA CONVERSACIÓN'}</span>
+    <div>{items.map((capability,i)=><span key={capability}><small>{String(i + 1).padStart(2,'0')}</small>{capability}</span>)}</div>
+  </div></section>
+}
 function FaqBlock() { const [open, setOpen] = useState(0); return <section className="section faq-block"><div className="container faq-layout"><SectionHead eyebrow="PREGUNTAS FRECUENTES" title={<>Todo lo que necesitas<br/><em>para avanzar.</em></>} text="¿Necesitas una respuesta específica? Nuestro equipo puede revisar tu ubicación, calendario y necesidades del proyecto."/><div className="accordion">{faqs.map(([question, answer], index) => <article key={question} className={open === index ? 'active' : ''}><button onClick={() => setOpen(open === index ? -1 : index)} aria-expanded={open === index}><span>0{index + 1}</span>{question}<b>{open === index ? '−' : '+'}</b></button>{open === index && <p>{answer}</p>}</article>)}</div></div></section> }
-function ContactCta({ openProject }) { return <section className="contact-cta"><div className="container"><Eyebrow>TU PRÓXIMA PISTA EMPIEZA AQUÍ</Eyebrow><h2>Hagamos un lugar<br/><em>que dé ganas de jugar.</em></h2><button className="button light" onClick={() => openProject()}>Iniciar proyecto <Arrow /></button></div></section> }
+function ContactCta({ openProject, locale = 'es' }) {
+  const en = locale === 'en'
+  return <section className="contact-cta"><div className="container">
+    <span className="eyebrow">{en ? 'YOUR NEXT COURT STARTS HERE' : 'TU PRÓXIMA PISTA EMPIEZA AQUÍ'}</span>
+    <h2>{en ? <>Let’s build a place<br/><em>made for play.</em></> : <>Hagamos un lugar<br/><em>que dé ganas de jugar.</em></>}</h2>
+    <button className="button light" onClick={() => openProject()}>{en ? 'Start your project' : 'Iniciar proyecto'} <Arrow /></button>
+  </div></section>
+}
 
 function CourtsIndex({ navigate, openProject }) { return <>
   <section className="catalogue-hero hero-short" style={{ '--hero-image': `url(${images.airview})` }}><div className="hero-shade"></div><div className="container"><Eyebrow>SISTEMAS DE PISTA · OP-01—OP-07</Eyebrow><h1>La pista correcta<br/><em>empieza con el proyecto.</em></h1><p>Siete sistemas completos, diseñados alrededor de distintas formas de mirar, jugar, operar e invertir.</p><div className="hero-actions"><button className="button accent" onClick={() => document.getElementById('court-systems')?.scrollIntoView({ behavior: 'smooth' })}>Explorar sistemas <Arrow /></button><button className="button outline" onClick={() => navigate('/configurator')}>Configurar una pista <Arrow /></button></div></div></section>
