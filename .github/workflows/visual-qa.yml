@@ -18,7 +18,7 @@ jobs:
       - run: npm ci
       - run: npm run build
       - run: npm install --no-save playwright@1.57.0
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install chromium
       - run: node scripts/browser-qa.mjs
       - name: Keep desktop and mobile screenshots
         if: always()
