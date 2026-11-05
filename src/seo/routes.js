@@ -391,7 +391,7 @@ function articleSchema(info) {
   if (!['article', 'guide'].includes(info.type)) return null
   const schema = {
     '@context': 'https://schema.org',
-    '@type': 'BlogPosting',
+    '@type': info.type === 'guide' ? 'Article' : 'BlogPosting',
     headline: info.h1,
     description: info.description,
     mainEntityOfPage: absoluteUrl(info.path),
