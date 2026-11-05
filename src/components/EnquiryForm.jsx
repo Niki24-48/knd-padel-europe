@@ -7,6 +7,22 @@ import { useId, useMemo, useState } from 'react'
  */
 const FORMSPREE_ENDPOINT = 'https://formspree.io/f/mpqjlobj'
 
+function trackConfirmedLead(compact) {
+  // Emit only after the form provider confirms successful delivery. Never send
+  // contact details, form messages or the court configuration to analytics.
+  if (typeof window === 'undefined') return
+  const parameters = {
+    form_id: 'knd-project-enquiry',
+    form_location: compact ? 'project-dialog' : 'contact-page',
+  }
+  if (typeof window.gtag === 'function') {
+    window.gtag('event', 'generate_lead', parameters)
+  } else if (Array.isArray(window.dataLayer)) {
+    // Use a custom GTM trigger when gtag is not installed directly.
+    window.dataLayer.push({ event: 'knd_generate_lead', ...parameters })
+  }
+}
+
 function readableConfiguration(configuration) {
   if (!configuration || typeof configuration !== 'object') return ''
   const values = [
@@ -183,6 +199,7 @@ export default function EnquiryForm({
 
       setPhase('sent')
       setStatusMessage('Solicitud enviada correctamente. Gracias por contactar con KND Padel; te responderemos lo antes posible.')
+      trackConfirmedLead(compact)
       onSubmitted?.({ payload, delivered: true, storedLocally: false })
     } catch (error) {
       setPhase('error')
