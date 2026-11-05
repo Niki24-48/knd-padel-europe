@@ -1,3 +1,4 @@
+import { localizedPath } from '../../seo/routes.js'
 import { roofSystems } from '../../data/site.js'
 
 const copy = {
@@ -164,7 +165,7 @@ export default function RoofDetail({ item, navigate, openProject, locale = 'es' 
         <span className="eyebrow">{language === 'en' ? 'OTHER ROOF SYSTEMS' : 'OTRAS CUBIERTAS'}</span>
         <h2>{t.related}</h2>
         <div className="knd-roof-detail__related-grid">
-          {related.map((roof) => <a key={roof.id} href={'/roof/' + roof.id}
+          {related.map((roof) => <a key={roof.id} href={localizedPath('/roof/' + roof.id, language)}
             onClick={(event) => { event.preventDefault(); navigate('/roof/' + roof.id) }}>
             <small>{roof.code}</small>
             <strong>{roof.name}</strong>
