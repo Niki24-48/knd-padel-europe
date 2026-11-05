@@ -1,40 +1,17 @@
-# Imágenes pendientes — Cubiertas OP-R4 y OP-R5
+# Estado de las imágenes de cubiertas KND — actualizado el 6/11/2026
 
-Fecha de inventario: 5 de noviembre de 2026
+**Resuelto en código:** cinco modelos individuales OP-R1 a OP-R5, con imágenes distintas asociadas a cada ficha y al catálogo. Esta nota reemplaza el inventario anterior de imágenes pendientes.
 
-## Alcance
+| Cubierta | Archivo utilizado | Estado |
+|---|---|---|
+| OP-R1 Canopy Roof | `r1-canopy-reference.png` | Render de referencia ya disponible |
+| OP-R2 Semi-Enclosed Roof | `r2-semi-enclosed-reference.webp` | Nueva imagen aportada en la rama de cubiertas |
+| OP-R3 Fully-Enclosed Roof | `r3-enclosed-reference.png` | Render de referencia ya disponible |
+| OP-R4 Ground-Mounted Retractable Roof | `R4-RETRACTIL.png` | Imagen aportada con ese nombre para R4 |
+| OP-R5 Elevated Retractable Roof | `R5-RETRACTIL-COMPLETO.png` | Imagen aportada con ese nombre para R5 |
 
-Este inventario registra únicamente los recursos visuales que no están autorizados para publicación como imagen de producto. No autoriza el uso de imágenes de catálogo de otros sistemas como sustitución.
+Rutas públicas: `/roof`, `/roof/{slug}` y sus equivalentes `/en/roof...`. Los cinco modelos conservan sus fichas técnicas bilingües detalladas y sus URLs históricas.
 
-| Sistema | Ruta pública | Recurso visual publicado | Estado | Acción necesaria |
-|---|---|---|---|---|
-| OP R4 Electric Retractable Roof | `/roof/electric-retractable-roof` | Ninguno | Pendiente | Aportar imagen asociada al modelo y validar autoría, alcance y derechos de publicación. |
-| OP R5 Elevated Retractable Roof | `/roof/elevated-retractable-roof` | Ninguno | Pendiente | Aportar imagen asociada al modelo y validar autoría, alcance y derechos de publicación. |
+**Observación editorial:** R4 reutiliza el mismo objeto de imagen que antiguamente se guardó con el nombre de referencia R2, y R5 reutiliza el antiguo objeto de referencia R4. El cambio de nombre fue realizado en la rama de aportación de imágenes. Se respeta aquí la asignación R4/R5 explícita de esos nombres, pero el nombre por sí solo no prueba que la fotografía muestre el mecanismo estructural exacto. Antes de utilizar esas imágenes como prueba técnica o comercial definitiva, confirmar visualmente su correspondencia con los modelos y los derechos de uso. Todos los pies siguen identificándolas como referencias sujetas a la especificación del proyecto.
 
-## Tratamiento en la web
-
-- Las fichas se mantienen accesibles porque contienen información comercial limitada y verificable.
-- El hueco visual se muestra como estado editorial pendiente, sin foto de archivo, IA ni reutilización de OP-R1, OP-R2 u OP-R3.
-- Los datos estructurados de producto no incluyen una propiedad `image` para R4 o R5 mientras no exista un recurso válido.
-
-## Checklist de alta de un recurso
-
-1. Confirmar a qué código y URL de producto corresponde.
-2. Registrar origen, autoría, licencia/derechos y permiso de publicación.
-3. Añadir texto alternativo descriptivo que no afirme características no verificadas.
-4. Revisar la ficha, el catálogo, la página prerenderizada y el JSON-LD antes del despliegue.
-# Imágenes pendientes — KND Roof
-
-Estas imágenes se dejan con un espacio blanco/neutro en la web hasta recibir originales correctos. NO sustituirlas por renders generados, recursos de otros productos o fotos genéricas.
-
-| Producto | Sección | Ruta de destino sugerida | Proporción | Estado | Nota |
-|---|---|---|---|---|---|
-| OP-R4 Ground-Mounted Retractable Roof | Catálogo y hero ficha | \`public/media/knd/roofs/r4-ground-mounted.webp\` | 16:9 | PENDIENTE | Debe enseñar el bastidor completo móvil sobre raíles a nivel de suelo |
-| OP-R5 Elevated Retractable Roof | Catálogo y hero ficha | \`public/media/knd/roofs/r5-elevated.webp\` | 16:9 | PENDIENTE | Estructura fija elevada con membrana superior plegable |
-| OP-R4 | Galería opcional | \`public/media/knd/roofs/r4-rails-detail.webp\` | 4:3 | OPCIONAL | Detalle real de guías/raíles y apoyos |
-| OP-R5 | Galería opcional | \`public/media/knd/roofs/r5-folding-detail.webp\` | 4:3 | OPCIONAL | Detalle real de plegado superior |
-| OP-R5 | Opciones de cerramiento | \`public/media/knd/roofs/r5-enclosures.webp\` | 16:9 | OPCIONAL | Bandas superior/inferior y lamas, únicamente si ilustran esa variante |
-
-R1–R3 conservan sus renders existentes de referencia, pero no representan aprobaciones de estructura específica.
-
-Para integrar las imágenes definitivas, cambia \`imageKey\` / \`image\` en \`src/data/site.js\` y revisa los pies de foto una vez verificada la correspondencia.
+**Prevención de regresiones:** `npm run verify:roofs` comprueba que hay exactamente cinco cubiertas únicas, que cada una tiene su fotografía, que los archivos tienen cabeceras válidas, que se mantienen los detalles técnicos y que las diez fichas prerenderizadas ES/EN incluyen sus imágenes. No se han importado registros obsoletos duplicados de `feature/knd-seo-4`.

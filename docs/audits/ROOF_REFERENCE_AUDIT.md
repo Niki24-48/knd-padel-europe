@@ -1,4 +1,4 @@
-# Auditoría de catálogo y referencias visuales — Cubiertas KND
+> **Actualización 06/11/2026:** imágenes de OP-R2, OP-R4 y OP-R5 incorporadas al catálogo y sus fichas. La tabla de "pendiente" posterior es un inventario histórico del 05/11/2026, no el estado publicado actual. Estado vigente: [ROOF_IMAGES_PENDING.md](../assets/ROOF_IMAGES_PENDING.md). Los renders deben validarse visual y técnicamente antes de usarse como prueba de configuración.\n\n# Auditoría de catálogo y referencias visuales — Cubiertas KND
 
 Fecha de revisión: 5 de noviembre de 2026  
 Ámbito: catálogo de cubiertas en `src/data/site.js`, rutas públicas y disponibilidad de recursos visuales.

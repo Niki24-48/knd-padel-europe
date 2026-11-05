@@ -3,7 +3,7 @@ on:
   pull_request:
     branches: [main]
   push:
-    branches: [main, fix/seo-merge-build-2026-11-05]
+    branches: [main, 'fix/**']
 jobs:
   verify:
     runs-on: ubuntu-latest
@@ -22,3 +22,4 @@ jobs:
       - run: npm run verify:ssg
       - run: npm run verify:performance
       - run: npm run verify:courts
+      - run: npm run verify:roofs

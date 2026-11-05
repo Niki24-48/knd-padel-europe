@@ -43,9 +43,10 @@ export const media = {
   },
   roofs: {
     r1: '/media/knd/roofs/r1-canopy-reference.png',
-    r2: '/media/knd/roofs/r2-semi-enclosed-reference.png',
+    r2: '/media/knd/roofs/r2-semi-enclosed-reference.webp',
     r3: '/media/knd/roofs/r3-enclosed-reference.png',
-    r4: '/media/knd/roofs/r4-retractable-reference.png',
+    r4: '/media/knd/roofs/R4-RETRACTIL.png',
+    r5: '/media/knd/roofs/R5-RETRACTIL-COMPLETO.png',
   },
   turf: {
     black: '/media/knd/turf/sample-black.png',
@@ -665,7 +666,7 @@ export const roofSystems = [
   roofModel({
     // Keep existing slug to preserve old incoming links and configurations.
     id: 'electric-retractable-roof', code: 'OP-R4', name: 'Ground-Mounted Retractable Roof',
-    imageKey: null, visualPending: true,
+    imageKey: 'r4',
     role: 'Retráctil sobre raíles a nivel de suelo', roleEn: 'Ground-mounted retractable',
     coverage: 'Frente y laterales inferiores abiertos', coverageEn: 'Open front and lower sides',
     operation: 'Retráctil: se desplaza el bastidor entero', operationEn: 'Retractable: entire frame moves',
@@ -694,7 +695,7 @@ export const roofSystems = [
   }),
   roofModel({
     id: 'elevated-retractable-roof', code: 'OP-R5', name: 'Elevated Retractable Roof',
-    imageKey: null, visualPending: true,
+    imageKey: 'r5',
     role: 'Cubierta plegable elevada', roleEn: 'Elevated folding roof',
     coverage: 'Membrana plegable sobre estructura fija', coverageEn: 'Folding membrane on permanent elevated frame',
     operation: 'Retráctil: se pliega la membrana superior', operationEn: 'Retractable: overhead membrane folds',
