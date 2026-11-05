@@ -1,7 +1,7 @@
 import { useEffect, useId, useRef } from 'react'
 import EnquiryForm from './EnquiryForm.jsx'
 
-export default function ProjectDialog({ context = '', onClose, onSubmitted }) {
+export default function ProjectDialog({ context = '', onClose, onSubmitted, locale = 'es' }) {
   const titleId = useId()
   const dialogRef = useRef(null)
 
@@ -30,13 +30,13 @@ export default function ProjectDialog({ context = '', onClose, onSubmitted }) {
         aria-labelledby={titleId}
         tabIndex="-1"
       >
-        <button className="dialog-close" type="button" onClick={onClose} aria-label="Cerrar formulario">
+        <button className="dialog-close" type="button" onClick={onClose} aria-label={locale === 'en' ? 'Close form' : 'Cerrar formulario'}>
           ×
         </button>
-        <span className="eyebrow">INICIAR PROYECTO</span>
-        <h2 id={titleId}>Hablemos de<br/><em>tu próxima pista.</em></h2>
-        <p>Cuéntanos lo esencial y prepararemos la siguiente conversación.</p>
-        <EnquiryForm context={context} compact onSubmitted={onSubmitted} />
+        <span className="eyebrow">{locale === 'en' ? 'START A PROJECT' : 'INICIAR PROYECTO'}</span>
+        <h2 id={titleId}>{locale === 'en' ? <>Let’s discuss<br/><em>your next court.</em></> : <>Hablemos de<br/><em>tu próxima pista.</em></>}</h2>
+        <p>{locale === 'en' ? 'Share the essentials to start a project conversation.' : 'Cuéntanos lo esencial y prepararemos la siguiente conversación.'}</p>
+        <EnquiryForm context={context} compact locale={locale} onSubmitted={onSubmitted} />
       </div>
     </div>
   )
