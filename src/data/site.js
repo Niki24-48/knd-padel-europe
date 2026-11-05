@@ -540,8 +540,36 @@ const roofBenefitTitlesEn = {
   "Altura adaptable": "Adjustable height"
 }
 const roofBenefit = (title, es, en) => ({ title: { es: title, en: roofBenefitTitlesEn[title] || title }, description: { es, en } })
+const roofEnglish = {
+  'canopy-roof': {
+    heightEn: '6 m eaves · 8.5 m ridge',
+    membraneEn: '750 g/m² double-sided blackout PVC',
+    structureEn: 'Fixed open-sided frame',
+  },
+  'semi-enclosed-roof': {
+    heightEn: 'Project-specific',
+    membraneEn: '750 g/m² double-sided blackout PVC',
+    structureEn: 'Fixed frame with upper-side cladding',
+  },
+  'fully-enclosed-roof': {
+    heightEn: 'Site-engineered',
+    membraneEn: 'Double-sided opaque PVC knife-coated fabric',
+    structureEn: 'Fixed full enclosure',
+  },
+  'electric-retractable-roof': {
+    heightEn: 'Up to 9 m reference maximum',
+    membraneEn: 'Membrane and weight project-specific',
+    structureEn: 'Complete moving frame on ground rails',
+  },
+  'elevated-retractable-roof': {
+    heightEn: '9 m starting · up to 15 m subject to review',
+    membraneEn: 'Overhead folding membrane, project-specific',
+    structureEn: 'Permanent elevated frame',
+  },
+}
 const roofModel = (p) => ({
   ...p,
+  ...roofEnglish[p.id],
   image: p.imageKey ? media.roofs[p.imageKey] : null,
   gallery: p.imageKey ? [media.roofs[p.imageKey]] : [],
   imageNote: p.imageKey
