@@ -112,6 +112,14 @@ export default function CourtDetail({ item, courts = [], navigate, openProject, 
     <CourtTechnicalSection id="court-lighting" kind="lighting" tone="dark" copy={copy.lighting} media={media.lighting} locale={language} reverse />
     <CourtFinish copy={copy.finish} media={media.finish} locale={language} />
     <CourtRelatedModels items={related} locale={language} navigate={navigate} />
+    <section className="section knd-inline-guides"><div className="container">
+      <h2>{language === 'en' ? 'Plan your court with confidence' : 'Planifica tu pista con criterio'}</h2>
+      <div className="knd-inline-guides-links">
+        <a href={language === 'en' ? '/en/guides/padel-court-cost' : '/guides/padel-court-cost'}>{language === 'en' ? 'Understanding padel court costs' : 'Cómo comparar el precio de una pista'} →</a>
+        <a href={language === 'en' ? '/en/guides/panoramic-vs-super-panoramic' : '/guides/panoramic-vs-super-panoramic'}>{language === 'en' ? 'Panoramic vs super panoramic' : 'Panorámica vs superpanorámica'} →</a>
+        <a href={language === 'en' ? '/en/guides/padel-court-construction' : '/guides/padel-court-construction'}>{language === 'en' ? 'Construction and installation planning' : 'Construcción e instalación'} →</a>
+      </div>
+    </div></section>
     <CourtFinalCta locale={language} onQuote={startProject} navigate={navigate} />
   </article>
 }
