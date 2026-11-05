@@ -152,6 +152,13 @@ export default function TurfDetail({ item, turfSystems = [], turfFinishes = [], 
 
     {related.length > 0 && <section className="section pd-related" id="turf-related" aria-labelledby="turf-related-title"><div className="container"><span className="eyebrow">{t.relatedEyebrow}</span><h2 id="turf-related-title">{t.relatedTitle}</h2><div className="pd-related__grid">{related.map((system) => <article key={system.id}>{system.image && <img src={system.image} alt={`${system.code} ${system.name}`} loading="lazy" decoding="async" />}<span>{system.code}</span><h3>{system.name}</h3><button type="button" onClick={() => navigate?.(`/turf/${system.id}`)}>{t.view} →</button></article>)}</div></div></section>}
 
+    <section className="section knd-inline-guides"><div className="container">
+      <h2>{language === 'en' ? 'Choosing the right turf' : 'Cómo elegir el césped adecuado'}</h2>
+      <div className="knd-inline-guides-links">
+        <a href={language === 'en' ? '/en/guides/padel-turf-selection' : '/guides/padel-turf-selection'}>{language === 'en' ? 'Read the turf buying guide' : 'Ver guía de selección de césped'} →</a>
+        <a href={language === 'en' ? '/en/turf' : '/turf'}>{language === 'en' ? 'Compare all five turf systems' : 'Comparar los cinco sistemas'} →</a>
+      </div>
+    </div></section>
     <section className="section pd-final-cta" id="turf-proposal"><div className="container"><span className="eyebrow">{t.finalEyebrow}</span><h2>{t.finalTitle}</h2><p>{t.finalBody}</p><button type="button" className="button accent" onClick={startProject}>{t.proposal} →</button></div></section>
   </article>
 }
