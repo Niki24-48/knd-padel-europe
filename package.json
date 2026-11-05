@@ -9,6 +9,7 @@
     "preview": "vite preview",
     "verify:courts": "node scripts/verify-court-copy.mjs",
     "verify:seo": "node scripts/verify-seo-output.mjs",
+    "verify:journal": "node scripts/verify-journal.mjs",
     "test:seo": "npm run build && npm run verify:seo"
   },
   "dependencies": {
