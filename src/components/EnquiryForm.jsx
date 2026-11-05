@@ -44,12 +44,41 @@ function readableConfiguration(configuration) {
   return values.map(([label, value]) => `${label}: ${value}`).join('\n')
 }
 
-function responseErrorMessage(status, result) {
-  if (status === 429) return 'Se han enviado demasiadas solicitudes en poco tiempo. Espera un momento e inténtalo otra vez.'
+const formText = {
+  es: {
+    name: 'Nombre', city: 'País / ciudad', courtCount: 'Número de pistas', unknown: 'Aún no lo sé',
+    project: 'Cuéntanos el proyecto', placeholder: 'Ubicación, tipo de sede, calendario y lo que consideres importante.',
+    consent: 'Acepto que KND Padel use estos datos para responder a mi solicitud.',
+    prepare: 'Preparar solicitud', sentLabel: 'Solicitud enviada ✓', validating: 'Validando…', sending: 'Enviando…',
+    noBots: 'No rellenar este campo', projectContext: 'Proyecto:', configuration: 'Configuración completa adjunta',
+    validation: 'Validando los datos…', review: 'Revisa los campos indicados antes de continuar.',
+    sendingStatus: 'Enviando solicitud…',
+    sent: 'Solicitud enviada correctamente. Gracias por contactar con KND Padel; te responderemos lo antes posible.',
+    failure: 'No se ha podido enviar la solicitud. Tus datos siguen en el formulario para reintentarlo.',
+    requiredName: 'Indica tu nombre.', requiredEmail: 'Introduce un email válido.', requiredCountry: 'Indica país o ciudad.',
+    requiredConsent: 'Necesitamos tu consentimiento para responder a la solicitud.', tooMany: 'Demasiadas solicitudes en poco tiempo. Inténtalo más tarde.',
+  },
+  en: {
+    name: 'Name', city: 'Country / city', courtCount: 'Number of courts', unknown: 'Not decided yet',
+    project: 'Tell us about your project', placeholder: 'Location, venue type, intended schedule and any other helpful details.',
+    consent: 'I agree that KND Padel may use this information to reply to my enquiry.',
+    prepare: 'Send project enquiry', sentLabel: 'Enquiry sent ✓', validating: 'Validating…', sending: 'Sending…',
+    noBots: 'Leave this field empty', projectContext: 'Project:', configuration: 'Full configuration attached',
+    validation: 'Validating your details…', review: 'Please check the highlighted fields.',
+    sendingStatus: 'Sending your enquiry…',
+    sent: 'Your enquiry was sent successfully. Thank you for contacting KND Padel. We will reply as soon as possible.',
+    failure: 'We could not send your enquiry. Your details are still in the form so you can try again.',
+    requiredName: 'Please enter your name.', requiredEmail: 'Enter a valid email address.', requiredCountry: 'Enter your country or city.',
+    requiredConsent: 'We need your consent to respond to your enquiry.', tooMany: 'Too many requests in a short time. Try again later.',
+  }
+}
+
+function responseErrorMessage(status, result, locale = 'es') {
+  if (status === 429) return formText[locale].tooMany
   const providerMessages = Array.isArray(result?.errors)
     ? result.errors.map((item) => item?.message).filter(Boolean)
     : []
-  return providerMessages.join(' ') || 'No se ha podido enviar la solicitud. Revisa los datos y vuelve a intentarlo.'
+  return providerMessages.join(' ') || formText[locale].failure
 }
 
 const EMPTY_FORM = {
@@ -84,12 +113,13 @@ function configurationFromContext(context) {
   return context.configuration ?? context.config ?? context
 }
 
-function validate(form) {
+function validate(form, locale = 'es') {
+  const t = formText[locale]
   const next = {}
-  if (!form.name.trim()) next.name = 'Indica tu nombre.'
-  if (!/^\S+@\S+\.\S+$/.test(form.email.trim())) next.email = 'Introduce un email válido.'
-  if (!form.country.trim()) next.country = 'Indica país o ciudad.'
-  if (!form.consent) next.consent = 'Necesitamos tu consentimiento para preparar la solicitud.'
+  if (!form.name.trim()) next.name = t.requiredName
+  if (!/^\\S+@\\S+\\.\\S+$/.test(form.email.trim())) next.email = t.requiredEmail
+  if (!form.country.trim()) next.country = t.requiredCountry
+  if (!form.consent) next.consent = t.requiredConsent
   return next
 }
 
@@ -103,9 +133,12 @@ function validate(form) {
 export default function EnquiryForm({
   context = '',
   compact = false,
+  locale = 'es',
   onSubmitted,
-  submitLabel = 'Preparar solicitud',
+  submitLabel,
 }) {
+  const language = locale === 'en' ? 'en' : 'es'
+  const t = formText[language]
   const uid = useId()
   const [form, setForm] = useState(EMPTY_FORM)
   const [errors, setErrors] = useState({})
@@ -135,13 +168,13 @@ export default function EnquiryForm({
   const submit = async (event) => {
     event.preventDefault()
     setPhase('validating')
-    setStatusMessage('Validando los datos…')
+    setStatusMessage(t.validation)
 
-    const nextErrors = validate(form)
+    const nextErrors = validate(form, language)
     setErrors(nextErrors)
     if (Object.keys(nextErrors).length) {
       setPhase('error')
-      setStatusMessage('Revisa los campos indicados antes de continuar.')
+      setStatusMessage(t.review)
       const firstField = Object.keys(nextErrors)[0]
       requestAnimationFrame(() => document.getElementById(fieldId(firstField))?.focus())
       return
@@ -185,7 +218,7 @@ export default function EnquiryForm({
     }
 
     setPhase('sending')
-    setStatusMessage('Enviando solicitud…')
+    setStatusMessage(t.sendingStatus)
     try {
       const response = await fetch(FORMSPREE_ENDPOINT, {
         method: 'POST',
@@ -194,16 +227,16 @@ export default function EnquiryForm({
       })
       const result = await response.json().catch(() => null)
       if (!response.ok || result?.ok === false) {
-        throw new Error(responseErrorMessage(response.status, result))
+        throw new Error(responseErrorMessage(response.status, result, language))
       }
 
       setPhase('sent')
-      setStatusMessage('Solicitud enviada correctamente. Gracias por contactar con KND Padel; te responderemos lo antes posible.')
+      setStatusMessage(t.sent)
       trackConfirmedLead(compact)
       onSubmitted?.({ payload, delivered: true, storedLocally: false })
     } catch (error) {
       setPhase('error')
-      setStatusMessage(error?.message || 'No se ha podido enviar la solicitud. Tus datos siguen en el formulario para que puedas intentarlo de nuevo.')
+      setStatusMessage(error?.message || t.failure)
     }
   }
 
@@ -213,7 +246,7 @@ export default function EnquiryForm({
   return (
     <form className={`enquiry-form ${compact ? 'compact-form' : ''}`} action={FORMSPREE_ENDPOINT} method="POST" noValidate onSubmit={submit}>
       <div style={{ display: 'none' }} aria-hidden="true">
-        <label htmlFor={fieldId('gotcha')}>No rellenar este campo</label>
+        <label htmlFor={fieldId('gotcha')}>{t.noBots}</label>
         <input
           id={fieldId('gotcha')}
           name="_gotcha"
@@ -225,13 +258,13 @@ export default function EnquiryForm({
       </div>
       {label && (
         <p className="form-context">
-          Proyecto: <strong>{label}</strong>
-          {isStructuredContext(context) && <span> · Configuración completa adjunta</span>}
+          {t.projectContext} <strong>{label}</strong>
+          {isStructuredContext(context) && <span> · {t.configuration}</span>}
         </p>
       )}
 
       <label htmlFor={fieldId('name')}>
-        Nombre
+        {t.name}
         <input
           id={fieldId('name')}
           name="name"
@@ -261,7 +294,7 @@ export default function EnquiryForm({
       </label>
 
       <label htmlFor={fieldId('country')}>
-        País / ciudad
+        {t.city}
         <input
           id={fieldId('country')}
           name="country"
@@ -275,14 +308,14 @@ export default function EnquiryForm({
       </label>
 
       <label htmlFor={fieldId('courts')}>
-        Número de pistas
+        {t.courtCount}
         <select
           id={fieldId('courts')}
           name="courts"
           value={form.courts}
           onChange={(event) => update('courts', event.target.value)}
         >
-          <option value="">Aún no lo sé</option>
+          <option value="">{t.unknown}</option>
           <option value="1">1</option>
           <option value="2-4">2–4</option>
           <option value="5-8">5–8</option>
@@ -291,14 +324,14 @@ export default function EnquiryForm({
       </label>
 
       <label className="full" htmlFor={fieldId('message')}>
-        Cuéntanos el proyecto
+        {t.project}
         <textarea
           id={fieldId('message')}
           name="message"
           rows="4"
           value={form.message}
           onChange={(event) => update('message', event.target.value)}
-          placeholder="Ubicación, tipo de sede, calendario y lo que consideres importante."
+          placeholder={t.placeholder}
         />
       </label>
 
@@ -312,15 +345,15 @@ export default function EnquiryForm({
           aria-invalid={Boolean(errors.consent)}
           aria-describedby={errors.consent ? errorId('consent') : undefined}
         />
-        <span>Acepto que KND Padel use estos datos para responder a mi solicitud.</span>
+        <span>{t.consent}</span>
       </label>
       {errors.consent && <small className="form-error" id={errorId('consent')}>{errors.consent}</small>}
 
       <button className="button accent full" type="submit" disabled={pending || submitted}>
-        {phase === 'validating' && 'Validando…'}
-        {phase === 'sending' && 'Enviando…'}
-        {submitted && 'Solicitud enviada ✓'}
-        {!pending && !submitted && `${submitLabel} →`}
+        {phase === 'validating' && t.validating}
+        {phase === 'sending' && t.sending}
+        {submitted && t.sentLabel}
+        {!pending && !submitted && `${submitLabel || t.prepare} →`}
       </button>
 
       {statusMessage && (
