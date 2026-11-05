@@ -16,6 +16,7 @@ import {
   localizedPath,
 } from '../src/seo/routes.js'
 import { articles, brand, courts, projects, roofSystems, turfSystems } from '../src/data/site.js'
+import { articleGuides } from '../src/data/articleGuides.js'
 import { faqItems } from '../src/components/faq/faqData.js'
 
 const dist = resolve('dist')
@@ -86,8 +87,16 @@ function faqContent(locale) {
 
 function articleContent(info) {
   const { item, locale } = info
-  const lead = locale === 'en' ? item.excerptEn || item.excerpt : item.excerpt
-  return `<article class="seo-section seo-article"><p>${escapeHtml(lead)}</p><h2>${escapeHtml(inLanguage(locale, 'Decisiones que conviene conectar', 'Decisions worth connecting'))}</h2><p>${escapeHtml(inLanguage(locale, 'La elección del sistema, la ubicación, la operación prevista y la documentación técnica deben revisarse como un conjunto. KND confirma los datos específicos en la propuesta de cada proyecto.', 'System choice, venue, intended operation and technical documentation should be considered together. KND confirms project-specific details in each proposal.'))}</p><h2>${escapeHtml(inLanguage(locale, 'Siguiente paso', 'Next step'))}</h2><p>${escapeHtml(inLanguage(locale, 'Explora los sistemas relacionados o comparte los datos de tu proyecto para iniciar una conversación técnica.', 'Explore the related systems or share your project details to start a technical conversation.'))}</p><p><a class="button accent" href="${href('/contact', locale)}">${escapeHtml(inLanguage(locale, 'Hablar del proyecto', 'Discuss the project'))} <span aria-hidden="true">→</span></a></p></article>`
+  const guide = articleGuides[item.slug]?.[locale]
+  const lead = guide?.lead || (locale === 'en' ? item.excerptEn || item.excerpt : item.excerpt)
+  const sections = (guide?.sections || []).map((section) => `
+    <section class="seo-article-section">
+      <h2>${escapeHtml(section.heading)}</h2>
+      ${section.paragraphs.map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`).join('')}
+      ${section.bullets?.length ? `<ul>${section.bullets.map((bullet) => `<li>${escapeHtml(bullet)}</li>`).join('')}</ul>` : ''}
+    </section>
+  `).join('')
+  return `<article class="seo-section seo-article"><p>${escapeHtml(lead)}</p>${sections}<p><a class="button accent" href="${href('/contact', locale)}">${escapeHtml(inLanguage(locale, 'Hablar de tu proyecto', 'Discuss your project'))} <span aria-hidden="true">→</span></a></p></article>`
 }
 
 function projectContent(info) {
@@ -177,7 +186,7 @@ function headFor(documentHtml, seo) {
   const additions = [
     `<link rel="canonical" href="${escapeHtml(seo.canonical)}">`,
     ...seo.alternates.map(({ lang, href: alternateHref }) => `<link rel="alternate" hreflang="${escapeHtml(lang)}" href="${escapeHtml(alternateHref)}">`),
-    ...seo.structuredData.map((item) => `<script type="application/ld+json">${JSON.stringify(item).replace(/</g, '\\u003c')}</script>`),
+    ...seo.structuredData.map((item) => `<script type="application/ld+json" data-knd-static-jsonld>${JSON.stringify(item).replace(/</g, '\\u003c')}</script>`),
   ].join('\n  ')
   return html.replace('</head>', `  ${additions}\n</head>`)
 }

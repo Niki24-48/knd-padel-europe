@@ -1,3 +1,4 @@
+import { articleGuides } from './data/articleGuides.js'
 import { lazy, Suspense, useEffect, useRef, useState } from 'react'
 import {
   articles,
@@ -546,9 +547,29 @@ function SystemDetail({ item, type, navigate, openProject }) {
 function WhyPage({ openProject }) { return <><section className="about-hero"><div className="container"><Eyebrow>POR QUÉ KND</Eyebrow><h1>Detalles que hacen<br/><em>que jugar sea fácil.</em></h1><p>KND conecta ingeniería y experiencia de jugador para dar a cada proyecto una base más clara desde el principio.</p></div></section><section className="section belief-section"><div className="container"><div><Eyebrow>LA FORMA DE TRABAJAR</Eyebrow><h2>Un partner que<br/><em>piensa en la pista<br/>completa.</em></h2></div><div className="belief-list">{[['01', 'Diseñar para las decisiones reales', 'El lugar, el clima, el público y la operación cambian lo que significa una buena pista.'], ['02', 'Llevar el detalle hasta la obra', 'La fabricación y la documentación se conectan para evitar sorpresas cuando más cuestan.'], ['03', 'Hacer que el siguiente proyecto sea más fácil', 'Cada entrega alimenta cómo especificamos, coordinamos y acompañamos la siguiente.']].map(([n, h, p]) => <article key={n}><span>{n}</span><h3>{h}</h3><p>{p}</p></article>)}</div></div></section><section className="full-bleed-image"><img src={images.projectOne} alt="Pista de pádel KND"/></section><ContactCta openProject={() => openProject('Proyecto KND')} /></> }
 
 
-function NewsPage({ navigate }) { return <><section className="plain-hero news-hero"><div className="container"><Eyebrow>KND PADEL · JOURNAL</Eyebrow><h1>Ideas alrededor<br/><em>de la pista.</em></h1><p>Notas de proyecto, producto y juego de las personas que desarrollan KND Padel.</p></div></section><section className="section news-index"><div className="container"><span className="story-count">TODAS LAS HISTORIAS · {articles.length.toString().padStart(2, '0')}</span><div className="news-list">{articles.map((article, index) => <button key={article.slug} onClick={() => navigate(`/news/${article.slug}`)}><img src={article.image} alt=""/><div><span>0{index + 1} · {article.type.toUpperCase()} · {article.date}</span><h2>{article.title}</h2><p>{article.excerpt}</p><i>Leer historia <Arrow /></i></div></button>)}</div></div></section></> }
+function NewsPage({ navigate, locale = 'es' }) { return <><section className="plain-hero news-hero"><div className="container"><Eyebrow>KND PADEL · JOURNAL</Eyebrow><h1>Ideas alrededor<br/><em>de la pista.</em></h1><p>Notas de proyecto, producto y juego de las personas que desarrollan KND Padel.</p></div></section><section className="section news-index"><div className="container"><span className="story-count">TODAS LAS HISTORIAS · {articles.length.toString().padStart(2, '0')}</span><div className="news-list">{articles.map((article, index) => <button key={article.slug} onClick={() => navigate(`/news/${article.slug}`)}><img src={article.image} alt=""/><div><span>0{index + 1} · {article.type.toUpperCase()} · {article.date}</span><h2>{locale === 'en' ? (article.titleEn || article.title) : article.title}</h2><p>{locale === 'en' ? (article.excerptEn || article.excerpt) : article.excerpt}</p><i>Leer historia <Arrow /></i></div></button>)}</div></div></section></> }
 
-function ArticlePage({ article, navigate }) { if (!article) return <NotFound navigate={navigate} />; return <article className="article-page"><header className="article-hero"><div className="container"><Eyebrow>{article.type.toUpperCase()} · {article.date}</Eyebrow><h1>{article.title}</h1><p>{article.excerpt}</p></div></header><img className="article-cover" src={article.image} alt=""/><div className="article-body"><p className="article-lead">Una buena pista comienza mucho antes de que llegue el acero. Comienza cuando una ubicación, una forma de operar y una experiencia de jugador se miran como un solo sistema.</p><h2>Empezar con la conversación correcta.</h2><p>El proyecto gana claridad cuando se coordinan las decisiones que más se afectan entre sí: ubicación, movimiento de jugadores, horas de luz, clima, mantenimiento y carácter del espacio. No se trata de elegir más opciones; se trata de elegir las que trabajan juntas.</p><blockquote>“La experiencia se construye en los detalles que nadie debería tener que corregir después.”</blockquote><p>Ese enfoque permite convertir una lista de requisitos en una pista que se siente natural desde el primer partido. KND usa la especificación como una herramienta de coordinación, no como un límite de catálogo.</p><button className="text-link" onClick={() => navigate('/news')}>Volver al journal <Arrow /></button></div></article> }
+function ArticlePage({ article, navigate, locale = 'es', openProject }) {
+  if (!article) return <NotFound navigate={navigate} />
+  const english = locale === 'en'
+  const guide = articleGuides[article.slug]?.[english ? 'en' : 'es']
+  const title = english ? (article.titleEn || article.title) : article.title
+  const excerpt = english ? (article.excerptEn || article.excerpt) : article.excerpt
+  return <article className="article-page">
+    <header className="article-hero"><div className="container"><Eyebrow>{article.type.toUpperCase()} · {article.date}</Eyebrow><h1>{title}</h1><p>{excerpt}</p></div></header>
+    <img className="article-cover" src={article.image} alt="" />
+    <div className="article-body">
+      <p className="article-lead">{guide?.lead || excerpt}</p>
+      {guide?.sections.map((section, index) => <section key={index} className="article-section">
+        <h2>{section.heading}</h2>
+        {section.paragraphs.map((paragraph, i) => <p key={i}>{paragraph}</p>)}
+        {section.bullets?.length > 0 && <ul>{section.bullets.map((bullet) => <li key={bullet}>{bullet}</li>)}</ul>}
+      </section>)}
+      <p>{english ? 'Every KND proposal is confirmed against the actual site and agreed supply scope.' : 'Cada propuesta KND se confirma según el emplazamiento real y el alcance de suministro acordado.'}</p>
+      <div className="inline-actions"><button className="button accent" onClick={() => openProject?.(title)}>{english ? 'Discuss your project' : 'Hablar de tu proyecto'} <Arrow /></button><button className="text-link" onClick={() => navigate('/news')}>{english ? 'Back to the Journal' : 'Volver al Journal'} <Arrow /></button></div>
+    </div>
+  </article>
+}
 
 function FaqPage({ locale, navigate, openProject }) { return <><section className="plain-hero faq-hero"><div className="container"><Eyebrow>{locale === 'en' ? 'FREQUENTLY ASKED QUESTIONS' : 'PREGUNTAS FRECUENTES'}</Eyebrow><h1>{locale === 'en' ? <>Answers<br/><em>that move a project forward.</em></> : <>Las respuestas<br/><em>para mover el proyecto.</em></>}</h1><p>{locale === 'en' ? 'A practical starting point for choosing a system, requesting a proposal and understanding how KND works.' : 'El punto de partida para elegir sistema, plantear un presupuesto y entender cómo trabajamos.'}</p></div></section><FaqHub locale={locale} navigate={navigate} linkFor={(target) => localizedPath(target, locale)} onStartProject={() => openProject()} /><ContactCta openProject={() => openProject()} /></> }
 

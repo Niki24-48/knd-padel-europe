@@ -765,9 +765,9 @@ export const projects = [
 ]
 
 export const articles = [
-  { slug: 'planificar-una-pista-de-padel', type: 'Guía de proyecto', date: '10.2026', title: 'Cómo planificar una pista de pádel que siga funcionando con los años.', excerpt: 'Los puntos que conectar antes de elegir sistema, superficie, implantación y calendario.', image: media.roofs.r1 },
-  { slug: 'que-hace-premium-a-un-club', type: 'Perspectiva', date: '09.2026', title: '¿Qué hace que un club de pádel se sienta realmente premium?', excerpt: 'No es una sola decisión: es el ritmo entre la luz, el recorrido, el juego y el detalle.', image: media.courts.torneo },
-  { slug: 'jugar-con-sol-viento-y-lluvia', type: 'Notas de campo', date: '08.2026', title: 'Diseñar para el sol, el viento y el juego durante todo el año.', excerpt: 'Preguntas prácticas para decidir una cubierta y protección adecuadas al lugar.', image: media.roofs.r4 },
+  { slug: 'planificar-una-pista-de-padel', titleEn: 'How to plan a padel court that performs for years', excerptEn: 'A practical brief for court selection, site works, procurement, handover and maintenance.', type: 'Guía de proyecto', date: '10.2026', title: 'Cómo planificar una pista de pádel que siga funcionando con los años.', excerpt: 'Los puntos que conectar antes de elegir sistema, superficie, implantación y calendario.', image: media.roofs.r1 },
+  { slug: 'que-hace-premium-a-un-club', titleEn: 'What makes a padel club genuinely premium?', excerptEn: 'The guest journey, lighting, comfort, service and long-term quality behind a strong club experience.', type: 'Perspectiva', date: '09.2026', title: '¿Qué hace que un club de pádel se sienta realmente premium?', excerpt: 'No es una sola decisión: es el ritmo entre la luz, el recorrido, el juego y el detalle.', image: media.courts.torneo },
+  { slug: 'jugar-con-sol-viento-y-lluvia', titleEn: 'Planning for sun, wind and rain at a padel venue', excerptEn: 'How to compare canopies, enclosure and retractable roofs against actual site conditions.', type: 'Notas de campo', date: '08.2026', title: 'Diseñar para el sol, el viento y el juego durante todo el año.', excerpt: 'Preguntas prácticas para decidir una cubierta y protección adecuadas al lugar.', image: media.roofs.r4 },
 ]
 
 export const faqs = [

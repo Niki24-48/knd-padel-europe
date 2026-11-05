@@ -22,22 +22,29 @@ function upsertCanonical(href) {
 }
 
 function updateAlternates(alternates) {
-  const existing = new Map(
-    [...document.head.querySelectorAll('link[data-knd-hreflang]')].map((element) => [element.dataset.kndHreflang, element]),
-  )
-  alternates.forEach(({ lang, href }) => {
-    const element = existing.get(lang) || document.createElement('link')
+  // Reuse static prerendered links instead of creating a duplicate hreflang set.
+  // Remove links left over after client-side locale or route changes.
+  const existing = [...document.head.querySelectorAll('link[rel="alternate"][hreflang]')]
+  const used = new Set()
+  for (const { lang, href } of alternates) {
+    const element = existing.find((link) => link.hreflang === lang && !used.has(link)) ||
+      document.createElement('link')
     element.rel = 'alternate'
     element.hreflang = lang
     element.href = href
     element.dataset.kndHreflang = lang
     if (!element.parentNode) document.head.appendChild(element)
-    existing.delete(lang)
+    used.add(element)
+  }
+  existing.forEach((element) => {
+    if (!used.has(element)) element.remove()
   })
-  existing.forEach((element) => element.remove())
 }
 
 function updateStructuredData(data) {
+  // The prerender provides one script per schema before React loads. Replace
+  // them with one managed script after hydration to prevent duplicate schemas.
+  document.head.querySelectorAll('script[data-knd-static-jsonld]').forEach((script) => script.remove())
   const id = 'knd-page-structured-data'
   const existing = document.getElementById(id)
   if (!data?.length) {
