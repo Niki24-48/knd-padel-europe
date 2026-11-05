@@ -67,7 +67,7 @@ export const images = {
   courtSun: media.courts.panoramic,
   courtNight: media.courts.torneo,
   manufacture: media.courts.fabrica,
-  turf: media.turf.blue,
+  turf: media.turf.black,
   roof: media.roofs.r1,
   projectOne: media.courts.germanproject,
   projectTwo: media.courts.newjerseyproject,
@@ -215,13 +215,277 @@ export const courts = [
   },
 ]
 
-export const turfSystems = [
-  { id: 'x10-super-match', code: 'OP X10', name: 'Super Match', role: 'Selección por proyecto', image: media.turf.blue, heroImage: media.turf.blue, catalogImage: media.turf.blue, gallery: [media.turf.blue], imageNote: turfVisualReference, description: 'Sistema de 10 mm con especificaciones dimensionales verificadas en el catálogo KND.', facts: ['10 mm', '9.000 Dtex', '46.000 fibras / m²'], technicalSpecs: [{ label: 'Altura', value: '10 mm' }, { label: 'Dtex', value: '9.000' }, { label: 'Densidad', value: '46.000 fibras / m²' }], application: 'La recomendación se confirma según uso, clima, horas de pista y mantenimiento previsto.', evidenceNote: 'La construcción de fibra, el backing, las puntadas, el relleno y el perfil de juego todavía requieren ficha técnica confirmada.', relatedIds: ['r9-control', 's12-endurance'] },
-  { id: 'r9-control', code: 'OP R9', name: 'Control', role: 'Selección por proyecto', image: media.turf.turquoise, heroImage: media.turf.turquoise, catalogImage: media.turf.turquoise, gallery: [media.turf.turquoise], imageNote: turfVisualReference, description: 'Sistema de 12 mm y 60.000 fibras por m² según el catálogo KND disponible.', facts: ['12 mm', '9.000 Dtex', '60.000 fibras / m²'], technicalSpecs: [{ label: 'Altura', value: '12 mm' }, { label: 'Dtex', value: '9.000' }, { label: 'Densidad', value: '60.000 fibras / m²' }], application: 'La recomendación se confirma según uso, clima, horas de pista y mantenimiento previsto.', evidenceNote: 'Los datos disponibles coinciden en altura, Dtex y densidad con OP S9; falta la ficha de construcción para explicar su diferencia sin especular.', relatedIds: ['x10-super-match', 's9-standard'] },
-  { id: 's12-endurance', code: 'OP S12', name: 'Endurance', role: 'Selección por proyecto', image: media.turf.green, heroImage: media.turf.green, catalogImage: media.turf.green, gallery: [media.turf.green], imageNote: turfVisualReference, description: 'Sistema de 12 mm y 12.000 Dtex con densidad documentada de 46.000 fibras por m².', facts: ['12 mm', '12.000 Dtex', '46.000 fibras / m²'], technicalSpecs: [{ label: 'Altura', value: '12 mm' }, { label: 'Dtex', value: '12.000' }, { label: 'Densidad', value: '46.000 fibras / m²' }], application: 'La recomendación se confirma según uso, clima, horas de pista y mantenimiento previsto.', evidenceNote: 'El perfil de fibra y las prestaciones de juego se publicarán cuando exista documentación técnica específica.', relatedIds: ['x10-super-match', 's9-standard'] },
-  { id: 's9-standard', code: 'OP S9', name: 'Standard', role: 'Selección por proyecto', image: media.turf.red, heroImage: media.turf.red, catalogImage: media.turf.red, gallery: [media.turf.red], imageNote: turfVisualReference, description: 'Sistema de 12 mm y 60.000 fibras por m² según el catálogo KND disponible.', facts: ['12 mm', '9.000 Dtex', '60.000 fibras / m²'], technicalSpecs: [{ label: 'Altura', value: '12 mm' }, { label: 'Dtex', value: '9.000' }, { label: 'Densidad', value: '60.000 fibras / m²' }], application: 'La recomendación se confirma según uso, clima, horas de pista y mantenimiento previsto.', evidenceNote: 'Los datos disponibles coinciden en altura, Dtex y densidad con OP R9; falta la ficha de construcción para explicar su diferencia sin especular.', relatedIds: ['r9-control', 's7-training'] },
-  { id: 's7-training', code: 'OP S7', name: 'Training', role: 'Selección por proyecto', image: media.turf.black, heroImage: media.turf.black, catalogImage: media.turf.black, detailImage: media.turf.detallenegro, gallery: [media.turf.black, media.turf.detallenegro], imageNote: turfVisualReference, description: 'Sistema de 12 mm, 7.000 Dtex y 63.000 fibras por m² según el catálogo KND.', facts: ['12 mm', '7.000 Dtex', '63.000 fibras / m²'], technicalSpecs: [{ label: 'Altura', value: '12 mm' }, { label: 'Dtex', value: '7.000' }, { label: 'Densidad', value: '63.000 fibras / m²' }], application: 'La recomendación se confirma según uso, clima, horas de pista y mantenimiento previsto.', evidenceNote: 'La imagen de detalle se muestra como material aportado; su asociación constructiva exacta debe confirmarse antes de describir perfiles de fibra.', relatedIds: ['s9-standard', 'r9-control'] },
+// Turf specifications cross-checked against the supplier's public turf catalogue
+// on 2026-11-05. Specifications refer to supplier systems, not independently
+// tested performance or a guaranteed KND order. Confirm in each written quote.
+const turfColourOptions = [
+  { id: 'competition-blue', name: { es: 'Azul competición', en: 'Competition blue' }, color: '#1358ac' },
+  { id: 'club-green', name: { es: 'Verde club', en: 'Club green' }, color: '#287342' },
+  { id: 'terracotta', name: { es: 'Terracota', en: 'Terracotta' }, color: '#b64a28' },
+  { id: 'graphite', name: { es: 'Grafito', en: 'Graphite' }, color: '#252829' },
+  { id: 'sand', name: { es: 'Arena', en: 'Sand' }, color: '#c2ad88' },
 ]
+const turfSpec = (es, en, value) => ({ label: { es, en }, value })
+const turfSharedQuality = {
+  text: {
+    es: 'La ficha de referencia del proveedor contempla fibra de PE, backing PU, líneas blancas integradas y relleno de arena de cuarzo lavada y clasificada. KND confirma el producto, color, plano de rollos, cantidades y condiciones de instalación al preparar la propuesta.',
+    en: 'The supplier reference specifies PE fibre, PU backing, integrated white lines and washed, graded quartz sand. KND confirms product, colour, roll plan, quantities and installation conditions in its proposal.',
+  },
+  features: [
+    { title: { es: 'Materiales', en: 'Materials' }, text: { es: 'Fibra 100 % polietileno (PE) y sistema de backing PU.', en: '100% polyethylene (PE) fibre and PU backing system.' } },
+    { title: { es: 'Acabado de pista', en: 'Court finishing' }, text: { es: 'Líneas blancas integradas y relleno de arena de cuarzo de referencia.', en: 'Integrated white lines and quartz-sand infill reference.' } },
+    { title: { es: 'Cierre de especificación', en: 'Final specification' }, text: { es: 'Rollos, color, arena y montaje sujetos a confirmación por proyecto.', en: 'Rolls, colour, infill and installation subject to project confirmation.' } },
+  ],
+}
+const makeTurfProduct = (p) => ({
+  ...p,
+  image: media.turf[p.sample],
+  heroImage: media.turf[p.sample],
+  catalogImage: media.turf[p.sample],
+  heroAlt: { es: 'Muestra representativa de ' + p.code + ' ' + p.name, en: 'Representative ' + p.code + ' ' + p.name + ' turf sample' },
+  gallery: [media.turf[p.sample]],
+  imageNote: { es: 'Muestra visual del sistema. El color y la disponibilidad final se confirman en la propuesta KND.', en: 'Representative system sample. Final colour and availability are confirmed in the KND proposal.' },
+  facts: [p.height + ' mm', p.dtex.toLocaleString('es-ES') + ' Dtex', p.density.toLocaleString('es-ES') + ' fibras / m²'],
+  technicalSpecs: [
+    turfSpec('Altura del pelo', 'Pile height', p.height + ' mm'),
+    turfSpec('Dtex', 'Dtex', p.dtex.toLocaleString('es-ES') + ' D'),
+    turfSpec('Densidad', 'Density', p.density.toLocaleString('es-ES') + ' / m²'),
+    turfSpec('Puntadas (valor proveedor)', 'Stitch (supplier value)', String(p.stitch)),
+    turfSpec('Sistema de fibra', 'Fibre system', { es: p.fibre, en: p.fibreEn }),
+    turfSpec('Perfil de fibra', 'Fibre profile', p.profile),
+    turfSpec('Material principal', 'Primary material', { es: '100 % polietileno (PE)', en: '100% polyethylene (PE)' }),
+    turfSpec('Soporte / backing', 'Backing', { es: 'Sistema PU', en: 'PU backing system' }),
+    turfSpec('Relleno', 'Infill', { es: 'Arena de cuarzo lavada y clasificada', en: 'Washed, graded quartz sand' }),
+    turfSpec('Líneas', 'Line marking', { es: 'Blancas integradas', en: 'Integrated white lines' }),
+    turfSpec('Colores', 'Colour programme', { es: 'Estándar, personalizados y bicolor bajo confirmación', en: 'Standard, custom and two-tone subject to confirmation' }),
+    turfSpec('Suministro', 'Supply', { es: 'Rollos con plano de distribución por proyecto', en: 'Court-ready rolls with project layout plan' }),
+  ],
+  application: { es: p.application, en: p.applicationEn },
+  playFeel: { es: p.playFeel, en: p.playFeelEn },
+  fiberConstruction: {
+    text: {
+      es: p.fibre + ' (' + p.profile + '). Especificación de referencia del proveedor.',
+      en: p.fibreEn + ' (' + p.profile + '). Supplier-reference specification.',
+    },
+    features: p.features.map(([title, es, en]) => ({ title, text: { es, en } })),
+  },
+  availableColors: turfColourOptions,
+  quality: turfSharedQuality,
+  evidenceNote: 'Datos de referencia del proveedor Onto Padel, comprobados el 05/11/2026; confirmar ficha y configuración de suministro en la oferta KND.',
+})
+
+export const turfSystems = [
+  {
+    "id": "x10-super-match",
+    "code": "OP X10",
+    "name": "Super Match",
+    "sample": "black",
+    "height": 10,
+    "dtex": 9000,
+    "density": 46000,
+    "stitch": 24,
+    "fibre": "Sistema de tres fibras",
+    "fibreEn": "Tri-fibre system",
+    "profile": "FYN + OSSO + ARC",
+    "role": "Competición · ritmo rápido",
+    "roleEn": "Competition · fast match pace",
+    "description": "Tres perfiles de fibra que combinan estabilidad de apoyo, recuperación y salida rápida de bola para pistas de competición.",
+    "descriptionEn": "Three fibre profiles combining stable footing, recovery and fast ball release for competition courts.",
+    "application": "Torneos, clubes premium y sedes que priorizan ritmo de juego y agarre.",
+    "applicationEn": "Tournament courts, premium clubs and venues prioritising match pace and grip.",
+    "playFeel": "Perfil rápido de competición: FYN favorece el contacto, OSSO la recuperación y ARC la tracción y la respuesta.",
+    "playFeelEn": "Fast competition feel: FYN supports contact, OSSO recovery and ARC traction and response.",
+    "features": [
+      [
+        "FYN",
+        "Perfil ancho que favorece el contacto y la estabilidad.",
+        "Broad profile for surface contact and stability."
+      ],
+      [
+        "OSSO",
+        "Fibra resiliente que contribuye a la recuperación.",
+        "Resilient fibre supporting recovery."
+      ],
+      [
+        "ARC",
+        "Filamento curvado para agarre y salida controlada.",
+        "Curved filament for traction and controlled release."
+      ]
+    ],
+    "relatedIds": [
+      "r9-control",
+      "s12-endurance"
+    ]
+  },
+  {
+    "id": "r9-control",
+    "code": "OP R9",
+    "name": "Control",
+    "sample": "turquoise",
+    "height": 12,
+    "dtex": 9000,
+    "density": 60000,
+    "stitch": 30,
+    "fibre": "Sistema de doble fibra",
+    "fibreEn": "Dual-fibre system",
+    "profile": "AXIS texturizada + OSSO",
+    "role": "Club premium · control",
+    "roleEn": "Premium club · control",
+    "description": "Sistema denso de doble fibra para apoyo estable, juego rápido controlado y rebote predecible en clubes exigentes.",
+    "descriptionEn": "Dense dual-fibre turf for stable footing, controlled fast play and predictable rebound in premium clubs.",
+    "application": "Clubes premium, centros de entrenamiento y partidos frecuentes.",
+    "applicationEn": "Premium clubs, coaching centres and frequent match play.",
+    "playFeel": "Ritmo rápido con control: AXIS texturizada crea una superficie uniforme y OSSO contribuye a amortiguación y recuperación.",
+    "playFeelEn": "Fast controlled pace: texturised AXIS builds an even surface and OSSO contributes cushioning and recovery.",
+    "features": [
+      [
+        "AXIS texturizada",
+        "Perfil rizado que favorece una superficie de contacto uniforme.",
+        "Curled profile promoting an even contact surface."
+      ],
+      [
+        "OSSO",
+        "Fibra de apoyo resiliente que contribuye a la recuperación.",
+        "Resilient supporting fibre aiding recovery."
+      ],
+      [
+        "R9 frente a S9",
+        "Comparten altura, Dtex y densidad, pero R9 utiliza dos fibras y S9 una monofibra.",
+        "Same height, Dtex and density as S9, but R9 uses two fibres and S9 one."
+      ]
+    ],
+    "relatedIds": [
+      "x10-super-match",
+      "s9-standard"
+    ]
+  },
+  {
+    "id": "s12-endurance",
+    "code": "OP S12",
+    "name": "Endurance",
+    "sample": "red",
+    "height": 12,
+    "dtex": 12000,
+    "density": 46000,
+    "stitch": 24,
+    "fibre": "Monofibra de alto Dtex",
+    "fibreEn": "High-Dtex monofibre",
+    "profile": "AXIS",
+    "role": "Uso intensivo · exterior",
+    "roleEn": "Heavy-duty · outdoor",
+    "description": "Monofibra AXIS de 12.000 Dtex para pistas de uso intensivo, clubes de alta ocupación y emplazamientos exteriores.",
+    "descriptionEn": "12,000-Dtex AXIS monofibre for demanding use, busy clubs and outdoor courts.",
+    "application": "Clubes con mucho tráfico, pistas exteriores y horarios de juego prolongados.",
+    "applicationEn": "High-traffic clubs, outdoor courts and long playing schedules.",
+    "playFeel": "Ritmo medio-rápido y construcción orientada a durabilidad comercial y uso frecuente.",
+    "playFeelEn": "Medium-fast playing profile built around commercial durability and frequent use.",
+    "features": [
+      [
+        "12.000 Dtex",
+        "Especificación de alto Dtex frente a otras referencias de la gama.",
+        "High-Dtex specification within the range."
+      ],
+      [
+        "AXIS",
+        "Construcción monofibra para respuesta regular.",
+        "Monofibre construction for predictable response."
+      ],
+      [
+        "Uso intensivo",
+        "Orientado a instalaciones con muchas horas de juego.",
+        "Designed for venues with long playing schedules."
+      ]
+    ],
+    "relatedIds": [
+      "x10-super-match",
+      "s9-standard"
+    ]
+  },
+  {
+    "id": "s9-standard",
+    "code": "OP S9",
+    "name": "STD",
+    "sample": "blue",
+    "height": 12,
+    "dtex": 9000,
+    "density": 60000,
+    "stitch": 30,
+    "fibre": "Monofibra texturizada",
+    "fibreEn": "Texturised monofibre",
+    "profile": "AXIS",
+    "role": "Polivalente · club",
+    "roleEn": "All-round · club",
+    "description": "Superficie texturizada polivalente con respuesta equilibrada para clases, juego social y partidos habituales.",
+    "descriptionEn": "Versatile texturised surface with balanced response for lessons, social play and everyday matches.",
+    "application": "Clubes comerciales, instalaciones multipista y jugadores de diversos niveles.",
+    "applicationEn": "Commercial clubs, multi-court venues and mixed player levels.",
+    "playFeel": "Ritmo medio y respuesta predecible. Comparte tres medidas de catálogo con R9, pero tiene una construcción monofibra distinta.",
+    "playFeelEn": "Medium pace and predictable response. Shares three key specifications with R9 but has a different monofibre construction.",
+    "features": [
+      [
+        "AXIS",
+        "Monofibra texturizada de estructura uniforme.",
+        "Uniform texturised monofibre."
+      ],
+      [
+        "Versatilidad",
+        "Adecuado para clases, partidos de socios y juego cotidiano.",
+        "Suited to lessons, member matches and regular play."
+      ],
+      [
+        "Diferencia con R9",
+        "S9 es monofibra; R9 combina AXIS y OSSO.",
+        "S9 is monofibre; R9 combines AXIS and OSSO."
+      ]
+    ],
+    "relatedIds": [
+      "r9-control",
+      "s7-training"
+    ]
+  },
+  {
+    "id": "s7-training",
+    "code": "OP S7",
+    "name": "Training",
+    "sample": "green",
+    "height": 12,
+    "dtex": 7000,
+    "density": 63000,
+    "stitch": 30,
+    "fibre": "Monofibra texturizada",
+    "fibreEn": "Texturised monofibre",
+    "profile": "AXIS",
+    "role": "Entrenamiento · valor",
+    "roleEn": "Training · value",
+    "description": "Césped AXIS texturizado para entrenamiento diario, escuelas, pistas privadas y proyectos con inversión ajustada.",
+    "descriptionEn": "Texturised AXIS turf for everyday training, schools, private courts and value-focused projects.",
+    "application": "Escuelas, entrenamiento, instalaciones privadas y proyectos de presupuesto ajustado.",
+    "applicationEn": "Schools, training courts, private installations and value-led projects.",
+    "playFeel": "Ritmo medio-bajo, apoyo estable y sensación predecible para sesiones técnicas.",
+    "playFeelEn": "Medium-low pace, stable footing and predictable response for technical drills.",
+    "features": [
+      [
+        "AXIS",
+        "Fibra texturizada para comportamiento regular.",
+        "Texturised fibre for a predictable playing surface."
+      ],
+      [
+        "63.000/m²",
+        "Densidad indicada en la ficha de referencia del proveedor.",
+        "Density stated in the supplier reference sheet."
+      ],
+      [
+        "Formación",
+        "Orientado a enseñanza y entrenamiento frecuente.",
+        "Designed for coaching and frequent training."
+      ]
+    ],
+    "relatedIds": [
+      "s9-standard",
+      "r9-control"
+    ]
+  }
+].map(makeTurfProduct)
 
 export const turfFinishes = [
   { id: 'blue', name: 'Azul', color: '#1358ac', image: media.turf.blue },
