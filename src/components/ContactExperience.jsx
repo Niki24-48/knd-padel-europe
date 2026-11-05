@@ -41,7 +41,7 @@ const dictionary = {
 export default function ContactExperience({ locale = 'es' }) {
   const lang = locale === 'en' ? 'en' : 'es'
   const t = dictionary[lang]
-  return <main className="knd-contact">
+  return <section className="knd-contact">
     <div className="knd-contact__ambient" aria-hidden="true" />
     <div className="container knd-contact__layout">
       <div className="knd-contact__intro">
@@ -71,5 +71,5 @@ export default function ContactExperience({ locale = 'es' }) {
       </div>
     </div>
     <div className="container knd-contact__footer"><span>KND PADEL EUROPE</span><p>{t.footer}</p></div>
-  </main>
+  </section>
 }
