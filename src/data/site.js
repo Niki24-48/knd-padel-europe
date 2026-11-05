@@ -221,22 +221,519 @@ export const turfSystems = [
   { id: 's12-endurance', code: 'OP S12', name: 'Endurance', role: 'Selección por proyecto', image: media.turf.red, heroImage: media.turf.red, catalogImage: media.turf.red, gallery: [media.turf.red], imageNote: turfVisualReference, description: 'Sistema de 12 mm y 12.000 Dtex con densidad documentada de 46.000 fibras por m².', facts: ['12 mm', '12.000 Dtex', '46.000 fibras / m²'], technicalSpecs: [{ label: 'Altura', value: '12 mm' }, { label: 'Dtex', value: '12.000' }, { label: 'Densidad', value: '46.000 fibras / m²' }], application: 'La recomendación se confirma según uso, clima, horas de pista y mantenimiento previsto.', evidenceNote: 'El perfil de fibra y las prestaciones de juego se publicarán cuando exista documentación técnica específica.', relatedIds: ['x10-super-match', 's9-standard'] },
   { id: 's9-standard', code: 'OP S9', name: 'Standard', role: 'Selección por proyecto', image: media.turf.blue, heroImage: media.turf.blue, catalogImage: media.turf.blue, gallery: [media.turf.blue], imageNote: turfVisualReference, description: 'Sistema de 12 mm y 60.000 fibras por m² según el catálogo KND disponible.', facts: ['12 mm', '9.000 Dtex', '60.000 fibras / m²'], technicalSpecs: [{ label: 'Altura', value: '12 mm' }, { label: 'Dtex', value: '9.000' }, { label: 'Densidad', value: '60.000 fibras / m²' }], application: 'La recomendación se confirma según uso, clima, horas de pista y mantenimiento previsto.', evidenceNote: 'Los datos disponibles coinciden en altura, Dtex y densidad con OP R9; falta la ficha de construcción para explicar su diferencia sin especular.', relatedIds: ['r9-control', 's7-training'] },
   { id: 's7-training', code: 'OP S7', name: 'Training', role: 'Selección por proyecto', image: media.turf.green, heroImage: media.turf.green, catalogImage: media.turf.green, gallery: [media.turf.green], imageNote: turfVisualReference, description: 'Sistema de 12 mm, 7.000 Dtex y 63.000 fibras por m² según el catálogo KND.', facts: ['12 mm', '7.000 Dtex', '63.000 fibras / m²'], technicalSpecs: [{ label: 'Altura', value: '12 mm' }, { label: 'Dtex', value: '7.000' }, { label: 'Densidad', value: '63.000 fibras / m²' }], application: 'La recomendación se confirma según uso, clima, horas de pista y mantenimiento previsto.', evidenceNote: 'La muestra visual disponible se asocia al sistema OP S7; la construcción exacta se confirma con la ficha técnica correspondiente.', relatedIds: ['s9-standard', 'r9-control'] },
+// Turf specifications cross-checked against the supplier's public turf catalogue
+// on 2026-11-05. Specifications refer to supplier systems, not independently
+// tested performance or a guaranteed KND order. Confirm in each written quote.
+const turfColourOptions = [
+  { id: 'competition-blue', name: { es: 'Azul competición', en: 'Competition blue' }, color: '#1358ac' },
+  { id: 'club-green', name: { es: 'Verde club', en: 'Club green' }, color: '#287342' },
+  { id: 'terracotta', name: { es: 'Terracota', en: 'Terracotta' }, color: '#b64a28' },
+  { id: 'graphite', name: { es: 'Grafito', en: 'Graphite' }, color: '#252829' },
+  { id: 'sand', name: { es: 'Arena', en: 'Sand' }, color: '#c2ad88' },
 ]
+const turfSpec = (es, en, value) => ({ label: { es, en }, value })
+const turfSharedQuality = {
+  text: {
+    es: 'La ficha de referencia del proveedor contempla fibra de PE, backing PU, líneas blancas integradas y relleno de arena de cuarzo lavada y clasificada. KND confirma el producto, color, plano de rollos, cantidades y condiciones de instalación al preparar la propuesta.',
+    en: 'The supplier reference specifies PE fibre, PU backing, integrated white lines and washed, graded quartz sand. KND confirms product, colour, roll plan, quantities and installation conditions in its proposal.',
+  },
+  features: [
+    { title: { es: 'Materiales', en: 'Materials' }, text: { es: 'Fibra 100 % polietileno (PE) y sistema de backing PU.', en: '100% polyethylene (PE) fibre and PU backing system.' } },
+    { title: { es: 'Acabado de pista', en: 'Court finishing' }, text: { es: 'Líneas blancas integradas y relleno de arena de cuarzo de referencia.', en: 'Integrated white lines and quartz-sand infill reference.' } },
+    { title: { es: 'Cierre de especificación', en: 'Final specification' }, text: { es: 'Rollos, color, arena y montaje sujetos a confirmación por proyecto.', en: 'Rolls, colour, infill and installation subject to project confirmation.' } },
+  ],
+}
+const turfRelativeGuide = {
+  // Qualitative positioning published by the supplier; not lab-test values.
+  'x10-super-match': { pace: { es: 'Rápido · competición', en: 'Fast match' }, maintenance: { es: 'Media-alta', en: 'Medium-high' } },
+  'r9-control': { pace: { es: 'Rápido', en: 'Fast' }, maintenance: { es: 'Media', en: 'Medium' } },
+  's12-endurance': { pace: { es: 'Medio-rápido', en: 'Medium-fast' }, maintenance: { es: 'Baja-media', en: 'Low-medium' } },
+  's9-standard': { pace: { es: 'Medio', en: 'Medium' }, maintenance: { es: 'Baja-media', en: 'Low-medium' } },
+  's7-training': { pace: { es: 'Medio-bajo', en: 'Medium-low' }, maintenance: { es: 'Baja-media', en: 'Low-medium' } },
+}
+const makeTurfProduct = (p) => ({
+  ...p,
+  relativeGuide: turfRelativeGuide[p.id],
+  image: media.turf[p.sample],
+  heroImage: media.turf[p.sample],
+  catalogImage: media.turf[p.sample],
+  heroAlt: { es: 'Muestra representativa de ' + p.code + ' ' + p.name, en: 'Representative ' + p.code + ' ' + p.name + ' turf sample' },
+  gallery: [media.turf[p.sample]],
+  imageNote: { es: 'Muestra visual del sistema. El color y la disponibilidad final se confirman en la propuesta KND.', en: 'Representative system sample. Final colour and availability are confirmed in the KND proposal.' },
+  facts: [p.height + ' mm', p.dtex.toLocaleString('es-ES') + ' Dtex', p.density.toLocaleString('es-ES') + ' fibras / m²'],
+  technicalSpecs: [
+    turfSpec('Altura del pelo', 'Pile height', p.height + ' mm'),
+    turfSpec('Dtex', 'Dtex', p.dtex.toLocaleString('es-ES') + ' D'),
+    turfSpec('Densidad', 'Density', p.density.toLocaleString('es-ES') + ' / m²'),
+    turfSpec('Puntadas (valor proveedor)', 'Stitch (supplier value)', String(p.stitch)),
+    turfSpec('Sistema de fibra', 'Fibre system', { es: p.fibre, en: p.fibreEn }),
+    turfSpec('Perfil de fibra', 'Fibre profile', { es: p.profile, en: p.profileEn || p.profile }),
+    turfSpec('Material principal', 'Primary material', { es: '100 % polietileno (PE)', en: '100% polyethylene (PE)' }),
+    turfSpec('Soporte / backing', 'Backing', { es: 'Sistema PU', en: 'PU backing system' }),
+    turfSpec('Relleno', 'Infill', { es: 'Arena de cuarzo lavada y clasificada', en: 'Washed, graded quartz sand' }),
+    turfSpec('Líneas', 'Line marking', { es: 'Blancas integradas', en: 'Integrated white lines' }),
+    turfSpec('Colores', 'Colour programme', { es: 'Estándar, personalizados y bicolor bajo confirmación', en: 'Standard, custom and two-tone subject to confirmation' }),
+    turfSpec('Suministro', 'Supply', { es: 'Rollos con plano de distribución por proyecto', en: 'Court-ready rolls with project layout plan' }),
+  ],
+  application: { es: p.application, en: p.applicationEn },
+  playFeel: { es: p.playFeel, en: p.playFeelEn },
+  fiberConstruction: {
+    text: {
+      es: p.fibre + ' (' + p.profile + '). Especificación de referencia del proveedor.',
+      en: p.fibreEn + ' (' + (p.profileEn || p.profile) + '). Supplier-reference specification.',
+    },
+    features: p.features.map(([title, es, en]) => ({
+      title: { es: title, en: ({
+        'AXIS texturizada': 'Texturised AXIS',
+        'R9 frente a S9': 'R9 versus S9',
+        'Uso intensivo': 'Heavy-duty use',
+        'Versatilidad': 'Versatility',
+        'Diferencia con R9': 'Difference from R9',
+        'Formación': 'Training',
+      })[title] || title },
+      text: { es, en },
+    })),
+  },
+  availableColors: turfColourOptions,
+  quality: turfSharedQuality,
+  evidenceNote: 'Datos de referencia del proveedor Onto Padel, comprobados el 05/11/2026; confirmar ficha y configuración de suministro en la oferta KND.',
+})
+
+export const turfSystems = [
+  {
+    "id": "x10-super-match",
+    "code": "OP X10",
+    "name": "Super Match",
+    "sample": "black",
+    "height": 10,
+    "dtex": 9000,
+    "density": 46000,
+    "stitch": 24,
+    "fibre": "Sistema de tres fibras",
+    "fibreEn": "Tri-fibre system",
+    "profile": "FYN + OSSO + ARC",
+    "role": "Competición · ritmo rápido",
+    "roleEn": "Competition · fast match pace",
+    "description": "Tres perfiles de fibra que combinan estabilidad de apoyo, recuperación y salida rápida de bola para pistas de competición.",
+    "descriptionEn": "Three fibre profiles combining stable footing, recovery and fast ball release for competition courts.",
+    "application": "Torneos, clubes premium y sedes que priorizan ritmo de juego y agarre.",
+    "applicationEn": "Tournament courts, premium clubs and venues prioritising match pace and grip.",
+    "playFeel": "Perfil rápido de competición: FYN favorece el contacto, OSSO la recuperación y ARC la tracción y la respuesta.",
+    "playFeelEn": "Fast competition feel: FYN supports contact, OSSO recovery and ARC traction and response.",
+    "features": [
+      [
+        "FYN",
+        "Perfil ancho que favorece el contacto y la estabilidad.",
+        "Broad profile for surface contact and stability."
+      ],
+      [
+        "OSSO",
+        "Fibra resiliente que contribuye a la recuperación.",
+        "Resilient fibre supporting recovery."
+      ],
+      [
+        "ARC",
+        "Filamento curvado para agarre y salida controlada.",
+        "Curved filament for traction and controlled release."
+      ]
+    ],
+    "relatedIds": [
+      "r9-control",
+      "s12-endurance"
+    ]
+  },
+  {
+    "id": "r9-control",
+    "code": "OP R9",
+    "name": "Control",
+    "sample": "turquoise",
+    "height": 12,
+    "dtex": 9000,
+    "density": 60000,
+    "stitch": 30,
+    "fibre": "Sistema de doble fibra",
+    "fibreEn": "Dual-fibre system",
+    "profile": "AXIS texturizada + OSSO",
+    "profileEn": "Texturised AXIS + OSSO",
+    "role": "Club premium · control",
+    "roleEn": "Premium club · control",
+    "description": "Sistema denso de doble fibra para apoyo estable, juego rápido controlado y rebote predecible en clubes exigentes.",
+    "descriptionEn": "Dense dual-fibre turf for stable footing, controlled fast play and predictable rebound in premium clubs.",
+    "application": "Clubes premium, centros de entrenamiento y partidos frecuentes.",
+    "applicationEn": "Premium clubs, coaching centres and frequent match play.",
+    "playFeel": "Ritmo rápido con control: AXIS texturizada crea una superficie uniforme y OSSO contribuye a amortiguación y recuperación.",
+    "playFeelEn": "Fast controlled pace: texturised AXIS builds an even surface and OSSO contributes cushioning and recovery.",
+    "features": [
+      [
+        "AXIS texturizada",
+        "Perfil rizado que favorece una superficie de contacto uniforme.",
+        "Curled profile promoting an even contact surface."
+      ],
+      [
+        "OSSO",
+        "Fibra de apoyo resiliente que contribuye a la recuperación.",
+        "Resilient supporting fibre aiding recovery."
+      ],
+      [
+        "R9 frente a S9",
+        "Comparten altura, Dtex y densidad, pero R9 utiliza dos fibras y S9 una monofibra.",
+        "Same height, Dtex and density as S9, but R9 uses two fibres and S9 one."
+      ]
+    ],
+    "relatedIds": [
+      "x10-super-match",
+      "s9-standard"
+    ]
+  },
+  {
+    "id": "s12-endurance",
+    "code": "OP S12",
+    "name": "Endurance",
+    "sample": "red",
+    "height": 12,
+    "dtex": 12000,
+    "density": 46000,
+    "stitch": 24,
+    "fibre": "Monofibra de alto Dtex",
+    "fibreEn": "High-Dtex monofibre",
+    "profile": "AXIS",
+    "role": "Uso intensivo · exterior",
+    "roleEn": "Heavy-duty · outdoor",
+    "description": "Monofibra AXIS de 12.000 Dtex para pistas de uso intensivo, clubes de alta ocupación y emplazamientos exteriores.",
+    "descriptionEn": "12,000-Dtex AXIS monofibre for demanding use, busy clubs and outdoor courts.",
+    "application": "Clubes con mucho tráfico, pistas exteriores y horarios de juego prolongados.",
+    "applicationEn": "High-traffic clubs, outdoor courts and long playing schedules.",
+    "playFeel": "Ritmo medio-rápido y construcción orientada a durabilidad comercial y uso frecuente.",
+    "playFeelEn": "Medium-fast playing profile built around commercial durability and frequent use.",
+    "features": [
+      [
+        "12.000 Dtex",
+        "Especificación de alto Dtex frente a otras referencias de la gama.",
+        "High-Dtex specification within the range."
+      ],
+      [
+        "AXIS",
+        "Construcción monofibra para respuesta regular.",
+        "Monofibre construction for predictable response."
+      ],
+      [
+        "Uso intensivo",
+        "Orientado a instalaciones con muchas horas de juego.",
+        "Designed for venues with long playing schedules."
+      ]
+    ],
+    "relatedIds": [
+      "x10-super-match",
+      "s9-standard"
+    ]
+  },
+  {
+    "id": "s9-standard",
+    "code": "OP S9",
+    "name": "STD",
+    "sample": "blue",
+    "height": 12,
+    "dtex": 9000,
+    "density": 60000,
+    "stitch": 30,
+    "fibre": "Monofibra texturizada",
+    "fibreEn": "Texturised monofibre",
+    "profile": "AXIS",
+    "role": "Polivalente · club",
+    "roleEn": "All-round · club",
+    "description": "Superficie texturizada polivalente con respuesta equilibrada para clases, juego social y partidos habituales.",
+    "descriptionEn": "Versatile texturised surface with balanced response for lessons, social play and everyday matches.",
+    "application": "Clubes comerciales, instalaciones multipista y jugadores de diversos niveles.",
+    "applicationEn": "Commercial clubs, multi-court venues and mixed player levels.",
+    "playFeel": "Ritmo medio y respuesta predecible. Comparte tres medidas de catálogo con R9, pero tiene una construcción monofibra distinta.",
+    "playFeelEn": "Medium pace and predictable response. Shares three key specifications with R9 but has a different monofibre construction.",
+    "features": [
+      [
+        "AXIS",
+        "Monofibra texturizada de estructura uniforme.",
+        "Uniform texturised monofibre."
+      ],
+      [
+        "Versatilidad",
+        "Adecuado para clases, partidos de socios y juego cotidiano.",
+        "Suited to lessons, member matches and regular play."
+      ],
+      [
+        "Diferencia con R9",
+        "S9 es monofibra; R9 combina AXIS y OSSO.",
+        "S9 is monofibre; R9 combines AXIS and OSSO."
+      ]
+    ],
+    "relatedIds": [
+      "r9-control",
+      "s7-training"
+    ]
+  },
+  {
+    "id": "s7-training",
+    "code": "OP S7",
+    "name": "Training",
+    "sample": "green",
+    "height": 12,
+    "dtex": 7000,
+    "density": 63000,
+    "stitch": 30,
+    "fibre": "Monofibra texturizada",
+    "fibreEn": "Texturised monofibre",
+    "profile": "AXIS",
+    "role": "Entrenamiento · valor",
+    "roleEn": "Training · value",
+    "description": "Césped AXIS texturizado para entrenamiento diario, escuelas, pistas privadas y proyectos con inversión ajustada.",
+    "descriptionEn": "Texturised AXIS turf for everyday training, schools, private courts and value-focused projects.",
+    "application": "Escuelas, entrenamiento, instalaciones privadas y proyectos de presupuesto ajustado.",
+    "applicationEn": "Schools, training courts, private installations and value-led projects.",
+    "playFeel": "Ritmo medio-bajo, apoyo estable y sensación predecible para sesiones técnicas.",
+    "playFeelEn": "Medium-low pace, stable footing and predictable response for technical drills.",
+    "features": [
+      [
+        "AXIS",
+        "Fibra texturizada para comportamiento regular.",
+        "Texturised fibre for a predictable playing surface."
+      ],
+      [
+        "63.000/m²",
+        "Densidad indicada en la ficha de referencia del proveedor.",
+        "Density stated in the supplier reference sheet."
+      ],
+      [
+        "Formación",
+        "Orientado a enseñanza y entrenamiento frecuente.",
+        "Designed for coaching and frequent training."
+      ]
+    ],
+    "relatedIds": [
+      "s9-standard",
+      "r9-control"
+    ]
+  }
+].map(makeTurfProduct)
 
 export const turfFinishes = [
-  { id: 'blue', name: 'Azul', color: '#1358ac', image: media.turf.blue },
-  { id: 'green', name: 'Verde', color: '#287342', image: media.turf.green },
-  { id: 'red', name: 'Rojo', color: '#b64a28', image: media.turf.red },
-  { id: 'turquoise', name: 'Turquesa', color: '#239fb1', image: media.turf.turquoise },
-  { id: 'black', name: 'Grafito', color: '#252829', image: media.turf.black },
+  { id: 'black', name: 'Negro', color: '#252829', image: media.turf.black, referenceCode: 'OP X10' },
+  { id: 'turquoise', name: 'Turquesa', color: '#239fb1', image: media.turf.turquoise, referenceCode: 'OP R9' },
+  { id: 'red', name: 'Terracota', color: '#b64a28', image: media.turf.red, referenceCode: 'OP S12' },
+  { id: 'blue', name: 'Azul', color: '#1358ac', image: media.turf.blue, referenceCode: 'OP S9' },
+  { id: 'green', name: 'Verde', color: '#287342', image: media.turf.green, referenceCode: 'OP S7' },
 ]
 
+// ROOF PRODUCTS — supplier product sheets reviewed 2026-11-05.
+// Values describe supplier reference systems, not certified KND designs or KND prices.
+// Site calculations, safe wind operating limits, dimensions and local regulations
+// must always be confirmed by the project's engineer.
+const roofSpec = (es, en, valueEs, valueEn = valueEs) => ({
+  label: { es, en }, value: { es: valueEs, en: valueEn },
+})
+const roofBenefitTitlesEn = {
+  "Perímetro abierto": "Open perimeter",
+  "Geometría definida": "Defined starting geometry",
+  "Protección adaptable": "Adaptable protection",
+  "Lluvia lateral": "Side-rain protection",
+  "Ventilación natural": "Natural ventilation",
+  "Diseño según ubicación": "Site-specific design",
+  "Protección integral": "Complete protection",
+  "Formato multipista": "Multi-court format",
+  "Climatización bajo estudio": "HVAC planning",
+  "A cielo abierto": "Open sky",
+  "Acceso y ventilación": "Access and ventilation",
+  "Cálculo específico": "Site-specific engineering",
+  "Pórtico permanente": "Permanent elevated frame",
+  "Cierre configurable": "Configurable enclosure",
+  "Altura adaptable": "Adjustable height"
+}
+const roofBenefit = (title, es, en) => ({ title: { es: title, en: roofBenefitTitlesEn[title] || title }, description: { es, en } })
+const roofEnglish = {
+  'canopy-roof': {
+    heightEn: '6 m eaves · 8.5 m ridge',
+    membraneEn: '750 g/m² double-sided blackout PVC',
+    structureEn: 'Fixed open-sided frame',
+  },
+  'semi-enclosed-roof': {
+    heightEn: 'Project-specific',
+    membraneEn: '750 g/m² double-sided blackout PVC',
+    structureEn: 'Fixed frame with upper-side cladding',
+  },
+  'fully-enclosed-roof': {
+    heightEn: 'Site-engineered',
+    membraneEn: 'Double-sided opaque PVC knife-coated fabric',
+    structureEn: 'Fixed full enclosure',
+  },
+  'electric-retractable-roof': {
+    heightEn: 'Up to 9 m reference maximum',
+    membraneEn: 'Membrane and weight project-specific',
+    structureEn: 'Complete moving frame on ground rails',
+  },
+  'elevated-retractable-roof': {
+    heightEn: '9 m starting · up to 15 m subject to review',
+    membraneEn: 'Overhead folding membrane, project-specific',
+    structureEn: 'Permanent elevated frame',
+  },
+}
+const roofModel = (p) => ({
+  ...p,
+  ...roofEnglish[p.id],
+  image: p.imageKey ? media.roofs[p.imageKey] : null,
+  gallery: p.imageKey ? [media.roofs[p.imageKey]] : [],
+  imageNote: p.imageKey
+    ? 'Render de referencia aportado por KND; representación final sujeta a validación técnica.'
+    : 'Fotografía original de esta variante pendiente. No mostramos un render de otra cubierta.',
+  engineeringNote: {
+    es: 'Datos de referencia del proveedor, no una garantía estructural ni límites seguros de operación. Alturas, viento, cargas, cimentación, anclajes, accesos y permisos requieren ingeniería local antes de confirmar el suministro.',
+    en: 'Supplier reference data, not a structural warranty or safe operating limits. Heights, wind, loads, foundations, anchors, access and permits require project-specific engineering before supply is confirmed.',
+  },
+  sourceUrl: 'https://ontopadel.com/roof/' + p.id,
+  sourceChecked: '2026-11-05',
+})
 export const roofSystems = [
   { id: 'canopy-roof', code: 'OP R1', name: 'Canopy Roof', role: 'Protección abierta', coverage: 'Cubierta superior · perímetro abierto', operation: 'Fija', image: media.roofs.r1, imageNote: renderReference, minCourts: 1, description: 'La respuesta directa para proteger el juego del sol y de la lluvia sin cerrar el ambiente.', facts: ['1 pista · 10 × 20 m', 'Estructura 11 × 22 m', 'PVC opaco 750 g/m²'] },
   { id: 'semi-enclosed-roof', code: 'OP R2', name: 'Semi-Enclosed Roof', role: 'Protección ampliada', coverage: 'Cubierta · cerramiento superior lateral', operation: 'Fija', image: media.roofs.r2, imageNote: renderReference, minCourts: 1, description: 'Más abrigo alrededor de la pista, manteniendo ventilación y una relación natural con el entorno.', facts: ['1 pista · 10 × 20 m', 'Estructura 11 × 22 m', 'PVC opaco 750 g/m²'] },
   { id: 'fully-enclosed-roof', code: 'OP R3', name: 'Fully-Enclosed Roof', role: 'Recinto protegido', coverage: 'Cubierta · cerramiento perimetral', operation: 'Fija', image: media.roofs.r3, imageNote: renderReference, minCourts: 2, description: 'Una envolvente coordinada para instalaciones de varias pistas y programación durante todo el año.', facts: ['2+ pistas recomendadas', 'Cerramiento lateral bajo', 'Configuración por proyecto'] },
   { id: 'electric-retractable-roof', code: 'OP R4', name: 'Electric Retractable Roof', role: 'Cubierta móvil', coverage: 'Estructura de apertura eléctrica', operation: 'Retráctil', image: null, imageNote: 'Imagen pendiente de suministro y validación editorial. No se muestra un sustituto.', minCourts: 2, description: 'Flexibilidad de cielo abierto y protección bajo demanda, coordinada con el proyecto y la estructura.', facts: ['2+ pistas', 'Membrana 650 g/m²', '4 × 0,8 kW · 380 V'] },
   { id: 'elevated-retractable-roof', code: 'OP R5', name: 'Elevated Retractable Roof', role: 'Cubierta retráctil elevada', coverage: 'Estructura retráctil elevada', operation: 'Retráctil', image: null, imageNote: 'Imagen pendiente de suministro y validación editorial. No se muestra un sustituto.', description: 'Sistema retráctil elevado cuya configuración estructural se confirma según la ubicación, el número de pistas y la operación prevista.', facts: ['Configuración por proyecto', 'Ingeniería según ubicación', 'Imagen pendiente'] },
+  roofModel({
+    id: 'canopy-roof', code: 'OP-R1', name: 'Canopy Roof', imageKey: 'r1',
+    role: 'Protección superior abierta', roleEn: 'Open-sided overhead protection',
+    coverage: 'Membrana superior · perímetro abierto', coverageEn: 'Roof membrane · open perimeter',
+    operation: 'Fija', operationEn: 'Fixed',
+    description: 'Cubierta fija abierta para una pista. La estructura estándar de referencia mide 11,5 × 21,5 m alrededor de una pista de 10 × 20 m.',
+    descriptionEn: 'Open-sided fixed canopy with an 11.5 × 21.5 m reference structure around a 10 × 20 m court.',
+    application: { es: 'Pistas individuales, clubes y sedes que necesitan cubierta superior manteniendo el perímetro abierto.', en: 'Individual courts and venues needing overhead coverage and an open perimeter.' },
+    facts: ['Pista 10 × 20 m', 'Estructura 11,5 × 21,5 m', 'Alero 6 m · cumbrera 8,5 m'],
+    minCourts: 1, group: 'fixed', height: '6 m alero · 8,5 m cumbrera',
+    membrane: 'PVC opaco a dos caras 750 g/m²', structure: 'Estructura fija, laterales abiertos',
+    technicalSpecs: [
+      roofSpec('Pista de referencia', 'Reference court', '10 × 20 m'),
+      roofSpec('Estructura', 'Structure footprint', '11,5 × 21,5 m', '11.5 × 21.5 m'),
+      roofSpec('Altura al alero', 'Eaves height', '6 m'),
+      roofSpec('Altura a cumbrera', 'Ridge height', '8,5 m', '8.5 m'),
+      roofSpec('Membrana', 'Membrane', 'PVC opaco doble cara de 750 g/m²', '750 g/m² double-sided blackout PVC-coated membrane'),
+      roofSpec('Tornillería', 'Hardware', 'Pernos inoxidables AISI 304 y anclajes químicos', 'AISI 304 stainless-steel bolts and chemical anchors'),
+      roofSpec('Tratamiento superficial', 'Surface treatment', 'Pintura en polvo rica en zinc; galvanizado en caliente opcional', 'Zinc-rich powder coating; optional hot-dip galvanizing'),
+    ],
+    advantages: [
+      roofBenefit('Perímetro abierto', 'Visibilidad y circulación de aire alrededor de la pista.', 'Open views and natural airflow around the court.'),
+      roofBenefit('Geometría definida', 'Dimensiones estándar de partida para una pista reglamentaria.', 'Defined reference footprint for a regulation-size court.'),
+      roofBenefit('Protección adaptable', 'Opciones de tratamiento para condiciones de emplazamiento distintas.', 'Finishing options suited to the site.'),
+    ], relatedIds: ['semi-enclosed-roof', 'fully-enclosed-roof'],
+  }),
+  roofModel({
+    id: 'semi-enclosed-roof', code: 'OP-R2', name: 'Semi-Enclosed Roof', imageKey: 'r2',
+    role: 'Protección lateral superior', roleEn: 'Upper-side cladding',
+    coverage: 'Cerramiento alto · 3 m inferiores abiertos', coverageEn: 'Upper cladding · lower 3 m open',
+    operation: 'Fija', operationEn: 'Fixed',
+    description: 'Cubierta fija con cerramiento lateral superior frente a lluvia inclinada. Los 3 m inferiores permanecen abiertos para ventilación y acceso; dimensiones y alturas según proyecto.',
+    descriptionEn: 'Fixed canopy with upper-side cladding for wind-driven rain. The lower 3 m stay open for ventilation and access; spans and heights are project-specific.',
+    application: { es: 'Clubes que buscan mayor protección frente a lluvia lateral y mantener ventilación natural.', en: 'Venues requiring more side-rain screening while retaining natural ventilation.' },
+    facts: ['Lados inferiores abiertos: 3 m', 'PVC opaco 750 g/m²', 'Luz y altura a definir en proyecto'],
+    minCourts: 1, group: 'fixed', height: 'A definir según proyecto',
+    membrane: 'PVC opaco a dos caras 750 g/m²', structure: 'Cubierta fija con faldón lateral superior',
+    technicalSpecs: [
+      roofSpec('Luz y longitud', 'Span and length', 'Según distribución de las pistas', 'Project-specific court layout'),
+      roofSpec('Altura', 'Ridge and eaves height', 'Según proyecto', 'Confirmed by project design'),
+      roofSpec('Cerramiento lateral', 'Side enclosure', 'Parte superior cerrada, 3 m inferiores abiertos', 'Fixed upper cladding, lower 3 m open'),
+      roofSpec('Ventilación', 'Ventilation', 'Natural desde el perímetro inferior abierto', 'Natural through open lower perimeter'),
+      roofSpec('Membrana', 'Membrane', 'PVC opaco doble cara de 750 g/m²', '750 g/m² double-sided blackout PVC-coated membrane'),
+      roofSpec('Tornillería', 'Hardware', 'Pernos inoxidables AISI 304 y anclajes químicos', 'AISI 304 stainless-steel bolts and chemical anchors'),
+      roofSpec('Tratamiento superficial', 'Surface treatment', 'Pintura rica en zinc; galvanizado en caliente opcional', 'Zinc-rich powder coating; optional hot-dip galvanizing'),
+    ],
+    advantages: [
+      roofBenefit('Lluvia lateral', 'La membrana superior ayuda a reducir la entrada de lluvia impulsada por el viento.', 'Upper cladding helps screen wind-driven rain.'),
+      roofBenefit('Ventilación natural', 'Los tres metros inferiores permanecen abiertos.', 'The lower three metres remain open.'),
+      roofBenefit('Diseño según ubicación', 'Las dimensiones se ajustan a la distribución de las pistas.', 'Dimensions are specified from the court layout.'),
+    ], relatedIds: ['canopy-roof', 'fully-enclosed-roof'],
+  }),
+  roofModel({
+    id: 'fully-enclosed-roof', code: 'OP-R3', name: 'Fully-Enclosed Roof', imageKey: 'r3',
+    role: 'Recinto cerrado multipista', roleEn: 'Fully enclosed multi-court',
+    coverage: 'Techo y perímetro cerrados', coverageEn: 'Roof and full perimeter enclosure',
+    operation: 'Fija', operationEn: 'Fixed',
+    description: 'Sistema fijo de envolvente cerrada para instalaciones multipista. Membrana superior opaca y faldones laterales inferiores de PVC con cremallera; climatización opcional de diseño independiente.',
+    descriptionEn: 'Fixed enclosed multi-court system with opaque roof membrane and PVC zip-closure lower panels; optional HVAC requires a separate design.',
+    application: { es: 'Recintos multipista que necesitan mayor aislamiento del clima exterior.', en: 'Multi-court venues needing a more sheltered indoor environment.' },
+    facts: ['Recomendada desde 2 pistas', 'Cierre lateral inferior de 3 m', 'Climatización opcional, separada'],
+    minCourts: 2, group: 'fixed', height: 'Según ingeniería de proyecto',
+    membrane: 'PVC opaco doble cara tipo knife-coated', structure: 'Envolvente estructural fija cerrada',
+    technicalSpecs: [
+      roofSpec('Aplicación', 'Application', 'Recomendada para dos o más pistas', 'Recommended for two or more courts'),
+      roofSpec('Luz y longitud', 'Span and length', 'Según distribución del complejo', 'Matched to site layout'),
+      roofSpec('Altura', 'Ridge and eaves height', 'Según ingeniería del proyecto', 'Project-specific'),
+      roofSpec('Membrana superior', 'Roof membrane', 'PVC opaco doble cara knife-coated', 'Double-sided opaque PVC knife-coated fabric'),
+      roofSpec('Membrana lateral', 'Side fabric', 'PVC knife-coated con cierre de cremallera en los 3 m inferiores', 'PVC knife-coated fabric with zipper closure over lower 3 m'),
+      roofSpec('Climatización', 'Climate control', 'Puede estudiarse aparte junto con ventilación', 'A/C and ventilation can be specified separately'),
+      roofSpec('Fijaciones', 'Hardware', 'Pernos inoxidables AISI 304 o galvanizados en caliente y anclajes químicos', 'AISI 304 stainless / hot-dip galvanized bolts and chemical anchors'),
+      roofSpec('Acabado', 'Surface treatment', 'Pintura rica en zinc; galvanizado en caliente opcional', 'Zinc-rich powder coating; optional hot-dip galvanizing'),
+    ],
+    advantages: [
+      roofBenefit('Protección integral', 'La cubierta y el cerramiento lateral forman una envolvente completa.', 'Roof and perimeter form a full protective envelope.'),
+      roofBenefit('Formato multipista', 'Aplicación pensada para clubes de dos o más pistas.', 'Intended for two or more courts.'),
+      roofBenefit('Climatización bajo estudio', 'Los equipos de aire y ventilación requieren proyecto independiente.', 'HVAC equipment and ventilation require separate design.'),
+    ], relatedIds: ['semi-enclosed-roof', 'elevated-retractable-roof'],
+  }),
+  roofModel({
+    // Keep existing slug to preserve old incoming links and configurations.
+    id: 'electric-retractable-roof', code: 'OP-R4', name: 'Ground-Mounted Retractable Roof',
+    imageKey: null, visualPending: true,
+    role: 'Retráctil sobre raíles a nivel de suelo', roleEn: 'Ground-mounted retractable',
+    coverage: 'Frente y laterales inferiores abiertos', coverageEn: 'Open front and lower sides',
+    operation: 'Retráctil: se desplaza el bastidor entero', operationEn: 'Retractable: entire frame moves',
+    description: 'La cubierta completa se mueve sobre raíles a nivel de suelo para descubrir la pista. Frente abierto, laterales inferiores abiertos y altura de referencia máxima de 9 m.',
+    descriptionEn: 'Entire canopy moves on ground-level rails to expose the court. Open front and lower sides; reference maximum height 9 m.',
+    application: { es: 'Instalaciones multipista que necesitan apertura completa mediante desplazamiento de la estructura.', en: 'Multi-court venues requiring open-air flexibility by moving the whole structure.' },
+    facts: ['Cubierta entera sobre raíles', 'Altura máxima 9 m', 'Accionamiento según proyecto'],
+    minCourts: 2, group: 'retractable', height: 'Hasta 9 m como referencia',
+    membrane: 'Membrana y gramaje según proyecto', structure: 'Bastidor móvil sobre guías a nivel del suelo',
+    technicalSpecs: [
+      roofSpec('Aplicación', 'Application', 'Dos o más pistas recomendadas', 'Recommended for two or more courts'),
+      roofSpec('Apoyo', 'Support', 'Estructura móvil sobre raíles a nivel del suelo', 'Ground-mounted moving frame on rails'),
+      roofSpec('Aberturas', 'Open perimeter', 'Frente abierto y laterales inferiores abiertos', 'Open front and lower sides'),
+      roofSpec('Faldón superior', 'Upper-side fascia', 'Membrana alta que se desplaza junto con el bastidor', 'High membrane fascia moving with frame'),
+      roofSpec('Altura máxima de referencia', 'Reference maximum height', '9 m'),
+      roofSpec('Objetivo viento abierta', 'Wind design target — open', '62–74 km/h, objetivo de diseño, NO límite operativo', '62–74 km/h, design target, NOT operating limit'),
+      roofSpec('Objetivo viento cerrada', 'Wind design target — closed', '118–133 km/h, objetivo de diseño, NO límite operativo', '118–133 km/h, design target, NOT operating limit'),
+      roofSpec('Accionamiento', 'Drive and controls', 'Según proyecto', 'Project-specific'),
+      roofSpec('Acabado y membrana', 'Finish and membrane', 'Según proyecto', 'Project-specific'),
+    ],
+    advantages: [
+      roofBenefit('A cielo abierto', 'La cubierta entera se aparta sobre las guías inferiores.', 'The entire canopy rolls away on ground tracks.'),
+      roofBenefit('Acceso y ventilación', 'Los lados inferiores y el frente permanecen abiertos.', 'Front and lower perimeter stay open.'),
+      roofBenefit('Cálculo específico', 'Carriles, anclajes, maniobra y seguridad dependen de la obra.', 'Rails, anchors, movement and safety depend on site engineering.'),
+    ], relatedIds: ['elevated-retractable-roof', 'canopy-roof'],
+  }),
+  roofModel({
+    id: 'elevated-retractable-roof', code: 'OP-R5', name: 'Elevated Retractable Roof',
+    imageKey: null, visualPending: true,
+    role: 'Cubierta plegable elevada', roleEn: 'Elevated folding roof',
+    coverage: 'Membrana plegable sobre estructura fija', coverageEn: 'Folding membrane on permanent elevated frame',
+    operation: 'Retráctil: se pliega la membrana superior', operationEn: 'Retractable: overhead membrane folds',
+    description: 'La estructura elevada permanece fija mientras la membrana superior se pliega. Altura inicial de 9 m, con variantes estudiables hasta 15 m y cerramientos laterales opcionales.',
+    descriptionEn: 'Permanent elevated frame with folding overhead membrane. Starting height 9 m, with project-assessed options up to 15 m and optional side enclosures.',
+    application: { es: 'Proyectos que desean cielo abierto sin mover el bastidor portante del suelo.', en: 'Venues requiring open-sky play without moving the supporting frame.' },
+    facts: ['Estructura elevada fija', '9 m de partida · hasta 15 m', 'Cerramientos opcionales'],
+    minCourts: 1, group: 'retractable', height: '9 m de partida · hasta 15 m',
+    membrane: 'Membrana superior plegable según proyecto', structure: 'Pórtico elevado permanente',
+    technicalSpecs: [
+      roofSpec('Sistema portante', 'Support system', 'Bastidor elevado permanente', 'Permanent elevated frame'),
+      roofSpec('Operación', 'Roof operation', 'Membrana plegable sobre el bastidor', 'Overhead folding membrane'),
+      roofSpec('Membrana frontal', 'Front membrane', 'Cubre bastidor móvil superior hasta su guía', 'Covers moving upper frame to the track'),
+      roofSpec('Cerramientos', 'Enclosures', 'Bandas superiores e inferiores en cuatro lados, independientes y opcionales', 'Independent optional four-sided upper and lower enclosure bands'),
+      roofSpec('Ventilación', 'Ventilation option', 'Lamas horizontales anchas con montantes delgados', 'Broad horizontal louvres and slim vertical framing'),
+      roofSpec('Soportes en extremos', 'End supports', 'Un poste central delante y otro detrás si se añade alguna banda de cierre', 'One central post front and rear if either enclosure band is fitted'),
+      roofSpec('Altura de partida', 'Starting height', '9 m'),
+      roofSpec('Altura máxima estudiable', 'Maximum subject to review', '15 m'),
+      roofSpec('Objetivo viento estándar', 'Standard wind design target', '62–74 km/h, NO límite operativo', '62–74 km/h, NOT operating limit'),
+      roofSpec('Opción viento reforzada', 'Custom wind design target', '150–166 km/h, estudio específico, NO garantía', '150–166 km/h, site engineered, NOT a guarantee'),
+      roofSpec('Accionamiento y acabado', 'Drive and finish', 'Según proyecto', 'Project-specific'),
+    ],
+    advantages: [
+      roofBenefit('Pórtico permanente', 'El bastidor queda en su sitio mientras se pliega la membrana.', 'Support stays in place while roof membrane folds.'),
+      roofBenefit('Cierre configurable', 'Se pueden estudiar bandas laterales y ventilación por lamas.', 'Optional enclosure bands and louvre ventilation.'),
+      roofBenefit('Altura adaptable', 'Solución de 9 m de partida, estudiable hasta 15 m.', '9 m starting height, subject to study up to 15 m.'),
+    ], relatedIds: ['electric-retractable-roof', 'fully-enclosed-roof'],
+  }),
 ]
 
 export const projectScales = [
