@@ -17,4 +17,5 @@ jobs:
       - run: npm ci
       - run: npm run build
       - run: npm run verify:seo
+      - run: npm run verify:journal
       - run: npm run verify:courts
