@@ -1,3 +1,6 @@
+import LightingShowcase from './components/LightingShowcase.jsx'
+import { JournalIndex, JournalArticle } from './components/JournalEditorial.jsx'
+import ContactExperience from './components/ContactExperience.jsx'
 import { articleGuides } from './data/articleGuides.js'
 import { commercialGuides } from './data/commercialGuides.js'
 import { courtProductContent } from './data/courts/index.js'
@@ -265,7 +268,7 @@ function App({ initialPath = '/' } = {}) {
     const item = turfSystems.find((entry) => entry.id === path.split('/').pop())
     page = item ? <TurfDetailPage {...pageProps} item={item} turfSystems={turfSystems} turfFinishes={turfFinishes} /> : <NotFound {...pageProps} />
   }
-  else if (path === '/lighting') page = <LightingPage {...pageProps} />
+  else if (path === '/lighting') page = <LightingShowcase {...pageProps} />
   else if (path === '/roof') page = <RoofIndexPage {...pageProps} />
   else if (path.startsWith('/roof/')) page = <RoofDetailPage {...pageProps} item={roofSystems.find((item) => item.id === path.split('/').pop())} />
   else if (path === '/configurator') page = <Suspense fallback={<section className="configurator-loading" role="status"><span>3D</span><p>Cargando el estudio de configuración…</p></section>}><ConfiguratorPage {...pageProps} /></Suspense>
@@ -277,10 +280,10 @@ function App({ initialPath = '/' } = {}) {
     const guide = commercialGuides.find((entry) => entry.path === path)
     page = guide ? <GuideDetail {...pageProps} guide={guide} /> : <NotFound {...pageProps} />
   }
-  else if (path === '/news' || path === '/journal') page = <NewsPage {...pageProps} />
-  else if (path.startsWith('/news/') || path.startsWith('/journal/')) page = <ArticlePage {...pageProps} article={articles.find((article) => article.slug === path.split('/').pop())} />
+  else if (path === '/news' || path === '/journal') page = <JournalIndex {...pageProps} />
+  else if (path.startsWith('/news/') || path.startsWith('/journal/')) page = <JournalArticle {...pageProps} article={articles.find((article) => article.slug === path.split('/').pop())} />
   else if (path === '/faq') page = <FaqPage {...pageProps} />
-  else if (path === '/contact') page = <ContactPage {...pageProps} />
+  else if (path === '/contact') page = <ContactExperience {...pageProps} />
   else page = <NotFound {...pageProps} />
 
   const isConfigurator = path === '/configurator'
@@ -706,84 +709,7 @@ function WhyPage({ openProject, locale = 'es' }) {
 }
 
 
-function NewsPage({ navigate, locale = 'es' }) {
-  const en = locale === 'en'
-  return <>
-    <section className="plain-hero news-hero"><div className="container"><span className="eyebrow">KND PADEL · JOURNAL</span>
-      <h1>{en ? <>Ideas for<br/><em>better padel projects.</em></> : <>Ideas alrededor<br/><em>de la pista.</em></>}</h1>
-      <p>{en ? 'Project notes and original guides about courts, clubs, weather protection and playing conditions.' : 'Notas de proyecto, producto y juego para quienes desarrollan instalaciones de pádel.'}</p>
-      <RouteLink to="/guides" locale={locale} navigate={navigate} className="text-link">{en ? 'Explore buying guides' : 'Explorar guías de compra'} →</RouteLink>
-    </div></section>
-    <section className="section news-index"><div className="container">
-      <span className="story-count">{en ? 'STORIES' : 'HISTORIAS'} · {articles.length.toString().padStart(2, '0')}</span>
-      <div className="news-list">{articles.map((article, index) => <article key={article.slug} className="news-list-card">
-        <RouteLink to={`/news/${article.slug}`} locale={locale} navigate={navigate}>
-          <img src={article.image} alt="" loading="lazy" decoding="async"/>
-          <div><span>{String(index + 1).padStart(2,'0')} · {article.type} · {article.date}</span>
-            <h2>{en ? (article.titleEn || article.title) : article.title}</h2>
-            <p>{en ? (article.excerptEn || article.excerpt) : article.excerpt}</p>
-            <span className="text-link">{en ? 'Read story' : 'Leer historia'} <Arrow /></span>
-          </div>
-        </RouteLink>
-      </article>)}</div>
-    </div></section>
-  </>
-}
-
-function ArticlePage({ article, navigate, locale = 'es', openProject }) {
-  if (!article) return <NotFound navigate={navigate} />
-  const english = locale === 'en'
-  const guide = articleGuides[article.slug]?.[english ? 'en' : 'es']
-  const title = english ? (article.titleEn || article.title) : article.title
-  const excerpt = english ? (article.excerptEn || article.excerpt) : article.excerpt
-  return <article className="article-page">
-    <header className="article-hero"><div className="container"><Eyebrow>{article.type.toUpperCase()} · {article.date}</Eyebrow><h1>{title}</h1><p>{excerpt}</p></div></header>
-    <img className="article-cover" src={article.image} alt="" />
-    <div className="article-body">
-      <p className="article-lead">{guide?.lead || excerpt}</p>
-      {guide?.sections.map((section, index) => <section key={index} className="article-section">
-        <h2>{section.heading}</h2>
-        {section.paragraphs.map((paragraph, i) => <p key={i}>{paragraph}</p>)}
-        {section.bullets?.length > 0 && <ul>{section.bullets.map((bullet) => <li key={bullet}>{bullet}</li>)}</ul>}
-      </section>)}
-      <p>{english ? 'Every KND proposal is confirmed against the actual site and agreed supply scope.' : 'Cada propuesta KND se confirma según el emplazamiento real y el alcance de suministro acordado.'}</p>
-      <div className="inline-actions"><button className="button accent" onClick={() => openProject?.(title)}>{english ? 'Discuss your project' : 'Hablar de tu proyecto'} <Arrow /></button><button className="text-link" onClick={() => navigate('/news')}>{english ? 'Back to the Journal' : 'Volver al Journal'} <Arrow /></button></div>
-    </div>
-  </article>
-}
-
 function FaqPage({ locale, navigate, openProject }) { return <><section className="plain-hero faq-hero"><div className="container"><Eyebrow>{locale === 'en' ? 'FREQUENTLY ASKED QUESTIONS' : 'PREGUNTAS FRECUENTES'}</Eyebrow><h1>{locale === 'en' ? <>Answers<br/><em>that move a project forward.</em></> : <>Las respuestas<br/><em>para mover el proyecto.</em></>}</h1><p>{locale === 'en' ? 'A practical starting point for choosing a system, requesting a proposal and understanding how KND works.' : 'El punto de partida para elegir sistema, plantear un presupuesto y entender cómo trabajamos.'}</p></div></section><FaqHub locale={locale} navigate={navigate} linkFor={(target) => localizedPath(target, locale)} onStartProject={() => openProject()} /><ContactCta openProject={() => openProject()} /></> }
-
-function LightingPage({ locale, navigate, openProject }) {
-  const english = locale === 'en'
-  return <>
-    <section className="plain-hero"><div className="container"><Eyebrow>{english ? 'KND LIGHTING' : 'ILUMINACIÓN KND'}</Eyebrow><h1>{english ? <>Lighting that belongs<br/><em>to the full court system.</em></> : <>Iluminación que forma parte<br/><em>de la pista completa.</em></>}</h1><p>{english ? 'KND coordinates the lighting concept with the court, intended use, venue and technical requirements that still need project validation.' : 'KND coordina el concepto de iluminación con la pista, el uso previsto, la sede y los requisitos técnicos que todavía deben validarse por proyecto.'}</p></div></section>
-    <section className="section belief-section"><div className="container"><div><Eyebrow>{english ? 'PLAN BEFORE SPECIFYING' : 'PLANIFICAR ANTES DE ESPECIFICAR'}</Eyebrow><h2>{english ? <>Questions that make<br/><em>the layout clearer.</em></> : <>Preguntas que aclaran<br/><em>la distribución.</em></>}</h2></div><div className="belief-list">{(english ? [
-      ['01', 'Understand the venue', 'Indoor or outdoor use, court count, operating hours and the relationship with the wider site.'],
-      ['02', 'Coordinate the system', 'Court structure, roof, player sightlines and maintenance access are considered together.'],
-      ['03', 'Confirm technical data', 'Lighting performance, controls and final installation requirements are confirmed in the project proposal.'],
-    ] : [
-      ['01', 'Entender la sede', 'Uso interior o exterior, número de pistas, horas de operación y relación con el conjunto de la instalación.'],
-      ['02', 'Coordinar el sistema', 'Estructura de pista, cubierta, visibilidad de juego y acceso de mantenimiento se consideran en conjunto.'],
-      ['03', 'Confirmar datos técnicos', 'Prestaciones, control y requisitos finales de instalación se confirman en la propuesta de proyecto.'],
-    ]).map(([number, title, text]) => <article key={number}><span>{number}</span><h3>{title}</h3><p>{text}</p></article>)}</div></div></section>
-    <section className="section configuration-band"><div className="container"><Eyebrow>{english ? 'CONNECTED PROJECT' : 'PROYECTO CONECTADO'}</Eyebrow><h2>{english ? <>Start with the court.<br/><em>Then connect the lighting.</em></> : <>Empieza por la pista.<br/><em>Después conecta la iluminación.</em></>}</h2><p>{english ? 'Explore the court systems or share the essentials of the project to begin a coordinated conversation.' : 'Explora los sistemas de pista o comparte los datos esenciales del proyecto para iniciar una conversación coordinada.'}</p><div className="inline-actions"><button className="button accent" onClick={() => navigate('/courts')}>{english ? 'Explore courts' : 'Explorar pistas'} <Arrow /></button><button className="button outline" onClick={() => openProject(english ? 'Lighting planning' : 'Planificación de iluminación')}>{english ? 'Discuss the project' : 'Hablar del proyecto'} <Arrow /></button></div></div></section>
-  </>
-}
-
-function ContactPage({ openProject, locale = 'es' }) {
-  const en = locale === 'en'
-  return <section className="contact-page"><div className="container">
-    <div><span className="eyebrow">{en ? 'REQUEST A KND PROJECT PROPOSAL' : 'SOLICITA UNA PROPUESTA KND'}</span>
-      <h1>{en ? <>Tell us about<br/><em>your next court.</em></> : <>Cuéntanos tu<br/><em>próxima pista.</em></>}</h1>
-      <p>{en ? 'Share the location, number of courts, type of venue and target schedule. We will use that information to discuss a suitable project scope.' : 'Comparte ubicación, número de pistas, tipo de instalación y calendario previsto. Así podremos estudiar el alcance del proyecto.'}</p>
-      <dl><div><dt>EMAIL</dt><dd><a href={`mailto:${brand.email}`}>{brand.email}</a></dd></div>
-      {brand.phone && <div><dt>{en ? 'PHONE' : 'TELÉFONO'}</dt><dd>{brand.phone}</dd></div>}
-      <div><dt>{en ? 'WEBSITE' : 'WEB'}</dt><dd>{brand.website}</dd></div></dl>
-    </div>
-    <EnquiryFormComponent context={en ? 'Website contact' : 'Contacto web'} locale={locale} compact={false}/>
-  </div></section>
-}
 
 function Configurator({ navigate, openProject }) {
   const [config, setConfig] = useState({ model: courts[0].id, turf: 'Azul Court', frame: 'Grafito', pole: 'Curva', light: 'Lineal 4 × 300 W', kit: 'Sin kit', installation: 'Anclada', roof: 'Sin cubierta', night: false })
