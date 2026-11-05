@@ -60,6 +60,15 @@ const terms = {
   }
 }
 
+const specValue = (model, key, language) => {
+  const value = String(model[key] ?? '')
+  if (language !== 'en') return value
+  if (key === 'protection' && value === 'Interior') return 'Indoor'
+  if (key === 'layout' && value === '60 módulos') return '60 modules'
+  return value.replace(/\\b(\\d+)\\.(\\d{3})\\b/g, '$1,$2')
+    .replace(/(\\d),(\\d{1,2})\\b/g, '$1.$2')
+}
+
 const technicalRows = [
   ['power','power'], ['flux','lumens'], ['kelvin','kelvin'], ['protection','protection'],
   ['led','led'], ['driver','driver'], ['dimensions','dimensions'], ['weight','weight'], ['layout','layout'],
@@ -111,8 +120,8 @@ export default function LightingShowcase({ locale = 'es', openProject }) {
               <p className="knd-lighting__model-intro">{model[language].summary}</p>
               <p className="knd-lighting__model-benefit">{model[language].benefit}</p>
               <dl className="knd-lighting__quick-specs">
-                <div><dt>{t.flux}</dt><dd>{model.lumens}</dd></div>
-                <div><dt>{t.layout}</dt><dd>{model.layout}</dd></div>
+                <div><dt>{t.flux}</dt><dd>{specValue(model, 'lumens', language)}</dd></div>
+                <div><dt>{t.layout}</dt><dd>{specValue(model, 'layout', language)}</dd></div>
                 <div><dt>{t.use}</dt><dd>{model[language].target}</dd></div>
               </dl>
               <div className="knd-lighting__product-actions">
@@ -130,7 +139,7 @@ export default function LightingShowcase({ locale = 'es', openProject }) {
         <div className="knd-lighting__table-scroll" tabIndex="0" role="region" aria-label={t.specsTitle}>
           <table>
             <thead><tr><th scope="col">{t.model}</th>{lightingModels.map(m=><th scope="col" key={m.id}>{m.code}<small>{m.name}</small></th>)}</tr></thead>
-            <tbody>{technicalRows.map(([key,prop])=><tr key={key}><th scope="row">{t[key]}</th>{lightingModels.map(m=><td key={m.id}>{m[prop]}</td>)}</tr>)}</tbody>
+            <tbody>{technicalRows.map(([key,prop])=><tr key={key}><th scope="row">{t[key]}</th>{lightingModels.map(m=><td key={m.id}>{specValue(m, prop, language)}</td>)}</tr>)}</tbody>
           </table>
         </div>
         <p className="knd-lighting__note">{t.note}</p>
