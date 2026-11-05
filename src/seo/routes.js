@@ -266,7 +266,7 @@ function productCopy(item, type, locale) {
     : type === 'turf' ? (english ? 'padel turf system' : 'sistema de césped para pádel')
       : (english ? 'padel court roof' : 'cubierta para pista de pádel')
   const article = english ? 'A' : type === 'turf' ? 'Un' : 'Una'
-  const specSummary = (item.facts || []).filter(Boolean).slice(0, 3).join(' · ')
+  const specSummary = english ? '' : (item.facts || []).filter(Boolean).slice(0, 3).join(' · ')
   return {
     title: `${item.code} ${item.name} | ${noun}`,
     description: english
@@ -307,7 +307,7 @@ export function getRouteInfo(pathname = '/', requestedLocale) {
     return {
       basePath, path, locale, type: 'project', item,
       title: `${item.name} | ${english ? 'Padel project' : 'Proyecto de pádel'}`,
-      description: item.description || (english ? `Published KND padel project in ${item.location}.` : `Proyecto de pádel KND publicado en ${item.location}.`),
+      description: (english ? item.descriptionEn : item.description) || (english ? `Published KND padel project in ${item.location}.` : `Proyecto de pádel KND publicado en ${item.location}.`),
       h1: item.name,
       intro: english ? `Published project in ${item.location}.` : `Proyecto publicado en ${item.location}.`,
     }
