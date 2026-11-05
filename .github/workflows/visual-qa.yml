@@ -2,6 +2,9 @@ name: KND visual and hydration QA
 on:
   pull_request:
     branches: [main]
+concurrency:
+  group: knd-visual-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 jobs:
   visual:
     runs-on: ubuntu-latest
