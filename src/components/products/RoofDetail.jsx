@@ -1,3 +1,4 @@
+import { localizedPath } from '../../seo/routes.js'
 import { roofSystems } from '../../data/site.js'
 
 const copy = {
@@ -164,7 +165,7 @@ export default function RoofDetail({ item, navigate, openProject, locale = 'es' 
         <span className="eyebrow">{language === 'en' ? 'OTHER ROOF SYSTEMS' : 'OTRAS CUBIERTAS'}</span>
         <h2>{t.related}</h2>
         <div className="knd-roof-detail__related-grid">
-          {related.map((roof) => <a key={roof.id} href={'/roof/' + roof.id}
+          {related.map((roof) => <a key={roof.id} href={localizedPath('/roof/' + roof.id, language)}
             onClick={(event) => { event.preventDefault(); navigate('/roof/' + roof.id) }}>
             <small>{roof.code}</small>
             <strong>{roof.name}</strong>
@@ -174,6 +175,13 @@ export default function RoofDetail({ item, navigate, openProject, locale = 'es' 
       </div>
     </section>
 
+    <section className="section knd-inline-guides"><div className="container">
+      <h2>{language === 'en' ? 'Understand your roof options' : 'Compara las opciones de cubierta'}</h2>
+      <div className="knd-inline-guides-links">
+        <a href={localizedPath('/guides/fixed-vs-retractable-padel-roof', language)}>{language === 'en' ? 'Fixed vs retractable padel roofs' : 'Cubierta fija frente a retráctil'} →</a>
+        <a href={localizedPath('/guides/padel-court-construction', language)}>{language === 'en' ? 'Plan the installation' : 'Planificar la instalación'} →</a>
+      </div>
+    </div></section>
     <section className="knd-roof-detail__section knd-roof-detail__final">
       <div className="container">
         <span className="knd-roof-detail__eyebrow">{language === 'en' ? 'PROJECT PROPOSAL' : 'PROPUESTA DE PROYECTO'}</span>

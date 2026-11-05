@@ -228,8 +228,8 @@ const turfColourOptions = [
 const turfSpec = (es, en, value) => ({ label: { es, en }, value })
 const turfSharedQuality = {
   text: {
-    es: 'La ficha de referencia del proveedor contempla fibra de PE, backing PU, líneas blancas integradas y relleno de arena de cuarzo lavada y clasificada. KND confirma el producto, color, plano de rollos, cantidades y condiciones de instalación al preparar la propuesta.',
-    en: 'The supplier reference specifies PE fibre, PU backing, integrated white lines and washed, graded quartz sand. KND confirms product, colour, roll plan, quantities and installation conditions in its proposal.',
+    es: 'La documentación técnica de partida contempla fibra de PE, backing PU, líneas blancas integradas y relleno de arena de cuarzo lavada y clasificada. KND confirma el producto, color, plano de rollos, cantidades y condiciones de instalación al preparar la propuesta.',
+    en: 'The starting technical specification includes PE fibre, PU backing, integrated white lines and washed, graded quartz sand. KND confirms product, colour, roll plan, quantities and installation conditions in its proposal.',
   },
   features: [
     { title: { es: 'Materiales', en: 'Materials' }, text: { es: 'Fibra 100 % polietileno (PE) y sistema de backing PU.', en: '100% polyethylene (PE) fibre and PU backing system.' } },
@@ -259,7 +259,7 @@ const makeTurfProduct = (p) => ({
     turfSpec('Altura del pelo', 'Pile height', p.height + ' mm'),
     turfSpec('Dtex', 'Dtex', p.dtex.toLocaleString('es-ES') + ' D'),
     turfSpec('Densidad', 'Density', p.density.toLocaleString('es-ES') + ' / m²'),
-    turfSpec('Puntadas (valor proveedor)', 'Stitch (supplier value)', String(p.stitch)),
+    turfSpec('Puntadas (dato de catálogo)', 'Stitch (catalogue value)', String(p.stitch)),
     turfSpec('Sistema de fibra', 'Fibre system', { es: p.fibre, en: p.fibreEn }),
     turfSpec('Perfil de fibra', 'Fibre profile', { es: p.profile, en: p.profileEn || p.profile }),
     turfSpec('Material principal', 'Primary material', { es: '100 % polietileno (PE)', en: '100% polyethylene (PE)' }),
@@ -273,8 +273,8 @@ const makeTurfProduct = (p) => ({
   playFeel: { es: p.playFeel, en: p.playFeelEn },
   fiberConstruction: {
     text: {
-      es: p.fibre + ' (' + p.profile + '). Especificación de referencia del proveedor.',
-      en: p.fibreEn + ' (' + (p.profileEn || p.profile) + '). Supplier-reference specification.',
+      es: p.fibre + ' (' + p.profile + '). Especificación técnica de referencia.',
+      en: p.fibreEn + ' (' + (p.profileEn || p.profile) + '). Reference technical specification.',
     },
     features: p.features.map(([title, es, en]) => ({
       title: { es: title, en: ({
@@ -290,7 +290,7 @@ const makeTurfProduct = (p) => ({
   },
   availableColors: turfColourOptions,
   quality: turfSharedQuality,
-  evidenceNote: 'Datos de referencia del proveedor Onto Padel, comprobados el 05/11/2026; confirmar ficha y configuración de suministro en la oferta KND.',
+  evidenceNote: 'Datos técnicos de referencia actualizados el 05/11/2026; confirmar la ficha específica y la configuración de suministro en la oferta KND.',
 })
 
 export const turfSystems = [
@@ -491,8 +491,8 @@ export const turfSystems = [
       ],
       [
         "63.000/m²",
-        "Densidad indicada en la ficha de referencia del proveedor.",
-        "Density stated in the supplier reference sheet."
+        "Densidad indicada en la ficha técnica de referencia.",
+        "Density stated in the reference technical sheet."
       ],
       [
         "Formación",
@@ -576,8 +576,8 @@ const roofModel = (p) => ({
     ? 'Render de referencia aportado por KND; representación final sujeta a validación técnica.'
     : 'Fotografía original de esta variante pendiente. No mostramos un render de otra cubierta.',
   engineeringNote: {
-    es: 'Datos de referencia del proveedor, no una garantía estructural ni límites seguros de operación. Alturas, viento, cargas, cimentación, anclajes, accesos y permisos requieren ingeniería local antes de confirmar el suministro.',
-    en: 'Supplier reference data, not a structural warranty or safe operating limits. Heights, wind, loads, foundations, anchors, access and permits require project-specific engineering before supply is confirmed.',
+    es: 'Datos técnicos de referencia, no una garantía estructural ni límites seguros de operación. Alturas, viento, cargas, cimentación, anclajes, accesos y permisos requieren ingeniería local antes de confirmar el suministro.',
+    en: 'Reference technical data, not a structural warranty or safe operating limits. Heights, wind, loads, foundations, anchors, access and permits require project-specific engineering before supply is confirmed.',
   },
   sourceUrl: 'https://ontopadel.com/roof/' + p.id,
   sourceChecked: '2026-11-05',
@@ -755,13 +755,13 @@ export const lightingPackages = [
 ]
 
 export const projects = [
-  { slug: 'hk-open-2026', featured: true, courtModelCode: 'OP-03', courtModelName: 'Signature Tournament', name: 'HK Open 2026', subtitle: 'Competición internacional', location: 'Hong Kong, China', country: 'China', region: 'Asia', segment: 'Competición', year: '2026', status: 'Proyecto publicado', description: 'Referencia publicada para una sede de competición en Hong Kong con el modelo OP-03 Signature Tournament.', verifiedFacts: ['Hong Kong, China', 'OP-03 · Signature Tournament', 'Año publicado: 2026'], image: media.courts.torneo, imageStatus: 'provisional', imageNote: 'Archivo aportado por KND; confirmar autoría, alcance y permiso de publicación antes del lanzamiento comercial definitivo.', gallery: [], relatedProjects: ['gutech-university-sports-project', 'covered-court-guangzhou'] },
-  { slug: 'gutech-university-sports-project', featured: true, courtModelCode: 'OP-01', courtModelName: 'Super Panoramic', name: 'GUtech University Sports Project', subtitle: 'Proyecto deportivo universitario', location: 'Oman', country: 'Oman', region: 'Oriente Medio', segment: 'Universidad', status: 'Proyecto publicado', description: 'Proyecto universitario publicado en Oman asociado al modelo OP-01 Super Panoramic.', verifiedFacts: ['Oman', 'OP-01 · Super Panoramic', 'Segmento: universidad'], image: media.courts.germanproject, imageStatus: 'provisional', imageNote: 'Archivo aportado por KND; confirmar autoría, alcance y permiso de publicación antes del lanzamiento comercial definitivo.', gallery: [], relatedProjects: ['hk-open-2026', 'indoor-padel-club-new-jersey'] },
-  { slug: 'indoor-padel-club-new-jersey', featured: true, courtModelCode: 'OP-04', courtModelName: 'Full Super Panoramic', name: 'Indoor Padel Club', subtitle: 'Club indoor', location: 'New Jersey, USA', country: 'Estados Unidos', region: 'América', segment: 'Club indoor', status: 'Proyecto publicado', description: 'Club indoor publicado en New Jersey asociado al modelo OP-04 Full Super Panoramic.', verifiedFacts: ['New Jersey, USA', 'OP-04 · Full Super Panoramic', 'Segmento: club indoor'], image: media.courts.newjerseyproject, imageStatus: 'provisional', imageNote: 'Archivo aportado por KND; confirmar autoría, alcance y permiso de publicación antes del lanzamiento comercial definitivo.', gallery: [], relatedProjects: ['panoramic-club-colombia', 'gutech-university-sports-project'] },
-  { slug: 'covered-court-guangzhou', courtModelCode: 'OP-02', courtModelName: 'Panoramic', name: 'Covered Court', subtitle: 'Club cubierto', location: 'Guangzhou, China', country: 'China', region: 'Asia', segment: 'Club cubierto', status: 'Proyecto publicado', description: 'Proyecto cubierto publicado en Guangzhou asociado al modelo OP-02 Panoramic.', verifiedFacts: ['Guangzhou, China', 'OP-02 · Panoramic', 'Segmento: club cubierto'], image: media.courts.guangzhouproject, imageStatus: 'provisional', imageNote: 'Archivo aportado por KND; confirmar autoría, alcance y permiso de publicación antes del lanzamiento comercial definitivo.', gallery: [], relatedProjects: ['hk-open-2026', 'in-construction-batam'] },
-  { slug: 'in-construction-batam', courtModelCode: 'OP-01', courtModelName: 'Super Panoramic', name: 'In Construction', subtitle: 'Proyecto en construcción', location: 'Batam, Indonesia', country: 'Indonesia', region: 'Asia', segment: 'En construcción', status: 'En construcción', description: 'Proyecto publicado en fase de construcción en Batam asociado al modelo OP-01 Super Panoramic.', verifiedFacts: ['Batam, Indonesia', 'OP-01 · Super Panoramic', 'Estado: en construcción'], image: media.courts.indonesiaproject, imageStatus: 'provisional', imageNote: 'Archivo aportado por KND; confirmar autoría, alcance y permiso de publicación antes del lanzamiento comercial definitivo.', gallery: [], relatedProjects: ['covered-court-guangzhou', 'gutech-university-sports-project'] },
-  { slug: 'panoramic-club-colombia', courtModelCode: 'OP-02', courtModelName: 'Panoramic', name: 'Panoramic Club', subtitle: 'Club de pádel', location: 'Colombia', country: 'Colombia', region: 'América', segment: 'Club', status: 'Proyecto publicado', description: 'Club publicado en Colombia asociado al modelo OP-02 Panoramic.', verifiedFacts: ['Colombia', 'OP-02 · Panoramic', 'Segmento: club'], image: media.courts.colombiaproject, imageStatus: 'provisional', imageNote: 'Archivo aportado por KND; confirmar autoría, alcance y permiso de publicación antes del lanzamiento comercial definitivo.', gallery: [], relatedProjects: ['indoor-padel-club-new-jersey', 'outdoor-club-kenya'] },
-  { slug: 'outdoor-club-kenya', courtModelCode: 'OP-02', courtModelName: 'Panoramic', name: 'Outdoor Club', subtitle: 'Club outdoor', location: 'Kenya', country: 'Kenya', region: 'África', segment: 'Club outdoor', status: 'Proyecto publicado', description: 'Club exterior publicado en Kenya asociado al modelo OP-02 Panoramic.', verifiedFacts: ['Kenya', 'OP-02 · Panoramic', 'Segmento: club outdoor'], image: media.courts.kenyaproject, imageStatus: 'provisional', imageNote: 'Archivo aportado por KND; confirmar autoría, alcance y permiso de publicación antes del lanzamiento comercial definitivo.', gallery: [], relatedProjects: ['panoramic-club-colombia', 'gutech-university-sports-project'] },
+  { slug: 'hk-open-2026', featured: true, courtModelCode: 'OP-03', courtModelName: 'Signature Tournament', name: 'HK Open 2026', subtitle: 'Competición internacional', location: 'Hong Kong, China', country: 'China', region: 'Asia', segment: 'Competición', year: '2026', status: 'Proyecto publicado', description: 'Referencia publicada para una sede de competición en Hong Kong con el modelo OP-03 Signature Tournament.', descriptionEn: 'Published reference for a competition venue in Hong Kong associated with the OP-03 Signature Tournament court.', verifiedFacts: ['Hong Kong, China', 'OP-03 · Signature Tournament', 'Año publicado: 2026'], image: media.courts.torneo, imageStatus: 'provisional', imageNote: 'Archivo aportado por KND; confirmar autoría, alcance y permiso de publicación antes del lanzamiento comercial definitivo.', gallery: [], relatedProjects: ['gutech-university-sports-project', 'covered-court-guangzhou'] },
+  { slug: 'gutech-university-sports-project', featured: true, courtModelCode: 'OP-01', courtModelName: 'Super Panoramic', name: 'GUtech University Sports Project', subtitle: 'Proyecto deportivo universitario', location: 'Oman', country: 'Oman', region: 'Oriente Medio', segment: 'Universidad', status: 'Proyecto publicado', description: 'Proyecto universitario publicado en Oman asociado al modelo OP-01 Super Panoramic.', descriptionEn: 'Published university sports project in Oman associated with the OP-01 Super Panoramic court.', verifiedFacts: ['Oman', 'OP-01 · Super Panoramic', 'Segmento: universidad'], image: media.courts.germanproject, imageStatus: 'provisional', imageNote: 'Archivo aportado por KND; confirmar autoría, alcance y permiso de publicación antes del lanzamiento comercial definitivo.', gallery: [], relatedProjects: ['hk-open-2026', 'indoor-padel-club-new-jersey'] },
+  { slug: 'indoor-padel-club-new-jersey', featured: true, courtModelCode: 'OP-04', courtModelName: 'Full Super Panoramic', name: 'Indoor Padel Club', subtitle: 'Club indoor', location: 'New Jersey, USA', country: 'Estados Unidos', region: 'América', segment: 'Club indoor', status: 'Proyecto publicado', description: 'Club indoor publicado en New Jersey asociado al modelo OP-04 Full Super Panoramic.', descriptionEn: 'Published indoor club reference in New Jersey associated with OP-04 Full Super Panoramic.', verifiedFacts: ['New Jersey, USA', 'OP-04 · Full Super Panoramic', 'Segmento: club indoor'], image: media.courts.newjerseyproject, imageStatus: 'provisional', imageNote: 'Archivo aportado por KND; confirmar autoría, alcance y permiso de publicación antes del lanzamiento comercial definitivo.', gallery: [], relatedProjects: ['panoramic-club-colombia', 'gutech-university-sports-project'] },
+  { slug: 'covered-court-guangzhou', courtModelCode: 'OP-02', courtModelName: 'Panoramic', name: 'Covered Court', subtitle: 'Club cubierto', location: 'Guangzhou, China', country: 'China', region: 'Asia', segment: 'Club cubierto', status: 'Proyecto publicado', description: 'Proyecto cubierto publicado en Guangzhou asociado al modelo OP-02 Panoramic.', descriptionEn: 'Published covered-court reference in Guangzhou associated with the OP-02 Panoramic model.', verifiedFacts: ['Guangzhou, China', 'OP-02 · Panoramic', 'Segmento: club cubierto'], image: media.courts.guangzhouproject, imageStatus: 'provisional', imageNote: 'Archivo aportado por KND; confirmar autoría, alcance y permiso de publicación antes del lanzamiento comercial definitivo.', gallery: [], relatedProjects: ['hk-open-2026', 'in-construction-batam'] },
+  { slug: 'in-construction-batam', courtModelCode: 'OP-01', courtModelName: 'Super Panoramic', name: 'In Construction', subtitle: 'Proyecto en construcción', location: 'Batam, Indonesia', country: 'Indonesia', region: 'Asia', segment: 'En construcción', status: 'En construcción', description: 'Proyecto publicado en fase de construcción en Batam asociado al modelo OP-01 Super Panoramic.', descriptionEn: 'Published construction-stage project in Batam associated with OP-01 Super Panoramic.', verifiedFacts: ['Batam, Indonesia', 'OP-01 · Super Panoramic', 'Estado: en construcción'], image: media.courts.indonesiaproject, imageStatus: 'provisional', imageNote: 'Archivo aportado por KND; confirmar autoría, alcance y permiso de publicación antes del lanzamiento comercial definitivo.', gallery: [], relatedProjects: ['covered-court-guangzhou', 'gutech-university-sports-project'] },
+  { slug: 'panoramic-club-colombia', courtModelCode: 'OP-02', courtModelName: 'Panoramic', name: 'Panoramic Club', subtitle: 'Club de pádel', location: 'Colombia', country: 'Colombia', region: 'América', segment: 'Club', status: 'Proyecto publicado', description: 'Club publicado en Colombia asociado al modelo OP-02 Panoramic.', descriptionEn: 'Published club reference in Colombia associated with OP-02 Panoramic.', verifiedFacts: ['Colombia', 'OP-02 · Panoramic', 'Segmento: club'], image: media.courts.colombiaproject, imageStatus: 'provisional', imageNote: 'Archivo aportado por KND; confirmar autoría, alcance y permiso de publicación antes del lanzamiento comercial definitivo.', gallery: [], relatedProjects: ['indoor-padel-club-new-jersey', 'outdoor-club-kenya'] },
+  { slug: 'outdoor-club-kenya', courtModelCode: 'OP-02', courtModelName: 'Panoramic', name: 'Outdoor Club', subtitle: 'Club outdoor', location: 'Kenya', country: 'Kenya', region: 'África', segment: 'Club outdoor', status: 'Proyecto publicado', description: 'Club exterior publicado en Kenya asociado al modelo OP-02 Panoramic.', descriptionEn: 'Published outdoor club reference in Kenya associated with OP-02 Panoramic.', verifiedFacts: ['Kenya', 'OP-02 · Panoramic', 'Segmento: club outdoor'], image: media.courts.kenyaproject, imageStatus: 'provisional', imageNote: 'Archivo aportado por KND; confirmar autoría, alcance y permiso de publicación antes del lanzamiento comercial definitivo.', gallery: [], relatedProjects: ['panoramic-club-colombia', 'gutech-university-sports-project'] },
 ]
 
 export const articles = [

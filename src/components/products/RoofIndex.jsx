@@ -136,7 +136,7 @@ export default function RoofIndex({ navigate, openProject, locale = 'es' }) {
               </div>
               <p className="knd-roof-card__fineprint">{roof.image ? t.reference : t.imagePending}</p>
               <div className="inline-actions">
-                <button className="button dark" onClick={() => navigate('/roof/' + roof.id)}>{t.detail} →</button>
+                <a className="button dark" href={language === 'en' ? '/en/roof/' + roof.id : '/roof/' + roof.id}>{t.detail} →</a>
                 <button className="text-link" onClick={() => quote(roof)}>{t.proposal} →</button>
               </div>
             </div>

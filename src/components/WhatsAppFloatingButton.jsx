@@ -2,7 +2,14 @@ const WHATSAPP_NUMBER = '34632753763'
 const DEFAULT_MESSAGE = 'Hola, me gustaría recibir información sobre las pistas de KND Padel.'
 
 export default function WhatsAppFloatingButton({ locale = 'es' }) {
-  const href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(DEFAULT_MESSAGE)}`
+  const message = locale === 'en' ? 'Hello, I would like information about KND Padel courts.' : DEFAULT_MESSAGE
+  const href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`
+  const trackClick = () => {
+    if (typeof window === 'undefined') return
+    const params = { contact_method: 'whatsapp' }
+    if (typeof window.gtag === 'function') window.gtag('event', 'contact_whatsapp', params)
+    else if (Array.isArray(window.dataLayer)) window.dataLayer.push({ event: 'knd_contact_whatsapp', ...params })
+  }
   const label = locale === 'en' ? 'Contact KND Padel on WhatsApp' : 'Contactar con KND Padel por WhatsApp'
 
   return (
@@ -13,6 +20,7 @@ export default function WhatsAppFloatingButton({ locale = 'es' }) {
       rel="noopener noreferrer"
       aria-label={label}
       title={label}
+      onClick={trackClick}
     >
       <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none">
         <path

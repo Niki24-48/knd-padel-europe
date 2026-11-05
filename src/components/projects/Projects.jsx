@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { brand, courts, projects } from '../../data/site.js'
+import { localizedPath } from '../../seo/routes.js'
 
 const Arrow = () => <span aria-hidden="true" className="arrow">→</span>
 
@@ -200,21 +201,16 @@ function ProjectCard({ project, navigate, locale = 'es', featured = false, compa
   const { hero } = projectMedia(project)
   return (
     <article className={`project-card-v2 ${featured ? 'is-featured' : ''} ${compact ? 'is-compact' : ''}`}>
-      <button
-        type="button"
-        className="project-card-v2__media"
-        onClick={() => navigate(`/projects/${project.slug}`)}
-        aria-label={`${c.viewProject}: ${project.name}`}
-      >
+      <a className="project-card-v2__media" href={localizedPath('/projects/' + project.slug, locale)} aria-label={`${c.viewProject}: ${project.name}`}>
         <ProjectImage project={project} media={hero} />
         <span className="project-card-v2__index" aria-hidden="true">{project.courtModelCode || 'KND'}</span>
-      </button>
+      </a>
       <div className="project-card-v2__body">
         <p className="project-card-v2__meta">{[project.segment, project.location].filter(Boolean).join(' · ')}</p>
         <h2>{project.name}</h2>
         {project.subtitle && <p className="project-card-v2__subtitle">{project.subtitle}</p>}
         <ProjectMediaNote project={project} locale={locale} />
-        <button type="button" className="text-link" onClick={() => navigate(`/projects/${project.slug}`)}>{c.viewCase} <Arrow /></button>
+        <a className="text-link" href={localizedPath('/projects/' + project.slug, locale)}>{c.viewCase} <Arrow /></a>
       </div>
     </article>
   )
@@ -225,17 +221,17 @@ function FeaturedProject({ project, navigate, locale = 'es', label }) {
   const { hero } = projectMedia(project)
   return (
     <article className="project-feature">
-      <button type="button" className="project-feature__media" onClick={() => navigate(`/projects/${project.slug}`)} aria-label={`${c.viewProject}: ${project.name}`}>
+      <a className="project-feature__media" href={localizedPath('/projects/' + project.slug, locale)} aria-label={`${c.viewProject}: ${project.name}`}>
         <ProjectImage project={project} media={hero} />
-      </button>
+      </a>
       <div className="project-feature__copy">
         <span className="eyebrow">{label || c.featured}</span>
         <p className="project-feature__location">{project.location}</p>
         <h2>{project.name}</h2>
         <p className="project-feature__model">{[project.courtModelCode, project.courtModelName].filter(Boolean).join(' · ')}</p>
-        {project.description && <p className="project-feature__description">{project.description}</p>}
+        {project.description && <p className="project-feature__description">{locale === 'en' ? (project.descriptionEn || project.description) : project.description}</p>}
         <ProjectMediaNote project={project} locale={locale} />
-        <button type="button" className="button dark" onClick={() => navigate(`/projects/${project.slug}`)}>{c.viewProject} <Arrow /></button>
+        <a className="button dark" href={localizedPath('/projects/' + project.slug, locale)}>{c.viewProject} <Arrow /></a>
       </div>
     </article>
   )
@@ -253,7 +249,7 @@ function verifiedFactEntries(facts) {
 }
 
 function projectDescription(project, locale) {
-  if (project.description) return project.description
+  if (project.description) return locale === 'en' ? (project.descriptionEn || project.description) : project.description
   const model = [project.courtModelCode, project.courtModelName].filter(Boolean).join(' · ')
   if (locale === 'en') return `${project.segment || 'Padel project'} in ${project.location}${model ? `, associated with the ${model} court system` : ''}.`
   return `${project.segment || 'Proyecto de pádel'} en ${project.location}${model ? `, asociado al sistema de pista ${model}` : ''}.`
@@ -418,17 +414,17 @@ export function ProjectsPreview({ navigate, locale = 'es' }) {
           <h2>{locale === 'en' ? <>Experience across<br/><em>different contexts.</em></> : <>Experiencia en<br/><em>distintos contextos.</em></>}</h2>
           <p>{locale === 'en' ? 'A portfolio built across competition, education and club environments.' : 'Un portfolio desarrollado en entornos de competición, educación y club.'}</p>
         </div>
-        <button className="text-link inverse" type="button" onClick={() => navigate('/projects')}>{c.viewAll} <Arrow /></button>
+        <a className="text-link inverse" href={localizedPath('/projects', locale)}>{c.viewAll} <Arrow /></a>
       </div>
       <div className="projects-preview-v2__grid">
         {selected.map((project, index) => {
           const { hero } = projectMedia(project)
           return (
             <article key={project.slug} className={`projects-preview-v2__item item-${index + 1}`}>
-              <button type="button" onClick={() => navigate(`/projects/${project.slug}`)} aria-label={`${c.viewProject}: ${project.name}`}>
+              <a href={localizedPath('/projects/' + project.slug, locale)} aria-label={`${c.viewProject}: ${project.name}`}>
                 <ProjectImage project={project} media={hero}/><span className="projects-preview-v2__shade" aria-hidden="true"/>
                 <span className="projects-preview-v2__copy"><small>{[project.segment, project.location].filter(Boolean).join(' · ')}</small><strong>{project.name}</strong><em>{c.viewProject} <Arrow /></em></span>
-              </button>
+              </a>
               <ProjectMediaNote project={project} locale={locale}/>
             </article>
           )
