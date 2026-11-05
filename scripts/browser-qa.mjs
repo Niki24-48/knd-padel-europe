@@ -4,7 +4,7 @@ import { mkdir } from 'node:fs/promises'
 
 const url = 'http://127.0.0.1:4173'
 const errors = []
-const server = spawn('npm',['run','preview','--','--host','127.0.0.1','--port','4173','--strictPort'],{stdio:'pipe'})
+const server = spawn(process.execPath,['./node_modules/vite/bin/vite.js','preview','--host','127.0.0.1','--port','4173','--strictPort'],{stdio:'ignore'})
 server.on('error',e=>errors.push('vite preview: '+e.message))
 const wait = (ms)=>new Promise(resolve=>setTimeout(resolve,ms))
 for(let i=0;i<60;i++){
@@ -19,11 +19,15 @@ try {
   for(const viewport of [{width:1440,height:900},{width:390,height:844}]){
     const mobile=viewport.width<600
     const page=await browser.newPage({viewport,deviceScaleFactor:1})
+    page.setDefaultTimeout(10000)
+    page.setDefaultNavigationTimeout(15000)
+    await page.route('https://fonts.googleapis.com/**', route=>route.abort())
+    await page.route('https://fonts.gstatic.com/**', route=>route.abort())
     page.on('pageerror',e=>errors.push(viewport.width+' runtime: '+e.message))
     page.on('console',message=>{
       if(message.type()==='error'&&/hydrat|uncaught|failed to hydrate|mismatch/i.test(message.text()))errors.push(viewport.width+' console: '+message.text())
     })
-    const open=async(route)=>{await page.goto(url+route,{waitUntil:'domcontentloaded'});await page.waitForTimeout(650)}
+    const open=async(route)=>{console.log('Checking '+viewport.width+' '+route);await page.goto(url+route,{waitUntil:'domcontentloaded',timeout:15000});await page.waitForTimeout(350)}
     const overflow=async(route)=>{const tooWide=await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+5);if(tooWide)errors.push(route+' overflows viewport '+viewport.width)}
     await open('/')
     const home=await page.locator('.home-hero').boundingBox(), homeH1=await page.locator('.home-hero h1').boundingBox()
