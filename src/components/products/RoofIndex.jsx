@@ -90,9 +90,9 @@ export default function RoofIndex({ navigate, openProject, locale = 'es' }) {
     [t.use, (item) => item.application[language]],
     [t.coverage, (item) => language === 'en' ? item.coverageEn : item.coverage],
     [t.operation, (item) => language === 'en' ? item.operationEn : item.operation],
-    [t.height, (item) => item.height],
-    [t.structure, (item) => item.structure],
-    [t.membrane, (item) => item.membrane],
+    [t.height, (item) => language === 'en' ? item.heightEn : item.height],
+    [t.structure, (item) => language === 'en' ? item.structureEn : item.structure],
+    [t.membrane, (item) => language === 'en' ? item.membraneEn : item.membrane],
     [t.courts, (item) => item.minCourts === 1 ? (language === 'en' ? 'From 1; layout to confirm' : 'Desde 1; distribución a confirmar') : (language === 'en' ? '2+ recommended' : '2+ recomendadas')],
   ]
 
