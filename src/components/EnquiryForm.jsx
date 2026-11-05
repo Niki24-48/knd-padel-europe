@@ -117,7 +117,7 @@ function validate(form, locale = 'es') {
   const t = formText[locale]
   const next = {}
   if (!form.name.trim()) next.name = t.requiredName
-  if (!/^\\S+@\\S+\\.\\S+$/.test(form.email.trim())) next.email = t.requiredEmail
+  if (!/^\S+@\S+\.\S+$/.test(form.email.trim())) next.email = t.requiredEmail
   if (!form.country.trim()) next.country = t.requiredCountry
   if (!form.consent) next.consent = t.requiredConsent
   return next
