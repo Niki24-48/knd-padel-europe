@@ -5,9 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && node scripts/prerender.mjs",
     "preview": "vite preview",
-    "verify:courts": "node scripts/verify-court-copy.mjs"
+    "verify:courts": "node scripts/verify-court-copy.mjs",
+    "verify:seo": "node scripts/verify-seo-output.mjs",
+    "test:seo": "npm run build && npm run verify:seo"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.9",
