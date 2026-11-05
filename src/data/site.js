@@ -488,11 +488,11 @@ export const turfSystems = [
 ].map(makeTurfProduct)
 
 export const turfFinishes = [
-  { id: 'blue', name: 'Azul', color: '#1358ac', image: media.turf.blue },
-  { id: 'green', name: 'Verde', color: '#287342', image: media.turf.green },
-  { id: 'red', name: 'Rojo', color: '#b64a28', image: media.turf.red },
-  { id: 'turquoise', name: 'Turquesa', color: '#239fb1', image: media.turf.turquoise },
-  { id: 'black', name: 'Grafito', color: '#252829', image: media.turf.black },
+  { id: 'black', name: 'Negro', color: '#252829', image: media.turf.black, referenceCode: 'OP X10' },
+  { id: 'turquoise', name: 'Turquesa', color: '#239fb1', image: media.turf.turquoise, referenceCode: 'OP R9' },
+  { id: 'red', name: 'Terracota', color: '#b64a28', image: media.turf.red, referenceCode: 'OP S12' },
+  { id: 'blue', name: 'Azul', color: '#1358ac', image: media.turf.blue, referenceCode: 'OP S9' },
+  { id: 'green', name: 'Verde', color: '#287342', image: media.turf.green, referenceCode: 'OP S7' },
 ]
 
 export const roofSystems = [
