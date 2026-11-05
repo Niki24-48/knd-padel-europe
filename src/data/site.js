@@ -522,7 +522,24 @@ export const turfFinishes = [
 const roofSpec = (es, en, valueEs, valueEn = valueEs) => ({
   label: { es, en }, value: { es: valueEs, en: valueEn },
 })
-const roofBenefit = (title, es, en) => ({ title, description: { es, en } })
+const roofBenefitTitlesEn = {
+  "Perímetro abierto": "Open perimeter",
+  "Geometría definida": "Defined starting geometry",
+  "Protección adaptable": "Adaptable protection",
+  "Lluvia lateral": "Side-rain protection",
+  "Ventilación natural": "Natural ventilation",
+  "Diseño según ubicación": "Site-specific design",
+  "Protección integral": "Complete protection",
+  "Formato multipista": "Multi-court format",
+  "Climatización bajo estudio": "HVAC planning",
+  "A cielo abierto": "Open sky",
+  "Acceso y ventilación": "Access and ventilation",
+  "Cálculo específico": "Site-specific engineering",
+  "Pórtico permanente": "Permanent elevated frame",
+  "Cierre configurable": "Configurable enclosure",
+  "Altura adaptable": "Adjustable height"
+}
+const roofBenefit = (title, es, en) => ({ title: { es: title, en: roofBenefitTitlesEn[title] || title }, description: { es, en } })
 const roofModel = (p) => ({
   ...p,
   image: p.imageKey ? media.roofs[p.imageKey] : null,
