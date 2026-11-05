@@ -44,3 +44,9 @@ a:focus-visible,button:focus-visible{outline:2px solid #d3f605;outline-offset:3p
 @media (max-width:1100px){.knd-guides-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:750px){.knd-guides-grid{grid-template-columns:1fr}.knd-guide-body{grid-template-columns:1fr;padding-top:44px;padding-bottom:54px}.knd-guide-sidebar{position:static}.knd-guides-card{min-height:0}.knd-guide-content section+section{margin-top:38px}.knd-guide-content p{font-size:16px}}
 @media (prefers-reduced-motion:reduce){.knd-guides *,.knd-guide-detail *{scroll-behavior:auto}}
+
+.knd-inline-guides{background:#ebf0e9;color:#183326;padding-block:58px}
+.knd-inline-guides h2{font-size:clamp(24px,3.2vw,40px);line-height:1.15;margin-bottom:24px}
+.knd-inline-guides-links{display:flex;flex-wrap:wrap;gap:13px}
+.knd-inline-guides-links a{display:inline-flex;align-items:center;min-height:50px;padding:12px 18px;border:1px solid #c0d1c2;color:#143a27;text-decoration:none;background:#fff;font-weight:650;line-height:1.4}
+.knd-inline-guides-links a:hover{text-decoration:underline;text-underline-offset:4px}
