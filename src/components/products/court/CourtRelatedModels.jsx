@@ -16,7 +16,7 @@ export default function CourtRelatedModels({ items = [], locale = 'es', navigate
           {court.image && <img src={court.image} alt={`${court.code} ${court.name}`} loading="lazy" decoding="async" />}
           <span>{court.code}</span>
           <h3>{court.name}</h3>
-          <button type="button" onClick={() => navigate?.(`/courts/${court.id}`)}>{t.action} <span aria-hidden="true">→</span></button>
+          <a href={`${locale === 'en' ? '/en' : ''}/courts/${court.id}`}>{t.action} <span aria-hidden="true">→</span></a>
         </article>)}
       </div>
     </div>
