@@ -233,7 +233,7 @@ function FeaturedProject({ project, navigate, locale = 'es', label }) {
         <p className="project-feature__location">{project.location}</p>
         <h2>{project.name}</h2>
         <p className="project-feature__model">{[project.courtModelCode, project.courtModelName].filter(Boolean).join(' · ')}</p>
-        {project.description && <p className="project-feature__description">{project.description}</p>}
+        {project.description && <p className="project-feature__description">{locale === 'en' ? (project.descriptionEn || project.description) : project.description}</p>}
         <ProjectMediaNote project={project} locale={locale} />
         <button type="button" className="button dark" onClick={() => navigate(`/projects/${project.slug}`)}>{c.viewProject} <Arrow /></button>
       </div>
@@ -253,7 +253,7 @@ function verifiedFactEntries(facts) {
 }
 
 function projectDescription(project, locale) {
-  if (project.description) return project.description
+  if (project.description) return locale === 'en' ? (project.descriptionEn || project.description) : project.description
   const model = [project.courtModelCode, project.courtModelName].filter(Boolean).join(' · ')
   if (locale === 'en') return `${project.segment || 'Padel project'} in ${project.location}${model ? `, associated with the ${model} court system` : ''}.`
   return `${project.segment || 'Proyecto de pádel'} en ${project.location}${model ? `, asociado al sistema de pista ${model}` : ''}.`
