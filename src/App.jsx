@@ -1,4 +1,6 @@
 import { articleGuides } from './data/articleGuides.js'
+import { commercialGuides } from './data/commercialGuides.js'
+import { GuidesIndex, GuideDetail } from './components/CommercialGuides.jsx'
 import { lazy, Suspense, useEffect, useRef, useState } from 'react'
 import {
   articles,
@@ -33,11 +35,13 @@ const BrandLogo = ({ onClick, className = '' }) => <button className={`logo logo
 
 const copy = {
   es: {
+    guides: 'Guías de compra',
     configure: 'Configura', start: 'Iniciar proyecto', courts: 'Pistas', turf: 'Césped', roof: 'Cubiertas', lighting: 'Iluminación',
     why: 'Por qué KND', projects: 'Proyectos', news: 'Journal', faq: 'FAQ', contact: 'Contacto',
     allSystems: 'Ver todos los sistemas', discover: 'Descubrir', enquiry: 'Hablar del proyecto', close: 'Cerrar',
   },
   en: {
+    guides: 'Buying guides',
     configure: 'Configure', start: 'Start a project', courts: 'Courts', turf: 'Turf', roof: 'Roof', lighting: 'Lighting',
     why: 'Why KND', projects: 'Projects', news: 'Journal', faq: 'FAQ', contact: 'Contact',
     allSystems: 'View all systems', discover: 'Discover', enquiry: 'Discuss project', close: 'Close',
@@ -257,6 +261,11 @@ function App() {
   else if (path === '/why' || path === '/about') page = <WhyPage {...pageProps} />
   else if (path === '/projects') page = <ProjectsPortfolioPage {...pageProps} />
   else if (path.startsWith('/projects/')) page = <ProjectDetailPage {...pageProps} project={projects.find((project) => project.slug === path.split('/').pop())} />
+  else if (path === '/guides') page = <GuidesIndex {...pageProps} />
+  else if (path.startsWith('/guides/')) {
+    const guide = commercialGuides.find((entry) => entry.path === path)
+    page = guide ? <GuideDetail {...pageProps} guide={guide} /> : <NotFound {...pageProps} />
+  }
   else if (path === '/news' || path === '/journal') page = <NewsPage {...pageProps} />
   else if (path.startsWith('/news/') || path.startsWith('/journal/')) page = <ArticlePage {...pageProps} article={articles.find((article) => article.slug === path.split('/').pop())} />
   else if (path === '/faq') page = <FaqPage {...pageProps} />
@@ -269,7 +278,7 @@ function App() {
     <SeoManager path={path} locale={locale} />
     {!isConfigurator && <Header path={path} navigate={navigate} locale={locale} setLocale={setLocale} t={t} openProject={openProject} />}
     <main className={isConfigurator ? 'configurator-main' : ''} key={`${locale}:${path}`}>{page}</main>
-    {!isConfigurator && <Footer navigate={navigate} t={t} />}
+    {!isConfigurator && <Footer navigate={navigate} t={t} locale={locale} />}
     {!isConfigurator && !projectOpen && <WhatsAppFloatingButton locale={locale} />}
     {projectOpen && <ProjectDialogComponent context={projectContext} onClose={() => setProjectOpen(false)} />}
   </>
@@ -283,7 +292,7 @@ function Header({ path, navigate, locale, setLocale, t, openProject }) {
   const closeTimer = useRef(null)
   const navLabel = { Pistas: t.courts, Césped: t.turf, Cubiertas: t.roof }
   const staticNav = [
-    [t.why, '/why'], [t.projects, '/projects'], [t.lighting, '/lighting'], [t.news, '/news'], [t.faq, '/faq'],
+    [t.why, '/why'], [t.projects, '/projects'], [t.lighting, '/lighting'], [t.guides, '/guides'], [t.news, '/news'], [t.faq, '/faq'],
   ]
   const menuCopy = {
     Pistas: locale === 'en' ? ['COURT SYSTEMS', 'Choose the format that fits your venue.', 'View all courts'] : ['PISTAS · SISTEMAS', 'Elige el formato que mejor encaja con tu sede.', 'Ver todas las pistas'],
