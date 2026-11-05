@@ -80,16 +80,16 @@ const pageCopy = {
   },
   '/lighting': {
     es: {
-      title: 'Iluminación para pistas de pádel',
-      description: 'Planifica la iluminación de una pista de pádel con KND: aplicación, distribución, integración con la estructura y validación por proyecto.',
-      h1: 'Iluminación de pistas de pádel que se coordina con el proyecto.',
-      intro: 'Definimos la iluminación junto con el sistema de pista, el uso previsto y las condiciones de la instalación.',
+      title: 'Iluminación LED para pistas de pádel | KND L200, L300, L400 y Luma',
+      description: 'Compara OP L200 (200 W), L300 (300 W), L400 (400 W) y Luma suspendida (42/84 W): flujo luminoso, IP, distribución y aplicaciones para clubes y pistas indoor.',
+      h1: 'Iluminación LED para pistas de pádel: cuatro sistemas KND.',
+      intro: 'Compara los modelos de luminarias por potencia, flujo luminoso, grado de protección, distribución de referencia y uso del proyecto.',
     },
     en: {
-      title: 'Padel court lighting',
-      description: 'Plan padel court lighting with KND: application, layout, structural integration and project-specific validation.',
-      h1: 'Padel court lighting coordinated with the project.',
-      intro: 'Lighting is defined alongside the court system, intended use and installation conditions.',
+      title: 'LED Padel Court Lighting | KND L200, L300, L400 and Luma',
+      description: 'Compare OP L200 (200 W), L300 (300 W), L400 (400 W) and suspended Luma (42/84 W): luminous flux, IP rating and lighting solutions for clubs and indoor courts.',
+      h1: 'LED padel court lighting: four KND systems.',
+      intro: 'Compare luminaire options by power, luminous flux, protection, reference layout and venue application.',
     },
   },
   '/projects': {

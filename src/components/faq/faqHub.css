@@ -38,3 +38,8 @@
   .faq-hub__answer { gap: 18px; grid-template-columns: 1fr; padding: 0 8px 22px 39px; }
   .faq-hub__empty { padding: 28px 22px; }
 }
+
+/* A display declaration previously overrode the browser's [hidden] rule,
+   exposing every answer even when aria-expanded was false. */
+.faq-hub .faq-hub__answer[hidden] { display: none !important; }
+.faq-hub .faq-hub__answer:not([hidden]) { display: grid; }
