@@ -28,6 +28,15 @@ try {
     await open('/')
     const home=await page.locator('.home-hero').boundingBox(), homeH1=await page.locator('.home-hero h1').boundingBox()
     if(!home||!homeH1||homeH1.y+homeH1.height>home.y+home.height+8)errors.push('Home hero text overflows '+viewport.width)
+    // Regression: project cards converted from buttons to anchors must keep
+    // positioned captions inside their own card, never over the home hero.
+    const firstPreview=page.locator('.projects-preview-v2__item > a').first()
+    if(await firstPreview.count()){
+      const card=await firstPreview.boundingBox()
+      const caption=await firstPreview.locator('.projects-preview-v2__copy').boundingBox()
+      if(!card||!caption||caption.y<card.y||caption.y+caption.height>card.y+card.height+2)
+        errors.push('Project caption is outside its card at '+viewport.width)
+    }
     await page.screenshot({path:`qa-screenshots/home-${viewport.width}.png`})
     await page.evaluate(()=>window.scrollTo(0,580))
     await page.waitForTimeout(350)
