@@ -17,6 +17,7 @@ import {
 } from '../src/seo/routes.js'
 import { articles, brand, courts, projects, roofSystems, turfSystems } from '../src/data/site.js'
 import { articleGuides } from '../src/data/articleGuides.js'
+import { commercialGuides } from '../src/data/commercialGuides.js'
 import { faqItems } from '../src/components/faq/faqData.js'
 
 const dist = resolve('dist')
@@ -57,6 +58,12 @@ function card(item, basePath, locale, type) {
 
 function categoryContent(info) {
   const { locale, basePath } = info
+  if (basePath === '/guides') {
+    return `<section class="seo-section"><h2>${escapeHtml(inLanguage(locale, 'Guías para decidir con confianza', 'Guides to make confident decisions'))}</h2><div class="seo-grid">${commercialGuides.map((guide) => {
+      const copy = guide[locale]
+      return `<article class="seo-card"><div><h2><a href="${href(guide.path, locale)}">${escapeHtml(copy.title)}</a></h2><p>${escapeHtml(copy.intro)}</p><a class="seo-text-link" href="${href(guide.path, locale)}">${escapeHtml(inLanguage(locale, 'Leer guía', 'Read guide'))} →</a></div></article>`
+    }).join('')}</div></section>`
+  }
   if (basePath === '/courts') return `<section class="seo-section"><h2>${escapeHtml(inLanguage(locale, 'Compara los modelos de pista KND', 'Compare KND court models'))}</h2><div class="seo-grid">${courts.map((item) => card(item, '/courts', locale, 'court')).join('')}</div></section>`
   if (basePath === '/turf') return `<section class="seo-section"><h2>${escapeHtml(inLanguage(locale, 'Cinco superficies, datos documentados', 'Five surfaces, documented data'))}</h2><div class="seo-grid">${turfSystems.map((item) => card(item, '/turf', locale, 'turf')).join('')}</div></section>`
   if (basePath === '/roof') return `<section class="seo-section"><h2>${escapeHtml(inLanguage(locale, 'Protección climática para cada proyecto', 'Climate protection for each project'))}</h2><div class="seo-grid">${roofSystems.map((item) => card(item, '/roof', locale, 'roof')).join('')}</div></section>`
@@ -83,6 +90,21 @@ function productContent(info) {
 
 function faqContent(locale) {
   return `<section class="seo-section"><h2>${escapeHtml(inLanguage(locale, 'Respuestas por tema', 'Answers by topic'))}</h2><div class="seo-faq-list">${faqItems.map((item) => `<details><summary>${escapeHtml(item[locale].question)}</summary><p>${escapeHtml(item[locale].answer)}</p><p>${item.related.map((path) => `<a href="${href(path, locale)}">${escapeHtml(inLanguage(locale, 'Ver información relacionada', 'View related information'))}</a>`).join(' · ')}</p></details>`).join('')}</div></section>`
+}
+
+function commercialGuideContent(info) {
+  const { item, locale } = info
+  const copy = item[locale]
+  const parts = copy.sections.map((section) => `<section class="seo-article-section"><h2>${escapeHtml(section.heading)}</h2>${section.paragraphs.map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`).join('')}${section.bullets?.length ? `<ul>${section.bullets.map((bullet) => `<li>${escapeHtml(bullet)}</li>`).join('')}</ul>` : ''}</section>`).join('')
+  const related = commercialGuides.filter((guide) => guide.slug !== item.slug).slice(0, 3)
+  return `<article class="seo-section seo-article">
+    <nav aria-label="${escapeHtml(inLanguage(locale, 'Ruta de navegación', 'Breadcrumb'))}"><a href="${href('/guides', locale)}">${escapeHtml(inLanguage(locale, 'Guías de compra', 'Buying guides'))}</a></nav>
+    ${parts}
+    <p>${escapeHtml(inLanguage(locale, 'Cada proyecto requiere confirmación técnica según su ubicación y alcance.', 'Every project requires technical confirmation against its location and scope.'))}</p>
+    <p><a class="button accent" href="${href('/contact',locale)}">${escapeHtml(copy.cta)} →</a></p>
+    <h2>${escapeHtml(inLanguage(locale, 'Otras guías', 'Related guides'))}</h2>
+    <ul class="seo-link-list">${related.map((entry) => `<li><a href="${href(entry.path, locale)}">${escapeHtml(entry[locale].title)}</a></li>`).join('')}</ul>
+  </article>`
 }
 
 function articleContent(info) {
@@ -130,6 +152,8 @@ function renderMain(info) {
   }
   const detail = info.type === 'court' || info.type === 'turf' || info.type === 'roof'
     ? productContent(info)
+    : info.type === 'guide'
+      ? commercialGuideContent(info)
     : info.type === 'article'
       ? articleContent(info)
       : info.type === 'project'
@@ -146,7 +170,8 @@ function navigation(locale) {
     ['/lighting', inLanguage(locale, 'Iluminación', 'Lighting')],
     ['/projects', inLanguage(locale, 'Proyectos', 'Projects')],
     ['/about', inLanguage(locale, 'Sobre KND', 'About KND')],
-    ['/news', inLanguage(locale, 'Guías', 'Guides')],
+    ['/guides', inLanguage(locale, 'Guías de compra', 'Buying guides')],
+    ['/news', inLanguage(locale, 'Journal', 'Journal')],
     ['/faq', 'FAQ'],
     ['/contact', inLanguage(locale, 'Contacto', 'Contact')],
   ]
