@@ -290,7 +290,7 @@ function App({ initialPath = '/' } = {}) {
     <main className={isConfigurator ? 'configurator-main' : ''} key={`${locale}:${path}`}>{page}</main>
     {!isConfigurator && <Footer navigate={navigate} t={t} locale={locale} />}
     {!isConfigurator && !projectOpen && <WhatsAppFloatingButton locale={locale} />}
-    {projectOpen && <ProjectDialogComponent context={projectContext} onClose={() => setProjectOpen(false)} />}
+    {projectOpen && <ProjectDialogComponent context={projectContext} locale={locale} onClose={() => setProjectOpen(false)} />}
   </>
 }
 
