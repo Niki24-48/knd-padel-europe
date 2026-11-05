@@ -18,14 +18,14 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p public/media/knd/lighting
-          curl -fLsS --retry 3 'https://cdn.shopify.com/oxygen-v2/54651/156984/321176/4945334/assets/l200-studio-v2-EkJPwZwQ.webp' -o public/media/knd/lighting/op-l200.webp
-          curl -fLsS --retry 3 'https://cdn.shopify.com/oxygen-v2/54651/156984/321176/4945334/assets/l300-studio-v2-CF-nl30Z.webp' -o public/media/knd/lighting/op-l300.webp
-          curl -fLsS --retry 3 'https://cdn.shopify.com/oxygen-v2/54651/156984/321176/4945334/assets/l400-studio-v2-DA_69g7X.webp' -o public/media/knd/lighting/op-l400.webp
-          curl -fLsS --retry 3 'https://cdn.shopify.com/oxygen-v2/54651/156984/321176/4945334/assets/luma-studio-v2-CCBJV7wu.webp' -o public/media/knd/lighting/op-luma.webp
+          curl -fLsS --retry 3 'https://cdn.shopify.com/oxygen-v2/54651/156984/321176/4945334/assets/l200-studio-v2-EkJPwZwQ .webp' -o public/media/knd/lighting/op-l200.jpg
+          curl -fLsS --retry 3 'https://cdn.shopify.com/oxygen-v2/54651/156984/321176/4945334/assets/l300-studio-v2-CF-nl30Z .webp' -o public/media/knd/lighting/op-l300.jpg
+          curl -fLsS --retry 3 'https://cdn.shopify.com/oxygen-v2/54651/156984/321176/4945334/assets/l400-studio-v2-DA_69g7X .webp' -o public/media/knd/lighting/op-l400.jpg
+          curl -fLsS --retry 3 'https://cdn.shopify.com/oxygen-v2/54651/156984/321176/4945334/assets/luma-studio-v2-CCBJV7wu .webp' -o public/media/knd/lighting/op-luma.jpg
           ls -lh public/media/knd/lighting/
-          for file in public/media/knd/lighting/*.webp; do
+          for file in public/media/knd/lighting/*.jpg; do
             echo "Asset: $file | MIME: $(file -b --mime-type "$file") | Size: $(wc -c < "$file")"
-            test "$(file -b --mime-type "$file")" = image/webp
+            test "$(file -b --mime-type "$file")" = image/jpeg
             test "$(wc -c < "$file")" -gt 10000
           done
           git add public/media/knd/lighting
