@@ -1572,3 +1572,37 @@ button.pd-text-link { padding: 12px 0; }
   .knd-roof-detail__related-grid > a { min-height: 180px; }
   .knd-roof-detail__section { padding: 76px 0; }
 }
+
+
+/* Additional collection details / index controls */
+.knd-roof-section-title { color: inherit; font-size: clamp(45px, 5.5vw, 78px); line-height: 1; letter-spacing: -.04em; max-width: 930px; margin: 20px 0 26px; }
+.knd-roof-section-lead { color: #536158; font-size: 13px; max-width: 780px; line-height: 1.7; }
+.knd-roof-filters { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 35px; }
+.knd-roof-filters button { border: 1px solid #bdc6bc; border-radius: 999px; color: #243d34; padding: 11px 22px; font: 12px 'DM Mono',monospace; transition: background .2s, color .2s; }
+.knd-roof-filters button.active,.knd-roof-filters button:hover { background: #0f2629; border-color: #0f2629; color: #fff; }
+.roof-list .knd-roof-card__media { margin: 0; overflow: hidden; }
+.roof-list .knd-roof-card__media img { min-height: 360px; }
+.roof-list .knd-roof-card__facts { margin-top: 24px; }
+.roof-list .knd-roof-card__facts > div { border-top: 1px solid #b9c5b9; padding: 11px 0; }
+.roof-list .knd-roof-card__fineprint { margin-top: 17px; color: #68746b; }
+.knd-roof-table-name { display: block; font-weight: 500; font-size: 12px; margin-top: 9px; min-width: 150px; }
+.knd-roof-index .comparison table { min-width: 1030px; border-collapse: collapse; width: 100%; }
+.knd-roof-index .comparison th,.knd-roof-index .comparison td { text-align: left; vertical-align: top; border-bottom: 1px solid #adb8ae; padding: 15px 18px; font-size: 12px; line-height: 1.5; min-width: 150px; }
+.knd-roof-index .comparison tbody th { min-width: 150px; font-weight: 600; }
+.knd-roof-comparison-note { margin-top: 24px; color: #55675a; font-size: 12px; line-height: 1.6; }
+.knd-roof-guide__grid > article { min-width: 0; }
+.knd-roof-index .planning-section .knd-roof-section-title { color: #fff; }
+.knd-roof-index .planning-section > .container > p { max-width: 730px; font-size: 13px; color: #ced7cd; line-height: 1.8; }
+.knd-roof-planning-final { font-size: clamp(25px, 3.2vw, 43px); margin: 75px 0 15px; }
+.knd-roof-index .planning-section .button { margin-top: 24px; }
+.knd-roof-index .catalogue-hero.roof-hero { background-image: linear-gradient(90deg, rgba(6, 20, 28, .86), rgba(6,20,28,.58)), url('/media/knd/roofs/r1-canopy-reference.png'); background-position: center; background-size: cover; }
+.knd-roof-index .catalogue-hero.roof-hero h1 { max-width: 990px; font-size: clamp(53px, 7vw, 108px); line-height: .94; }
+.knd-roof-index .catalogue-hero.roof-hero p { color: #eef3ea; max-width: 670px; line-height: 1.75; font-size: 14px; }
+.knd-roof-index .knd-roof-guide--faq { background: #e9ece6; }
+.knd-roof-index .knd-roof-guide--faq details { max-width: 920px; }
+@media (max-width: 780px) {
+  .roof-list .knd-roof-card__media { min-height: 260px; }
+  .roof-list .knd-roof-card__media img { min-height: 260px; }
+  .knd-roof-index .catalogue-hero.roof-hero { min-height: 650px; }
+  .knd-roof-filters button { padding: 10px 15px; }
+}
