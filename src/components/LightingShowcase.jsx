@@ -65,8 +65,8 @@ const specValue = (model, key, language) => {
   if (language !== 'en') return value
   if (key === 'protection' && value === 'Interior') return 'Indoor'
   if (key === 'layout' && value === '60 módulos') return '60 modules'
-  return value.replace(/\\b(\\d+)\\.(\\d{3})\\b/g, '$1,$2')
-    .replace(/(\\d),(\\d{1,2})\\b/g, '$1.$2')
+  return value.replace(/\b(\d+)\.(\d{3})\b/g, '$1,$2')
+    .replace(/(\d),(\d{1,2})\b/g, '$1.$2')
 }
 
 const technicalRows = [
