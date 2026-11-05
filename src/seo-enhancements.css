@@ -1,0 +1,52 @@
+/* Commercial SEO content and semantic-link support. Scoped to avoid the 3D studio. */
+.knd-guides,.knd-guide-detail{background:#f7f8f4;color:#16241e}
+.knd-guides-hero{background:#11241e;color:#f8faf6;min-height:330px}
+.knd-guides-hero .container{padding-top:clamp(70px,10vw,150px);padding-bottom:70px}
+.knd-guides-hero h1{max-width:930px;font-size:clamp(40px,6vw,84px);line-height:1.06;letter-spacing:-.045em}
+.knd-guides-hero p{max-width:780px;line-height:1.6;font-size:clamp(16px,2vw,21px);color:#d9e5dc}
+.knd-guides .section,.knd-guide-detail .section{padding-block:clamp(50px,8vw,100px)}
+.knd-guides-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px}
+.knd-guides-card{background:#fff;border:1px solid #d6ded7;border-radius:3px;padding:clamp(22px,2.5vw,34px);display:flex;flex-direction:column;gap:15px;min-height:250px;box-shadow:0 12px 34px rgba(17,35,29,.05)}
+.knd-guides-card .eyebrow{font-size:11px;color:#52675e}
+.knd-guides-card h2,.knd-guides-card h3{font-size:clamp(21px,2.2vw,31px);line-height:1.2;letter-spacing:-.025em}
+.knd-guides-card h2 a,.knd-guides-card h3 a{color:inherit;text-decoration:none}
+.knd-guides-card h2 a:hover,.knd-guides-card h3 a:hover{text-decoration:underline;text-underline-offset:4px}
+.knd-guides-card p{line-height:1.7;color:#516258}
+.knd-guides-card .text-link{margin-top:auto;font-weight:700;color:#173d2b;text-decoration:underline;text-underline-offset:4px}
+.knd-guide-crumbs{display:flex;align-items:center;gap:12px;margin-bottom:32px;color:#d3e0d9;font-size:14px}
+.knd-guide-crumbs a{color:inherit;text-underline-offset:3px}
+.knd-guide-body{display:grid;grid-template-columns:minmax(0,760px) minmax(230px,330px);gap:clamp(28px,5vw,90px);padding-top:80px;padding-bottom:80px}
+.knd-guide-content section+section{margin-top:60px}
+.knd-guide-content h2{font-size:clamp(27px,3vw,43px);line-height:1.16;letter-spacing:-.025em;margin-bottom:22px}
+.knd-guide-content p,.knd-guide-content li{font-size:17px;line-height:1.85;color:#364c40;margin-bottom:19px}
+.knd-guide-content ul{padding-left:26px}
+.knd-guide-sidebar{align-self:start;position:sticky;top:100px;background:#e9eee7;border:1px solid #d3ded3;padding:clamp(22px,3vw,32px)}
+.knd-guide-sidebar h2{font-size:27px;line-height:1.2;margin-bottom:12px}
+.knd-guide-sidebar p{font-size:15px;line-height:1.65;color:#3c5145}
+.knd-guide-sidebar .button{display:inline-block;margin:24px 0;width:100%;text-align:center}
+.knd-guide-side-links{display:grid;gap:12px;margin-top:14px}
+.knd-guide-side-links a{color:#214232;font-weight:650;text-decoration:underline;text-underline-offset:3px}
+.knd-guide-related{background:#e8eee8}
+.knd-guide-related h2{font-size:clamp(30px,4vw,48px);margin-bottom:32px}
+.knd-guide-last{background:#e7eee6}
+.knd-guide-last .container{max-width:950px}
+.knd-guide-last h2{font-size:clamp(28px,3.2vw,44px)}
+.knd-guide-last p{font-size:17px;line-height:1.7;max-width:700px;margin-block:16px 26px}
+.desktop-nav > a{display:inline-flex;align-items:center;color:inherit;text-decoration:none;cursor:pointer}
+.desktop-nav > a:hover{text-decoration:underline;text-underline-offset:5px}
+.mega-product-card,.mobile-product-list > a,.mobile-basic > a,.site-footer a:not(.logo){text-decoration:none;color:inherit}
+.mega-product-card{display:flex;flex-direction:column}
+.mobile-basic>a{display:flex;justify-content:space-between;align-items:center}
+.site-footer .footer-grid > div:nth-child(2) a{display:block;margin-top:11px;text-decoration:none}
+.site-footer .footer-grid > div:nth-child(2) a:hover{text-decoration:underline;text-underline-offset:4px}
+a.logo-image{display:inline-flex;align-items:center}
+a:focus-visible,button:focus-visible{outline:2px solid #d3f605;outline-offset:3px}
+@media (max-width:1100px){.knd-guides-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:750px){.knd-guides-grid{grid-template-columns:1fr}.knd-guide-body{grid-template-columns:1fr;padding-top:44px;padding-bottom:54px}.knd-guide-sidebar{position:static}.knd-guides-card{min-height:0}.knd-guide-content section+section{margin-top:38px}.knd-guide-content p{font-size:16px}}
+@media (prefers-reduced-motion:reduce){.knd-guides *,.knd-guide-detail *{scroll-behavior:auto}}
+
+.knd-inline-guides{background:#ebf0e9;color:#183326;padding-block:58px}
+.knd-inline-guides h2{font-size:clamp(24px,3.2vw,40px);line-height:1.15;margin-bottom:24px}
+.knd-inline-guides-links{display:flex;flex-wrap:wrap;gap:13px}
+.knd-inline-guides-links a{display:inline-flex;align-items:center;min-height:50px;padding:12px 18px;border:1px solid #c0d1c2;color:#143a27;text-decoration:none;background:#fff;font-weight:650;line-height:1.4}
+.knd-inline-guides-links a:hover{text-decoration:underline;text-underline-offset:4px}

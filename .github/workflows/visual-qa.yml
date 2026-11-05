@@ -1,0 +1,26 @@
+name: KND visual and hydration QA
+on:
+  pull_request:
+    branches: [main]
+jobs:
+  visual:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npm install --no-save playwright@1.57.0
+      - run: npx playwright install chromium
+      - run: node scripts/browser-qa.mjs
+      - name: Keep desktop and mobile screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: knd-visual-qa
+          path: qa-screenshots/
+          if-no-files-found: ignore
