@@ -50,6 +50,7 @@ function headFor(documentHtml, seo) {
 
   const additions = [
     `<link rel="canonical" href="${escapeHtml(seo.canonical)}">`,
+    ...(seo.info?.basePath === '/' ? ['<link rel="preload" as="image" href="/media/knd/courts/portada.jpg" fetchpriority="high">'] : []),
     ...seo.alternates.map(({ lang, href: alternateHref }) => `<link rel="alternate" hreflang="${escapeHtml(lang)}" href="${escapeHtml(alternateHref)}">`),
     ...seo.structuredData.map((item) => `<script type="application/ld+json" data-knd-static-jsonld>${JSON.stringify(item).replace(/</g, '\\u003c')}</script>`),
   ].join('\n  ')
