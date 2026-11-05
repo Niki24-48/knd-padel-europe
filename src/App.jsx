@@ -471,16 +471,16 @@ function HomePage({ navigate, openProject, t, locale }) {
       <div className="hero-shade"></div><div className="container hero-content home-hero-content">
         <div className="home-hero-primary">
           <Eyebrow>KND PADEL · SISTEMAS COMPLETOS</Eyebrow>
-          <h1>Construido<br/><em>para jugar.</em></h1>
+          <h1>{locale === 'en' ? <>Padel courts<br/><em>built for play.</em></> : <>Pistas de pádel<br/><em>hechas para jugar.</em></>}</h1>
         </div>
         <div className="home-hero-support">
-          <p>Construido por personas que juegan al pádel, para proyectos de pádel: pistas, césped, iluminación y cubiertas que se adaptan a cada ubicación.</p>
-          <div className="hero-actions"><button className="button light" onClick={() => openProject()}>{t.start}<Arrow /></button><button className="text-link inverse" onClick={() => navigate('/courts')}>Explorar sistemas <span aria-hidden="true">↓</span></button></div>
+          <p>{locale === 'en' ? 'Court systems, turf, lighting and roofing coordinated for clubs, hotels and professional padel projects.' : 'Pistas, césped, iluminación y cubiertas de pádel coordinadas para clubes, hoteles y proyectos profesionales.'}</p>
+          <div className="hero-actions"><button className="button light" onClick={() => openProject()}>{t.start}<Arrow /></button><RouteLink className="text-link inverse" to="/courts" locale={locale} navigate={navigate}>{locale === 'en' ? 'Explore courts' : 'Explorar pistas'} <span aria-hidden="true">↓</span></RouteLink></div>
         </div>
       </div>
       <div className="hero-corner">KND PADEL EUROPE<br/>COURT SYSTEMS · 01—07</div>
     </section>
-    <Stats />
+    <Stats locale={locale} />
     <section className="section standard-section"><div className="container split-heading"><div><Eyebrow>EL ESTÁNDAR KND</Eyebrow><h2>Un partner.<br/>Cada detalle.<br/><em>Desde el plano<br/>hasta el primer punto.</em></h2></div><p>Planificación, fabricación, logística e instalación se conectan desde el inicio para que cada decisión sume al rendimiento del proyecto.</p></div>
       <div className="container standard-grid"><figure className="feature-image"><img src={images.partner} alt="Vista de obra"/><figcaption>01 <span>Diseñado alrededor de tu lugar, clima y ambición.</span></figcaption></figure><div className="numbered-list">{[
         ['01', 'Visión de conjunto', 'Diseño, coordinación técnica y una especificación que habla el idioma del sitio.'],
@@ -502,7 +502,18 @@ function HomePage({ navigate, openProject, t, locale }) {
   </>
 }
 
-function Stats() { return <section className="stats section home-stats"><div className="container stats-layout"><div className="stats-intro"><div><Eyebrow>KND DE UN VISTAZO</Eyebrow><h2>Un catálogo diseñado<br/><em>como sistema.</em></h2></div><p>La propuesta KND conecta el modelo de pista, la superficie, la iluminación y la protección climática desde el inicio.</p></div><div className="stat-grid">{[['07', 'Modelos de pista'], ['05', 'Sistemas de césped'], ['05', 'Sistemas de techo'], ['01', 'Proceso conectado']].map(([number, text]) => <article key={text}><strong>{number}</strong><span>{text}</span></article>)}</div></div></section> }
+function Stats({ locale = 'es' }) {
+  const english = locale === 'en'
+  const stats = english
+    ? [['07','Court models'],['05','Turf systems'],['05','Roof systems'],['01','Connected project brief']]
+    : [['07','Modelos de pista'],['05','Sistemas de césped'],['05','Sistemas de cubierta'],['01','Proceso de proyecto']]
+  return <section className="stats section home-stats"><div className="container stats-layout">
+    <div className="stats-intro"><div><span className="eyebrow">{english ? 'KND AT A GLANCE' : 'KND DE UN VISTAZO'}</span>
+      <h2>{english ? <>A court catalogue.<br/><em>One connected system.</em></> : <>Un catálogo de pistas.<br/><em>Un sistema conectado.</em></>}</h2>
+    </div><p>{english ? 'KND coordinates court models, surfacing, lighting and weather protection from the first project brief.' : 'KND coordina modelos de pista, superficies, iluminación y protección climática desde el primer planteamiento.'}</p></div>
+    <div className="stat-grid">{stats.map(([number,label],i)=><article key={label}><strong>{number}</strong><span>{label}</span></article>)}</div>
+  </div></section>
+}
 
 function SectionHead({ eyebrow, title, text }) { return <div className="section-head"><Eyebrow>{eyebrow}</Eyebrow><h2>{title}</h2>{text && <p>{text}</p>}</div> }
 function Eyebrow({ children }) { return <span className="eyebrow">{children}</span> }
@@ -563,10 +574,56 @@ function SystemDetail({ item, type, navigate, openProject }) {
   </>
 }
 
-function WhyPage({ openProject }) { return <><section className="about-hero"><div className="container"><Eyebrow>POR QUÉ KND</Eyebrow><h1>Detalles que hacen<br/><em>que jugar sea fácil.</em></h1><p>KND conecta ingeniería y experiencia de jugador para dar a cada proyecto una base más clara desde el principio.</p></div></section><section className="section belief-section"><div className="container"><div><Eyebrow>LA FORMA DE TRABAJAR</Eyebrow><h2>Un partner que<br/><em>piensa en la pista<br/>completa.</em></h2></div><div className="belief-list">{[['01', 'Diseñar para las decisiones reales', 'El lugar, el clima, el público y la operación cambian lo que significa una buena pista.'], ['02', 'Llevar el detalle hasta la obra', 'La fabricación y la documentación se conectan para evitar sorpresas cuando más cuestan.'], ['03', 'Hacer que el siguiente proyecto sea más fácil', 'Cada entrega alimenta cómo especificamos, coordinamos y acompañamos la siguiente.']].map(([n, h, p]) => <article key={n}><span>{n}</span><h3>{h}</h3><p>{p}</p></article>)}</div></div></section><section className="full-bleed-image"><img src={images.projectOne} alt="Pista de pádel KND"/></section><ContactCta openProject={() => openProject('Proyecto KND')} /></> }
+function WhyPage({ openProject, locale = 'es' }) {
+  const en = locale === 'en'
+  const points = en ? [
+    ['01','Start with the site','The location, climate, audience and operating model shape the right court system.'],
+    ['02','Connect every component','Steel, glass, turf, lighting and weather protection need one coordinated specification.'],
+    ['03','Plan beyond delivery','Documents, responsibilities, maintenance access and installation planning belong in the initial brief.'],
+  ] : [
+    ['01','Empezar por el emplazamiento','La ubicación, el clima, los usuarios y el uso previsto determinan el sistema adecuado.'],
+    ['02','Coordinar cada componente','Estructura, vidrio, césped, iluminación y protección climática necesitan una especificación conjunta.'],
+    ['03','Planificar más allá de la entrega','La documentación, responsabilidades, mantenimiento e instalación forman parte del proyecto desde el inicio.'],
+  ]
+  return <>
+    <section className="about-hero"><div className="container"><span className="eyebrow">{en ? 'ABOUT KND PADEL' : 'POR QUÉ KND PADEL'}</span>
+      <h1>{en ? <>Padel projects.<br/><em>Planned as a whole.</em></> : <>Proyectos de pádel.<br/><em>Una visión completa.</em></>}</h1>
+      <p>{en ? 'KND Padel Europe helps clubs, hospitality venues and sporting projects define court, turf, lighting and roof solutions around the realities of each location.' : 'KND Padel Europe ayuda a clubes, hoteles e instalaciones deportivas a definir pistas, césped, iluminación y cubiertas según las condiciones de cada lugar.'}</p>
+    </div></section>
+    <section className="section belief-section"><div className="container"><div><span className="eyebrow">{en ? 'HOW WE WORK' : 'CÓMO TRABAJAMOS'}</span>
+      <h2>{en ? <>Decisions made<br/><em>for real projects.</em></> : <>Decisiones pensadas<br/><em>para proyectos reales.</em></>}</h2>
+      <p>{en ? 'Our starting point is a clear project brief and a documented scope. Every technical claim is confirmed against the agreed specification.' : 'Partimos de un planteamiento claro y un alcance documentado. Cada requisito técnico se confirma en la especificación acordada.'}</p></div>
+      <div className="belief-list">{points.map(([no,title,description]) => <article key={no}><span>{no}</span><h3>{title}</h3><p>{description}</p></article>)}</div>
+    </div></section>
+    <section className="full-bleed-image"><img src={images.projectOne} alt={en ? 'KND padel court project reference' : 'Referencia de proyecto de pista KND'} loading="lazy" decoding="async"/></section>
+    <ContactCta openProject={() => openProject('KND Padel')} locale={locale} />
+  </>
+}
 
 
-function NewsPage({ navigate, locale = 'es' }) { return <><section className="plain-hero news-hero"><div className="container"><Eyebrow>KND PADEL · JOURNAL</Eyebrow><h1>Ideas alrededor<br/><em>de la pista.</em></h1><p>Notas de proyecto, producto y juego de las personas que desarrollan KND Padel.</p></div></section><section className="section news-index"><div className="container"><span className="story-count">TODAS LAS HISTORIAS · {articles.length.toString().padStart(2, '0')}</span><div className="news-list">{articles.map((article, index) => <button key={article.slug} onClick={() => navigate(`/news/${article.slug}`)}><img src={article.image} alt=""/><div><span>0{index + 1} · {article.type.toUpperCase()} · {article.date}</span><h2>{locale === 'en' ? (article.titleEn || article.title) : article.title}</h2><p>{locale === 'en' ? (article.excerptEn || article.excerpt) : article.excerpt}</p><i>Leer historia <Arrow /></i></div></button>)}</div></div></section></> }
+function NewsPage({ navigate, locale = 'es' }) {
+  const en = locale === 'en'
+  return <>
+    <section className="plain-hero news-hero"><div className="container"><span className="eyebrow">KND PADEL · JOURNAL</span>
+      <h1>{en ? <>Ideas for<br/><em>better padel projects.</em></> : <>Ideas alrededor<br/><em>de la pista.</em></>}</h1>
+      <p>{en ? 'Project notes and original guides about courts, clubs, weather protection and playing conditions.' : 'Notas de proyecto, producto y juego para quienes desarrollan instalaciones de pádel.'}</p>
+      <RouteLink to="/guides" locale={locale} navigate={navigate} className="text-link">{en ? 'Explore buying guides' : 'Explorar guías de compra'} →</RouteLink>
+    </div></section>
+    <section className="section news-index"><div className="container">
+      <span className="story-count">{en ? 'STORIES' : 'HISTORIAS'} · {articles.length.toString().padStart(2, '0')}</span>
+      <div className="news-list">{articles.map((article, index) => <article key={article.slug} className="news-list-card">
+        <RouteLink to={`/news/${article.slug}`} locale={locale} navigate={navigate}>
+          <img src={article.image} alt="" loading="lazy" decoding="async"/>
+          <div><span>{String(index + 1).padStart(2,'0')} · {article.type} · {article.date}</span>
+            <h2>{en ? (article.titleEn || article.title) : article.title}</h2>
+            <p>{en ? (article.excerptEn || article.excerpt) : article.excerpt}</p>
+            <span className="text-link">{en ? 'Read story' : 'Leer historia'} <Arrow /></span>
+          </div>
+        </RouteLink>
+      </article>)}</div>
+    </div></section>
+  </>
+}
 
 function ArticlePage({ article, navigate, locale = 'es', openProject }) {
   if (!article) return <NotFound navigate={navigate} />
@@ -609,7 +666,19 @@ function LightingPage({ locale, navigate, openProject }) {
   </>
 }
 
-function ContactPage({ openProject }) { return <><section className="contact-page"><div className="container"><div><Eyebrow>PROYECTO KND</Eyebrow><h1>Cuéntanos qué<br/><em>quieres poner en juego.</em></h1><p>Comparte las bases de la ubicación y te ayudaremos a ordenar los siguientes pasos.</p><dl><div><dt>EMAIL</dt><dd>{brand.email}</dd></div>{brand.phone && <div><dt>TELÉFONO</dt><dd>{brand.phone}</dd></div>}<div><dt>WEB</dt><dd>{brand.website}</dd></div><div><dt>ESTUDIO</dt><dd>{brand.office}</dd></div></dl></div><EnquiryFormComponent context="Contacto web" compact={false}/></div></section></> }
+function ContactPage({ openProject, locale = 'es' }) {
+  const en = locale === 'en'
+  return <section className="contact-page"><div className="container">
+    <div><span className="eyebrow">{en ? 'REQUEST A KND PROJECT PROPOSAL' : 'SOLICITA UNA PROPUESTA KND'}</span>
+      <h1>{en ? <>Tell us about<br/><em>your next court.</em></> : <>Cuéntanos tu<br/><em>próxima pista.</em></>}</h1>
+      <p>{en ? 'Share the location, number of courts, type of venue and target schedule. We will use that information to discuss a suitable project scope.' : 'Comparte ubicación, número de pistas, tipo de instalación y calendario previsto. Así podremos estudiar el alcance del proyecto.'}</p>
+      <dl><div><dt>EMAIL</dt><dd><a href={`mailto:${brand.email}`}>{brand.email}</a></dd></div>
+      {brand.phone && <div><dt>{en ? 'PHONE' : 'TELÉFONO'}</dt><dd>{brand.phone}</dd></div>}
+      <div><dt>{en ? 'WEBSITE' : 'WEB'}</dt><dd>{brand.website}</dd></div></dl>
+    </div>
+    <EnquiryFormComponent context={en ? 'Website contact' : 'Contacto web'} locale={locale} compact={false}/>
+  </div></section>
+}
 
 function Configurator({ navigate, openProject }) {
   const [config, setConfig] = useState({ model: courts[0].id, turf: 'Azul Court', frame: 'Grafito', pole: 'Curva', light: 'Lineal 4 × 300 W', kit: 'Sin kit', installation: 'Anclada', roof: 'Sin cubierta', night: false })
