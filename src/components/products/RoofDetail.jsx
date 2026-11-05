@@ -113,7 +113,7 @@ export default function RoofDetail({ item, navigate, openProject, locale = 'es' 
         <div className="knd-roof-detail__benefit-grid">
           {(item.advantages || []).map((benefit, index) => <article key={index}>
             <span>{String(index + 1).padStart(2, '0')}</span>
-            <h3>{benefit.title}</h3>
+            <h3>{translate(benefit.title, language)}</h3>
             <p>{translate(benefit.description, language)}</p>
           </article>)}
         </div>
