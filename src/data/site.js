@@ -267,7 +267,17 @@ const makeTurfProduct = (p) => ({
       es: p.fibre + ' (' + p.profile + '). Especificación de referencia del proveedor.',
       en: p.fibreEn + ' (' + p.profile + '). Supplier-reference specification.',
     },
-    features: p.features.map(([title, es, en]) => ({ title, text: { es, en } })),
+    features: p.features.map(([title, es, en]) => ({
+      title: { es: title, en: ({
+        'AXIS texturizada': 'Texturised AXIS',
+        'R9 frente a S9': 'R9 versus S9',
+        'Uso intensivo': 'Heavy-duty use',
+        'Versatilidad': 'Versatility',
+        'Diferencia con R9': 'Difference from R9',
+        'Formación': 'Training',
+      })[title] || title },
+      text: { es, en },
+    })),
   },
   availableColors: turfColourOptions,
   quality: turfSharedQuality,
