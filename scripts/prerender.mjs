@@ -8,6 +8,9 @@
  */
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { dirname, join, resolve } from 'node:path'
+import { createElement } from 'react'
+import { renderToString } from 'react-dom/server'
+import { createServer } from 'vite'
 import {
   absoluteUrl,
   getAllLocalizedRoutes,
@@ -22,6 +25,10 @@ import { faqItems } from '../src/components/faq/faqData.js'
 
 const dist = resolve('dist')
 const baseDocument = await readFile(join(dist, 'index.html'), 'utf8')
+// Use the real route components for search HTML. Keep the configurator as a
+// noindex client-only shell; it relies on WebGL and must not be rendered in Node.
+const vite = await createServer({ server: { middlewareMode: true }, appType: 'custom', logLevel: 'error' })
+const { default: App } = await vite.ssrLoadModule('/src/App.jsx')
 
 const escapeHtml = (value = '') => String(value)
   .replaceAll('&', '&amp;')
@@ -232,7 +239,9 @@ function renderDocument(info) {
   // Keep the static-shell class on a child, not the React root container.
   // createRoot clears children but preserves container attributes, so this
   // prevents prerender-only layout rules from leaking into the live app.
-  const root = `<div id="root"><div class="seo-static"><a class="skip-link" href="#main-content">${escapeHtml(inLanguage(info.locale, 'Saltar al contenido', 'Skip to content'))}</a>${navigation(info.locale)}${renderMain(info)}${footer(info.locale)}</div></div>`
+  const root = info.type === 'configurator'
+    ? `<div id="root"><div class="seo-static">${navigation(info.locale)}${renderMain(info)}${footer(info.locale)}</div></div>`
+    : `<div id="root" data-knd-ssr="true">${renderToString(createElement(App, { initialPath: info.path }))}</div>`
   if (!documentHtml.includes('<div id="root"></div>')) throw new Error('The Vite entry document no longer contains an empty #root placeholder.')
   return documentHtml.replace('<div id="root"></div>', root)
 }
@@ -265,4 +274,5 @@ async function writeNotFound() {
 const publicRoutes = getAllLocalizedRoutes({ includeNonIndexable: true })
 await Promise.all(publicRoutes.map(writePage))
 await Promise.all([writeSitemap(), writeNotFound()])
-console.log(`Prerendered ${publicRoutes.length} public routes and generated sitemap.xml.`)
+await vite.close()
+console.log(`Rendered ${publicRoutes.length} routes using React SSR (interactive pages hydrate on the client).`)
