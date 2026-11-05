@@ -4,7 +4,7 @@
 export const lightingModels = [
   {
     id: 'l200', code: 'OP L200', name: 'Compact',
-    image: '/media/knd/lighting/op-l200.webp',
+    image: '/media/knd/lighting/op-l200.jpg',
     imageAlt: { es: 'Proyector LED compacto OP L200 de KND', en: 'KND OP L200 compact LED floodlight' },
     power: '200 W', lumens: '22.380 lm', kelvin: '6.000 K', protection: 'IP65',
     led: 'Zhaochi', driver: 'Asia-driven', dimensions: '346,6 × 437,2 × 50,2 mm', weight: '3,34 kg',
@@ -14,7 +14,7 @@ export const lightingModels = [
   },
   {
     id: 'l300', code: 'OP L300', name: 'Linear',
-    image: '/media/knd/lighting/op-l300.webp',
+    image: '/media/knd/lighting/op-l300.jpg',
     imageAlt: { es: 'Luminaria LED lineal negra OP L300 de KND', en: 'KND OP L300 black linear LED luminaire' },
     power: '300 W', lumens: '34.800 lm', kelvin: '5.000 K', protection: 'IP66',
     led: 'Philips', driver: 'Mean Well', dimensions: '1.004 × 108,4 × 203,5 mm', weight: '8,5 kg',
@@ -24,7 +24,7 @@ export const lightingModels = [
   },
   {
     id: 'l400', code: 'OP L400', name: 'Pro',
-    image: '/media/knd/lighting/op-l400.webp',
+    image: '/media/knd/lighting/op-l400.jpg',
     imageAlt: { es: 'Luminaria lineal profesional OP L400 de KND', en: 'KND OP L400 professional linear luminaire' },
     power: '400 W', lumens: '60.000 lm', kelvin: '4.000 / 5.000 / 5.700 K', protection: 'IP66',
     led: 'Philips EMC3030', driver: 'Mean Well', dimensions: '2.010 × 98 mm (± 5 mm)', weight: '10 kg (± 0,5 kg)',
@@ -34,7 +34,7 @@ export const lightingModels = [
   },
   {
     id: 'luma', code: 'OP Luma', name: 'Suspended',
-    image: '/media/knd/lighting/op-luma.webp',
+    image: '/media/knd/lighting/op-luma.jpg',
     imageAlt: { es: 'Módulo de iluminación suspendida OP Luma en aluminio', en: 'OP Luma suspended silver aluminium lighting module' },
     power: '42 / 84 W', lumens: '3.600 / 6.720 lm', kelvin: '6.000 K', protection: 'Interior',
     led: 'Lumileds', driver: 'Philips', dimensions: '1.160 × 110 mm', weight: '1,9 kg',
