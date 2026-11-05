@@ -237,8 +237,17 @@ const turfSharedQuality = {
     { title: { es: 'Cierre de especificación', en: 'Final specification' }, text: { es: 'Rollos, color, arena y montaje sujetos a confirmación por proyecto.', en: 'Rolls, colour, infill and installation subject to project confirmation.' } },
   ],
 }
+const turfRelativeGuide = {
+  // Qualitative positioning published by the supplier; not lab-test values.
+  'x10-super-match': { pace: { es: 'Rápido · competición', en: 'Fast match' }, maintenance: { es: 'Media-alta', en: 'Medium-high' } },
+  'r9-control': { pace: { es: 'Rápido', en: 'Fast' }, maintenance: { es: 'Media', en: 'Medium' } },
+  's12-endurance': { pace: { es: 'Medio-rápido', en: 'Medium-fast' }, maintenance: { es: 'Baja-media', en: 'Low-medium' } },
+  's9-standard': { pace: { es: 'Medio', en: 'Medium' }, maintenance: { es: 'Baja-media', en: 'Low-medium' } },
+  's7-training': { pace: { es: 'Medio-bajo', en: 'Medium-low' }, maintenance: { es: 'Baja-media', en: 'Low-medium' } },
+}
 const makeTurfProduct = (p) => ({
   ...p,
+  relativeGuide: turfRelativeGuide[p.id],
   image: media.turf[p.sample],
   heroImage: media.turf[p.sample],
   catalogImage: media.turf[p.sample],
@@ -252,7 +261,7 @@ const makeTurfProduct = (p) => ({
     turfSpec('Densidad', 'Density', p.density.toLocaleString('es-ES') + ' / m²'),
     turfSpec('Puntadas (valor proveedor)', 'Stitch (supplier value)', String(p.stitch)),
     turfSpec('Sistema de fibra', 'Fibre system', { es: p.fibre, en: p.fibreEn }),
-    turfSpec('Perfil de fibra', 'Fibre profile', p.profile),
+    turfSpec('Perfil de fibra', 'Fibre profile', { es: p.profile, en: p.profileEn || p.profile }),
     turfSpec('Material principal', 'Primary material', { es: '100 % polietileno (PE)', en: '100% polyethylene (PE)' }),
     turfSpec('Soporte / backing', 'Backing', { es: 'Sistema PU', en: 'PU backing system' }),
     turfSpec('Relleno', 'Infill', { es: 'Arena de cuarzo lavada y clasificada', en: 'Washed, graded quartz sand' }),
@@ -265,7 +274,7 @@ const makeTurfProduct = (p) => ({
   fiberConstruction: {
     text: {
       es: p.fibre + ' (' + p.profile + '). Especificación de referencia del proveedor.',
-      en: p.fibreEn + ' (' + p.profile + '). Supplier-reference specification.',
+      en: p.fibreEn + ' (' + (p.profileEn || p.profile) + '). Supplier-reference specification.',
     },
     features: p.features.map(([title, es, en]) => ({
       title: { es: title, en: ({
@@ -339,6 +348,7 @@ export const turfSystems = [
     "fibre": "Sistema de doble fibra",
     "fibreEn": "Dual-fibre system",
     "profile": "AXIS texturizada + OSSO",
+    "profileEn": "Texturised AXIS + OSSO",
     "role": "Club premium · control",
     "roleEn": "Premium club · control",
     "description": "Sistema denso de doble fibra para apoyo estable, juego rápido controlado y rebote predecible en clubes exigentes.",
