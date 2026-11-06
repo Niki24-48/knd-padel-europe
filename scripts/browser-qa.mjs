@@ -46,7 +46,7 @@ try {
     if(await page.locator('a[href="/guides"]').count()||await page.locator('a[href="/journal"]').count())errors.push('Home has old duplicate archive links '+viewport.width)
     if(!mobile){
       const expected=['Pistas','Césped','Cubiertas','Iluminación','Proyectos','Por qué KND','Journal','FAQ']
-      const names=(await page.locator('.desktop-nav > .nav-group > button, .desktop-nav > a').allTextContents()).map(x=>x.trim())
+      const names=(await page.locator('.desktop-nav > .nav-group > button, .desktop-nav > a').allTextContents()).map(x=>x.replace(/\s*⌄\s*/g,'').trim())
       if(JSON.stringify(names)!==JSON.stringify(expected))errors.push('Navbar order is wrong at '+viewport.width+': '+JSON.stringify(names))
     }
     // Footer contact links open the same complete, validated Contact page as a
