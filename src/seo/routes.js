@@ -108,16 +108,16 @@ const pageCopy = {
   },
   '/about': {
     es: {
-      title: 'KND Padel Europe: proveedor de pistas de pádel',
-      description: 'Conoce cómo KND Padel Europe conecta diseño, especificación, fabricación, logística e instalación para proyectos de pádel.',
-      h1: 'Un partner para planificar una pista de pádel completa.',
-      intro: 'KND ayuda a ordenar las decisiones de producto y proyecto antes de preparar una propuesta técnica.',
+      title: 'Por qué KND Padel | Diseño y soluciones para pistas de pádel',
+      description: 'Descubre nuestra visión: pistas de pádel, césped, iluminación y cubiertas coordinadas desde el diseño. Conoce los detalles, nuestro proceso y los proyectos KND.',
+      h1: 'Más que una pista. Una forma de entender el juego.',
+      intro: 'Una filosofía de diseño que conecta la pista, los componentes, la experiencia de juego y el espacio que los acoge.',
     },
     en: {
-      title: 'KND Padel Europe: padel court supplier',
-      description: 'Learn how KND Padel Europe connects design, specification, manufacturing, logistics and installation for padel projects.',
-      h1: 'A partner for planning a complete padel court.',
-      intro: 'KND helps organise product and project decisions before preparing a technical proposal.',
+      title: 'Why KND Padel | Design-led Padel Court Solutions',
+      description: 'Discover the KND approach to padel court design, turf, lighting and roofing. Explore the details, the project process and our collection of venues.',
+      h1: 'More than a court. A way of understanding the game.',
+      intro: 'A design philosophy connecting courts, components, playing experience and the surrounding venue.',
     },
   },
   '/news': {
