@@ -6,6 +6,7 @@ import './styles-home-premium.css'
 import './styles-premium.css'
 import './seo-enhancements.css'
 import './visual-pages.css'
+import './why-knd.css'
 
 const root = document.getElementById('root')
 const tree = <StrictMode><App /></StrictMode>
