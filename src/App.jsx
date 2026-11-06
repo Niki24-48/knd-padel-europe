@@ -307,7 +307,7 @@ function Header({ path, navigate, locale, setLocale, t, openProject }) {
   const closeTimer = useRef(null)
   const navLabel = { Pistas: t.courts, Césped: t.turf, Cubiertas: t.roof }
   const staticNav = [
-    [t.why, '/why'], [t.projects, '/projects'], [t.lighting, '/lighting'], [t.news, '/news'], [t.faq, '/faq'],
+    [t.lighting, '/lighting'], [t.projects, '/projects'], [t.why, '/why'], [t.news, '/news'], [t.faq, '/faq'],
   ]
   const menuCopy = {
     Pistas: locale === 'en' ? ['COURT SYSTEMS', 'Choose the format that fits your venue.', 'View all courts'] : ['PISTAS · SISTEMAS', 'Elige el formato que mejor encaja con tu sede.', 'Ver todas las pistas'],
