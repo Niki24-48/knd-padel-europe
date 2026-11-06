@@ -24,4 +24,5 @@ jobs:
       - run: npm run verify:performance
       - run: npm run verify:courts
       - run: npm run verify:roofs
+      - run: npm run verify:requested
       - run: npm run verify:about
