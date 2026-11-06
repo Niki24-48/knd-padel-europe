@@ -9,6 +9,7 @@
     "preview": "vite preview",
     "verify:courts": "node scripts/verify-court-copy.mjs",
     "verify:roofs": "node scripts/verify-roof-assets.mjs",
+    "verify:about": "node scripts/verify-why-knd.mjs",
     "verify:seo": "node scripts/verify-seo-output.mjs",
     "verify:journal": "node scripts/verify-journal.mjs",
     "verify:guides": "node scripts/verify-guides.mjs",
