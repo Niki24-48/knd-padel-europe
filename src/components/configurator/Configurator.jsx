@@ -157,7 +157,7 @@ function readInitial(search, { restoreDraft = true } = {}) {
   return normalizeModelOptions({
     modelId,
     turfSystemId: findValid(turfSystems, get('turf'), turfSystems[0].id),
-    turfFinishId: findValid(turfFinishes, get('colour'), turfFinishes[0].id),
+    turfFinishId: findValid(turfFinishes, get('colour'), 'blue'),
     frameId: findValid(frameFinishes, get('frame'), frameFinishes[0].id),
     lightingId: lightingFor(modelId, get('light')),
     projectScaleId,
