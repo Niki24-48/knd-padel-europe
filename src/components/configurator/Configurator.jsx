@@ -12,8 +12,8 @@ import Court3DScene from './Court3DScene.jsx'
 import { resolveProvidedModelSelection } from './providedModelCatalog.js'
 import './Configurator.css'
 
-const SCHEMA_VERSION = 2
-const STORAGE_KEY = 'knd-configurator-studio-v2'
+const SCHEMA_VERSION = 3
+const STORAGE_KEY = 'knd-configurator-studio-v3'
 const VALID_ENVIRONMENTS = ['day', 'evening', 'night']
 const VALID_POLES = ['curved', 'signature-curved', 'straight', 'angled', 'z', 't']
 // OP-01 ONLY: original GLB options plus source-derived Z and T.
