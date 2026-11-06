@@ -17,9 +17,9 @@ export const SUPPORTED_LOCALES = ['es', 'en']
 
 export const HISTORICAL_REDIRECTS = Object.freeze({
   '/why': '/about',
-  '/news': '/journal',
-  '/guides': '/journal',
-  '/blog': '/journal',
+  '/journal': '/news',
+  '/guides': '/news',
+  '/blog': '/news',
 })
 
 const pageCopy = {
@@ -121,7 +121,7 @@ const pageCopy = {
       intro: 'A design philosophy connecting courts, components, playing experience and the surrounding venue.',
     },
   },
-  '/journal': {
+  '/news': {
     es: {
       title: 'Journal de pádel | Guías de compra, diseño y proyectos',
       description: 'Ideas y guías para comprar, construir y gestionar pistas de pádel. Precios, modelos, césped, iluminación, cubiertas, diseño e inspiración en un solo Journal KND.',
@@ -211,7 +211,7 @@ export function getCanonicalRoutes() {
     staticRoute('/projects', 'collection'),
     ...projects.map((item) => staticRoute(`/projects/${item.slug}`, 'project')),
     staticRoute('/about'),
-    staticRoute('/journal', 'collection'),
+    staticRoute('/news', 'collection'),
     ...commercialGuides.map((guide) => staticRoute(guide.path, 'guide')),
     ...articles.map((item) => staticRoute(`/news/${item.slug}`, 'article')),
     staticRoute('/faq'),
@@ -339,7 +339,7 @@ function breadcrumbSchema(info) {
     '/guides': 'Journal',
   }
   const parent = Object.keys(labels).find((candidate) => info.basePath.startsWith(`${candidate}/`))
-  if (parent) crumbs.push({ name: labels[parent], item: absoluteUrl(localizedPath('/journal', info.locale)) })
+  if (parent) crumbs.push({ name: labels[parent], item: absoluteUrl(localizedPath('/news', info.locale)) })
   if (info.basePath !== '/' && !parent) crumbs.push({ name: info.h1, item: absoluteUrl(info.path) })
   else if (parent) crumbs.push({ name: info.h1, item: absoluteUrl(info.path) })
   return {
