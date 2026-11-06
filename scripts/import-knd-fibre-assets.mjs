@@ -35,7 +35,13 @@ async function retrieve(id,destination,pattern) {
  // pages. Match both the requested model prefix and the fibre image path.
  // Never accidentally reuse the X10 graphic in another turf system.
  const key=id.split('-')[0]
- const candidates=imgs.filter(item=>item.src.toLowerCase().includes('/'+key+'-fibre-'))
+ const candidates=imgs.filter(item=>{
+   const src=item.src.toLowerCase()
+   if(src.includes('/'+key+'-fibre-'))return true
+   // Three non-labelled colour graphics are published as `surface-transparent`
+   // in this supplier's current release; never reuse X10's diagram.
+   return ['s12','s9','s7'].includes(key)&&src.includes('/'+key+'-surface-transparent-')
+ })
  console.log(id+' model-specific candidates: '+JSON.stringify(candidates.map(x=>({alt:x.alt,src:x.src}))).slice(0,2000))
  const match=candidates.find(item=>item.src && !item.src.startsWith('data:'))
  if(!match)throw Error('No verified matching fibre diagram found in '+url)
