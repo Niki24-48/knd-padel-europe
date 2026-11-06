@@ -1,11 +1,12 @@
 import WhyKndExperience from './components/WhyKndExperience.jsx'
 import LightingShowcase from './components/LightingShowcase.jsx'
-import { JournalIndex, JournalArticle } from './components/JournalEditorial.jsx'
+import { JournalArticle } from './components/JournalEditorial.jsx'
+import EditorialHub, { EditorialPreview } from './components/EditorialHub.jsx'
 import ContactExperience from './components/ContactExperience.jsx'
 import { articleGuides } from './data/articleGuides.js'
 import { commercialGuides } from './data/commercialGuides.js'
 import { courtProductContent } from './data/courts/index.js'
-import { GuidesIndex, GuideDetail } from './components/CommercialGuides.jsx'
+import { GuideDetail } from './components/CommercialGuides.jsx'
 import { lazy, Suspense, useEffect, useRef, useState } from 'react'
 import {
   articles,
@@ -276,12 +277,11 @@ function App({ initialPath = '/' } = {}) {
   else if (path === '/why' || path === '/about') page = <WhyKndExperience {...pageProps} />
   else if (path === '/projects') page = <ProjectsPortfolioPage {...pageProps} />
   else if (path.startsWith('/projects/')) page = <ProjectDetailPage {...pageProps} project={projects.find((project) => project.slug === path.split('/').pop())} />
-  else if (path === '/guides') page = <GuidesIndex {...pageProps} />
+  else if (path === '/journal' || path === '/guides' || path === '/news') page = <EditorialHub {...pageProps} />
   else if (path.startsWith('/guides/')) {
     const guide = commercialGuides.find((entry) => entry.path === path)
     page = guide ? <GuideDetail {...pageProps} guide={guide} /> : <NotFound {...pageProps} />
   }
-  else if (path === '/news' || path === '/journal') page = <JournalIndex {...pageProps} />
   else if (path.startsWith('/news/') || path.startsWith('/journal/')) page = <JournalArticle {...pageProps} article={articles.find((article) => article.slug === path.split('/').pop())} />
   else if (path === '/faq') page = <FaqPage {...pageProps} />
   else if (path === '/contact') page = <ContactExperience {...pageProps} />
@@ -307,7 +307,7 @@ function Header({ path, navigate, locale, setLocale, t, openProject }) {
   const closeTimer = useRef(null)
   const navLabel = { Pistas: t.courts, Césped: t.turf, Cubiertas: t.roof }
   const staticNav = [
-    [t.why, '/why'], [t.projects, '/projects'], [t.lighting, '/lighting'], [t.guides, '/guides'], [t.news, '/news'], [t.faq, '/faq'],
+    [t.why, '/why'], [t.projects, '/projects'], [t.lighting, '/lighting'], [t.news, '/journal'], [t.faq, '/faq'],
   ]
   const menuCopy = {
     Pistas: locale === 'en' ? ['COURT SYSTEMS', 'Choose the format that fits your venue.', 'View all courts'] : ['PISTAS · SISTEMAS', 'Elige el formato que mejor encaja con tu sede.', 'Ver todas las pistas'],
@@ -500,8 +500,7 @@ function HomePage({ navigate, openProject, t, locale }) {
     <section className="section why-section home-why-section"><div className="container section-top"><SectionHead eyebrow="POR QUÉ KND" title={<>Construido por gente de pádel,<br/><em>para proyectos reales.</em></>} text="Equilibramos experiencia de competición, fabricación atenta y un soporte de proyecto claro para hacer cada entrega más fácil de definir y operar."/></div><div className="container why-grid home-why-grid"><article className="image-story image-story--editorial"><figure className="image-story-media"><img src={images.torneo} alt="Vista de referencia del Hong Kong Open 2026" loading="lazy" decoding="async"/><figcaption>01 · REFERENCIA DE COMPETICIÓN</figcaption></figure><footer className="image-story-copy"><h3>Proyectos que se ven<br/>y se viven bien.</h3><p>Referencia visual del Hong Kong Open 2026; el alcance exacto de KND y los derechos de publicación requieren validación final.</p></footer></article><article className="image-story image-story--editorial"><figure className="image-story-media"><img src={images.fabrica} alt="Proceso de fabricación identificado con KND Padel" loading="lazy" decoding="async"/><figcaption>02 · HECHO CON CONTROL</figcaption></figure><footer className="image-story-copy"><h3>Fabricar importa.</h3><p>Menos interpretaciones, más trazabilidad y una especificación que se mantiene íntegra.</p></footer></article><article className="why-project-gateway"><figure><img src={images.airview} alt="Vista de obra aportada por KND Padel" loading="lazy" decoding="async"/></figure><div><Eyebrow>{homeCopy.projectEyebrow}</Eyebrow><h3>{homeCopy.projectTitle}</h3><p>{homeCopy.projectText}</p><button className="button accent" onClick={() => navigate('/projects')}>{homeCopy.projectCta}<Arrow /></button></div></article><div className="why-points">{['Diseño y coordinación completos', 'Sistemas realmente personalizables', 'Logística conectada al proyecto', 'Instalación respaldada'].map((point, index) => <article key={point}><span>0{index + 1}</span><h3>{point}</h3><Arrow /></article>)}</div></div></section>
     <ProjectsPortfolioPreview navigate={navigate} locale={locale} />
     <ProjectProcess openProject={openProject} locale={locale} />
-    <GuidesPreview locale={locale} navigate={navigate} />
-    <NewsPreview navigate={navigate} locale={locale} />
+    <EditorialPreview locale={locale} />
     <Capabilities locale={locale} />
     <FaqBlock />
     <ContactCta openProject={openProject} locale={locale} />
@@ -556,31 +555,6 @@ function ProjectProcess({ openProject, locale = 'es' }) {
       <button className="button accent" onClick={() => openProject(en ? 'Project brief' : 'Brief de proyecto')}>{en ? 'Discuss your project' : 'Cuéntanos el proyecto'} <Arrow /></button></div>
     <div className="process-grid">{steps.map(([no,heading,copy])=><article key={no}><span>{no}</span><h3>{heading}</h3><p>{copy}</p><i aria-hidden="true">↓</i></article>)}</div>
   </div></section>
-}
-function GuidesPreview({ locale = 'es', navigate }) {
-  const en = locale === 'en'
-  return <section className="section knd-guides home-guides-preview"><div className="container section-top">
-    <SectionHead eyebrow={en ? 'KND BUYING GUIDES' : 'GUÍAS DE COMPRA KND'}
-      title={en ? <>Plan well.<br/><em>Build with clarity.</em></> : <>Decide mejor.<br/><em>Construye con criterio.</em></>}
-      text={en ? 'Practical buying guides about budgets, court formats and construction decisions.' : 'Información útil para comparar presupuestos, modelos y decisiones de obra.'}/>
-    <RouteLink className="text-link" to="/guides" locale={locale} navigate={navigate}>{en ? 'All buying guides' : 'Todas las guías'} <Arrow /></RouteLink>
-  </div><div className="container knd-guides-grid">{commercialGuides.slice(0,3).map(guide => <article className="knd-guides-card" key={guide.slug}>
-    <h3><RouteLink to={guide.path} locale={locale} navigate={navigate}>{guide[locale].title}</RouteLink></h3>
-    <p>{guide[locale].intro}</p>
-    <RouteLink className="text-link" to={guide.path} locale={locale} navigate={navigate}>{en ? 'Read guide' : 'Leer guía'} →</RouteLink>
-  </article>)}</div></section>
-}
-
-function NewsPreview({ navigate, locale = 'es' }) {
-  const en = locale === 'en'
-  return <section className="section news-preview"><div className="container section-top">
-    <SectionHead eyebrow="KND JOURNAL" title={en ? <>Ideas for<br/><em>modern padel venues.</em></> : <>Ideas que dan forma<br/><em>a la pista moderna.</em></>} />
-    <RouteLink className="text-link" to="/news" locale={locale} navigate={navigate}>{en ? 'Read stories' : 'Ver historias'} <Arrow /></RouteLink>
-  </div><div className="container news-grid">{articles.map((article,index) => <RouteLink className="article-card" to={`/news/${article.slug}`} locale={locale} navigate={navigate} key={article.slug}>
-    <img src={article.image} alt="" loading="lazy" decoding="async"/>
-    <span>{String(index + 1).padStart(2,'0')} · {article.type} · {article.date}</span>
-    <h3>{en ? (article.titleEn || article.title) : article.title}</h3><i>{en ? 'Read story' : 'Leer historia'} <Arrow /></i>
-  </RouteLink>)}</div></section>
 }
 function Capabilities({ locale = 'es' }) {
   const items = locale === 'en' ? ['COURTS','TURF','LIGHTING','ROOFS','LOGISTICS','INSTALLATION'] : ['PISTAS','CÉSPED','ILUMINACIÓN','CUBIERTAS','LOGÍSTICA','INSTALACIÓN']
@@ -705,7 +679,7 @@ function Footer({ navigate, t, locale = 'es' }) {
   const english = locale === 'en'
   const footerItems = [
     [t.courts, '/courts'], [t.turf, '/turf'], [t.roof, '/roof'], [t.lighting, '/lighting'],
-    [t.guides, '/guides'], [t.projects, '/projects'], [t.news, '/news'], [t.contact, '/contact'],
+    [t.projects, '/projects'], [t.news, '/journal'], [t.contact, '/contact'],
   ]
   return <footer className="site-footer"><div className="container footer-grid">
     <div><BrandLogo className="footer-logo" locale={locale} onClick={() => navigate('/')} />
