@@ -1,0 +1,112 @@
+/* One shared KND contact experience, rendered as a premium responsive modal.
+   Existing /contact standalone page remains unchanged and indexable. */
+.knd-contact-overlay {
+  z-index:1200;
+  padding:clamp(8px,2vw,28px);
+  background:rgba(2,14,13,.84);
+  backdrop-filter:blur(10px);
+}
+.project-dialog--contact {
+  width:min(1160px,100%);
+  max-width:1160px;
+  max-height:calc(100dvh - clamp(16px,4vw,56px));
+  padding:0;
+  border-radius:9px;
+  background:#0b2324;
+  color:#f8faf4;
+  box-shadow:0 25px 100px rgba(0,0,0,.48);
+  overscroll-behavior:contain;
+  scrollbar-width:thin;
+  scrollbar-color:#5e806d #142a27;
+}
+.project-dialog--contact:focus { outline:none; }
+.project-dialog--contact .dialog-close {
+  position:sticky; top:12px; float:right;
+  z-index:12; margin:12px 14px -72px 0;
+  width:42px; height:42px;
+  display:flex; align-items:center; justify-content:center;
+  background:#e5f3dc; color:#143026;
+  font-size:25px; border-radius:50%;
+  box-shadow:0 6px 24px rgba(0,0,0,.17);
+}
+.project-dialog--contact .dialog-close:hover { background:var(--knd-lime,#d3f605); }
+.knd-contact--modal {
+  padding:clamp(38px,4.8vw,66px) clamp(23px,4.4vw,58px);
+  min-height:0;
+  background:#0c292a;
+  overflow:visible;
+}
+.knd-contact--modal .knd-contact__ambient { background:radial-gradient(ellipse at 12% 30%,rgba(45,105,81,.39),transparent 55%),linear-gradient(135deg,#112f2e,#081e24); }
+.knd-contact--modal .knd-contact__layout {
+  width:100%; max-width:none;
+  display:grid;
+  grid-template-columns:minmax(0,.85fr) minmax(0,1fr);
+  gap:clamp(24px,4.5vw,68px);
+  align-items:start;
+}
+.knd-contact--modal .knd-contact__intro { min-width:0; padding:20px 0 0; }
+.knd-contact--modal .knd-contact__modal-title {
+  font-size:clamp(42px,4vw,61px);
+  line-height:1.06;
+  letter-spacing:-.069em;
+  color:#fff;
+  margin:23px 0 27px;
+  max-width:520px;
+  font-weight:650;
+}
+.knd-contact--modal .knd-contact__modal-title em { color:var(--knd-lime,#d3f605); font-style:normal; }
+.knd-contact--modal .knd-contact__lead {
+  font-size:clamp(14px,1.2vw,17px);
+  line-height:1.75; color:#dae9df;
+}
+.knd-contact--modal .knd-contact__steps {
+  margin-top:42px;
+  padding-top:26px;
+}
+.knd-contact--modal .knd-contact__step { padding:10px 0; gap:9px; grid-template-columns:30px 1fr; }
+.knd-contact--modal .knd-contact__step h2 { font-size:16px; margin-bottom:4px; color:#f7faf4; }
+.knd-contact--modal .knd-contact__step p { font-size:12px; line-height:1.55; }
+.knd-contact--modal .knd-contact__details { margin-top:30px; }
+.knd-contact--modal .knd-contact__details a { font-size:13px; overflow-wrap:anywhere; }
+.knd-contact--modal .knd-contact__panel {
+  border-radius:6px; padding:clamp(24px,3vw,38px);
+  box-shadow:0 18px 55px rgba(0,0,0,.12);
+}
+.knd-contact--modal .knd-contact__panel-header h2 {
+  font-size:clamp(31px,3vw,41px); line-height:1.07; margin:10px 0 12px;
+  letter-spacing:-.045em;
+}
+.knd-contact--modal .knd-contact__panel-header p { font-size:13px; line-height:1.68; margin-bottom:22px; }
+.knd-contact--modal .knd-contact__panel .enquiry-form { gap:14px; }
+.knd-contact--modal .knd-contact__panel .enquiry-form input:not([type='checkbox']),
+.knd-contact--modal .knd-contact__panel .enquiry-form select,
+.knd-contact--modal .knd-contact__panel .enquiry-form textarea {
+  min-height:45px; padding:11px 12px; margin-top:6px; font-size:14px;
+}
+.knd-contact--modal .knd-contact__panel .enquiry-form textarea { min-height:88px; }
+.knd-contact--modal .knd-contact__panel .enquiry-form label { font-size:12px; }
+.knd-contact--modal .knd-contact__panel .enquiry-form button[type='submit'] {
+  min-height:52px; font-size:13px; width:100%;
+}
+.knd-contact--modal .knd-contact__privacy { margin-top:18px; font-size:11px; }
+@media(max-width:850px) {
+  .knd-contact--modal .knd-contact__layout { grid-template-columns:minmax(0,1fr); gap:25px; }
+  .knd-contact--modal .knd-contact__intro { padding-right:35px; }
+  .knd-contact--modal .knd-contact__modal-title { font-size:clamp(36px,6.2vw,53px); margin:16px 0 15px; }
+  .knd-contact--modal .knd-contact__steps { display:none; }
+  .knd-contact--modal .knd-contact__details { display:none; }
+  .knd-contact--modal .knd-contact__lead { max-width:630px; }
+}
+@media(max-width:540px) {
+  .knd-contact-overlay { padding:5px; }
+  .project-dialog--contact { width:100%; max-height:calc(100dvh - 10px); border-radius:5px; }
+  .knd-contact--modal { padding:35px 15px 23px; }
+  .knd-contact--modal .knd-contact__intro { padding:0 38px 0 0; }
+  .knd-contact--modal .knd-contact__modal-title { font-size:clamp(32px,9vw,43px); }
+  .knd-contact--modal .knd-contact__lead { font-size:13px; line-height:1.58; }
+  .knd-contact--modal .knd-contact__layout { gap:19px; }
+  .knd-contact--modal .knd-contact__panel { padding:24px 18px; }
+  .knd-contact--modal .knd-contact__panel .enquiry-form { grid-template-columns:1fr; }
+  .knd-contact--modal .knd-contact__panel .enquiry-form .full { grid-column:1; }
+  .project-dialog--contact .dialog-close { width:37px; height:37px; margin:8px 8px -60px 0; }
+}
