@@ -59,6 +59,23 @@ try {
     const brokenHeroImage=await page.locator('.why-knd__hero-image').evaluate(img=>!img.complete||img.naturalWidth===0)
     if(brokenHeroImage)errors.push('Why KND primary photo failed to load '+viewport.width)
     await overflow('/about')
+    // Full-page screenshots do not always trigger native lazy loading.
+    // Scroll every editorial photo into view and confirm that its bytes load.
+    const editorialPhotos=page.locator('.why-knd img[loading="lazy"]')
+    for(let index=0;index<await editorialPhotos.count();index++){
+      const photo=editorialPhotos.nth(index)
+      await photo.scrollIntoViewIfNeeded()
+      const result=await photo.evaluate(img=>new Promise(resolve=>{
+        if(img.complete){resolve({loaded:img.naturalWidth>0,src:img.getAttribute('src')});return}
+        const timeout=setTimeout(()=>resolve({loaded:false,src:img.getAttribute('src')}),5000)
+        const done=()=>{clearTimeout(timeout);resolve({loaded:img.naturalWidth>0,src:img.getAttribute('src')})}
+        img.addEventListener('load',done,{once:true})
+        img.addEventListener('error',done,{once:true})
+      }))
+      if(!result.loaded)errors.push('Why KND photo did not load at '+viewport.width+': '+result.src)
+    }
+    await page.evaluate(()=>window.scrollTo(0,0))
+    await page.waitForTimeout(180)
     await page.screenshot({path:`qa-screenshots/why-knd-${viewport.width}.png`,fullPage:true})
     await open('/en/about')
     if(!(await page.locator('.why-knd__hero h1').innerText()).includes('More than a court'))
