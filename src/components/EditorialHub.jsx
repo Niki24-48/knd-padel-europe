@@ -225,3 +225,36 @@ export default function EditorialHub({ locale='es', openProject }) {
     </section>
   </div>
 }
+
+export function EditorialPreview({ locale='es' }) {
+  const language=locale==='en'?'en':'es'
+  const t=labels[language]
+  const stories=getStories(language)
+  const picks=[
+    stories.find(item=>item.key==='guide-padel-court-cost'),
+    stories.find(item=>item.key==='article-que-hace-premium-a-un-club'),
+    stories.find(item=>item.key==='guide-panoramic-vs-super-panoramic'),
+  ].filter(Boolean)
+  return <section className="unified-preview" aria-labelledby="editorial-home-title">
+    <div className="container">
+      <div className="unified-preview__intro">
+        <div><span className="eyebrow">KND PADEL / JOURNAL</span>
+          <h2 id="editorial-home-title">{language==='en'?<>Ideas worth exploring.<br/><em>Decisions worth getting right.</em></>:<>Ideas que inspiran.<br/><em>Decisiones que importan.</em></>}</h2>
+          <p>{language==='en'?'Design, buying guides and practical perspectives. All in one place.':'Diseño, guías de compra y perspectivas prácticas. Todo en un mismo lugar.'}</p>
+        </div>
+        <a href={localizedPath('/journal',language)}>{language==='en'?'Explore the Journal':'Descubrir Journal'} <span aria-hidden="true">↗</span></a>
+      </div>
+      <div className="unified-preview__cards">{picks.map((story,index)=><article key={story.key}>
+        <a href={localizedPath(story.path,language)}>
+          <div className="unified-preview__image">
+            {story.image && <img src={story.image} loading="lazy" decoding="async" alt="" width="700" height="540"/>}
+            <span>0{index+1} / 03</span>
+          </div>
+          <div className="unified-preview__card-meta">{story.type==='guide'?t.guidesTag:t.journalTag}</div>
+          <h3>{story.title}</h3>
+          <span className="unified-preview__arrow">{story.type==='guide'?t.guideRead:t.read} ↗</span>
+        </a>
+      </article>)}</div>
+    </div>
+  </section>
+}
