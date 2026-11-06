@@ -5,14 +5,14 @@ const ui = {
   es: {
     eyebrow: 'KND PADEL · GUÍAS DE COMPRA', overview: 'Guías para tomar decisiones que importan.',
     intro: 'Recursos prácticos para definir presupuesto, elegir pista, preparar la obra y planificar la operación antes de solicitar una propuesta.',
-    view: 'Leer guía', back: 'Todas las guías', home: 'Inicio', ask: 'Solicitar una propuesta',
+    view: 'Leer guía', back: 'Volver al Journal', home: 'Inicio', ask: 'Solicitar una propuesta',
     related: 'Sigue explorando', sources: 'Cada proyecto necesita validación técnica según su ubicación, uso y alcance confirmado.',
     courts: 'Comparar pistas', roof: 'Explorar cubiertas', turf: 'Explorar césped', contact: 'Contactar',
   },
   en: {
     eyebrow: 'KND PADEL · BUYING GUIDES', overview: 'Guides for decisions that matter.',
     intro: 'Practical resources for budgeting, court selection, construction planning and long-term operation before requesting a quote.',
-    view: 'Read guide', back: 'All buying guides', home: 'Home', ask: 'Request a proposal',
+    view: 'Read guide', back: 'Back to Journal', home: 'Home', ask: 'Request a proposal',
     related: 'Explore next', sources: 'Every project requires technical validation against its venue, intended use and confirmed scope.',
     courts: 'Compare courts', roof: 'Explore roofs', turf: 'Explore turf', contact: 'Contact',
   },
@@ -61,7 +61,7 @@ export function GuideDetail({ guide, locale = 'es', openProject }) {
       <div className="container">
         <nav aria-label={locale === 'en' ? 'Breadcrumb' : 'Ruta de navegación'} className="knd-guide-crumbs">
           <a href={localizedPath('/', locale)}>{t.home}</a><span aria-hidden="true">/</span>
-          <a href={localizedPath('/guides', locale)}>{t.back}</a>
+          <a href={localizedPath('/journal', locale)}>{t.back}</a>
         </nav>
         <span className="eyebrow">{t.eyebrow}</span>
         <h1>{copy.h1}</h1><p>{copy.intro}</p>
