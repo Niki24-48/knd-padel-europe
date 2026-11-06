@@ -3,7 +3,7 @@ import { join } from 'node:path'
 
 const routes = ['/', '/en', '/courts', '/en/courts', '/courts/super-panoramic',
   '/en/courts/super-panoramic', '/turf', '/roof', '/roof/canopy-roof',
-  '/guides', '/en/guides', '/guides/padel-court-cost', '/en/guides/padel-court-cost',
+  '/journal', '/en/journal', '/guides/padel-court-cost', '/en/guides/padel-court-cost',
   '/news/planificar-una-pista-de-padel', '/en/news/planificar-una-pista-de-padel',
   '/projects', '/about', '/en/about', '/contact', '/en/contact']
 const errors = []
