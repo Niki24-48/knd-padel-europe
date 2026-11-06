@@ -307,7 +307,7 @@ function Header({ path, navigate, locale, setLocale, t, openProject }) {
   const closeTimer = useRef(null)
   const navLabel = { Pistas: t.courts, Césped: t.turf, Cubiertas: t.roof }
   const staticNav = [
-    [t.why, '/why'], [t.projects, '/projects'], [t.lighting, '/lighting'], [t.news, '/journal'], [t.faq, '/faq'],
+    [t.why, '/why'], [t.projects, '/projects'], [t.lighting, '/lighting'], [t.news, '/news'], [t.faq, '/faq'],
   ]
   const menuCopy = {
     Pistas: locale === 'en' ? ['COURT SYSTEMS', 'Choose the format that fits your venue.', 'View all courts'] : ['PISTAS · SISTEMAS', 'Elige el formato que mejor encaja con tu sede.', 'Ver todas las pistas'],
@@ -679,7 +679,7 @@ function Footer({ navigate, t, locale = 'es' }) {
   const english = locale === 'en'
   const footerItems = [
     [t.courts, '/courts'], [t.turf, '/turf'], [t.roof, '/roof'], [t.lighting, '/lighting'],
-    [t.projects, '/projects'], [t.news, '/journal'], [t.contact, '/contact'],
+    [t.projects, '/projects'], [t.news, '/news'], [t.contact, '/contact'],
   ]
   return <footer className="site-footer"><div className="container footer-grid">
     <div><BrandLogo className="footer-logo" locale={locale} onClick={() => navigate('/')} />
