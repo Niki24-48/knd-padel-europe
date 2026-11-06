@@ -38,15 +38,16 @@ const dictionary = {
   },
 }
 
-export default function ContactExperience({ locale = 'es' }) {
+export default function ContactExperience({ locale = 'es', mode = 'page', context = '', titleId, onSubmitted }) {
   const lang = locale === 'en' ? 'en' : 'es'
   const t = dictionary[lang]
-  return <section className="knd-contact">
+  const isModal = mode === 'modal'
+  return <section className={isModal ? 'knd-contact knd-contact--modal' : 'knd-contact'}>
     <div className="knd-contact__ambient" aria-hidden="true" />
     <div className="container knd-contact__layout">
       <div className="knd-contact__intro">
         <span className="eyebrow">{t.eyebrow}</span>
-        <h1>{t.headline}</h1>
+        {isModal ? <h2 id={titleId} className="knd-contact__modal-title">{t.headline}</h2> : <h1>{t.headline}</h1>}
         <p className="knd-contact__lead">{t.intro}</p>
         <div className="knd-contact__steps">
           <span className="eyebrow">{t.steps}</span>
@@ -66,10 +67,10 @@ export default function ContactExperience({ locale = 'es' }) {
           <h2>{t.headlineForm}</h2>
           <p>{t.copyForm}</p>
         </div>
-        <EnquiryForm compact={false} locale={lang} context="" />
+        <EnquiryForm compact={false} locale={lang} context={context} onSubmitted={onSubmitted}/>
         <p className="knd-contact__privacy"><span aria-hidden="true">◎</span> {t.support}</p>
       </div>
     </div>
-    <div className="container knd-contact__footer"><span>KND PADEL EUROPE</span><p>{t.footer}</p></div>
+    {!isModal && <div className="container knd-contact__footer"><span>KND PADEL EUROPE</span><p>{t.footer}</p></div>}
   </section>
 }
