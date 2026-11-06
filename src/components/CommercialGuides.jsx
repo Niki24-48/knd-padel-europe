@@ -25,32 +25,6 @@ const moreLinks = [
   ['/contact', 'contact'],
 ]
 
-export function GuidesIndex({ locale = 'es', openProject }) {
-  const t = ui[locale] || ui.es
-  return <div className="knd-guides">
-    <header className="plain-hero news-hero knd-guides-hero">
-      <div className="container"><span className="eyebrow">{t.eyebrow}</span><h1>{t.overview}</h1><p>{t.intro}</p></div>
-    </header>
-    <section className="section"><div className="container">
-      <div className="knd-guides-grid">
-        {commercialGuides.map((guide, index) => {
-          const copy = guide[locale] || guide.es
-          return <article className="knd-guides-card" key={guide.slug}>
-            <span className="eyebrow">{String(index + 1).padStart(2, '0')} / {String(commercialGuides.length).padStart(2, '0')}</span>
-            <h2><a href={localizedPath(guide.path, locale)}>{copy.title}</a></h2>
-            <p>{copy.intro}</p>
-            <a className="text-link" href={localizedPath(guide.path, locale)}>{t.view} <span aria-hidden="true">→</span></a>
-          </article>
-        })}
-      </div>
-    </div></section>
-    <section className="section knd-guide-last"><div className="container">
-      <h2>{t.ask}</h2><p>{t.sources}</p>
-      <button type="button" className="button accent" onClick={() => openProject?.(t.ask)}>{t.ask} →</button>
-    </div></section>
-  </div>
-}
-
 export function GuideDetail({ guide, locale = 'es', openProject }) {
   const t = ui[locale] || ui.es
   const copy = guide?.[locale] || guide?.es
