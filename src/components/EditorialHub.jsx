@@ -242,7 +242,7 @@ export function EditorialPreview({ locale='es' }) {
           <h2 id="editorial-home-title">{language==='en'?<>Ideas worth exploring.<br/><em>Decisions worth getting right.</em></>:<>Ideas que inspiran.<br/><em>Decisiones que importan.</em></>}</h2>
           <p>{language==='en'?'Design, buying guides and practical perspectives. All in one place.':'Diseño, guías de compra y perspectivas prácticas. Todo en un mismo lugar.'}</p>
         </div>
-        <a href={localizedPath('/journal',language)}>{language==='en'?'Explore the Journal':'Descubrir Journal'} <span aria-hidden="true">↗</span></a>
+        <a href={localizedPath('/news',language)}>{language==='en'?'Explore the Journal':'Descubrir Journal'} <span aria-hidden="true">↗</span></a>
       </div>
       <div className="unified-preview__cards">{picks.map((story,index)=><article key={story.key}>
         <a href={localizedPath(story.path,language)}>
