@@ -3,7 +3,7 @@ on:
   pull_request:
     branches: [main]
   push:
-    branches: [main, 'fix/**']
+    branches: [main, 'fix/**', 'feature/**']
 jobs:
   verify:
     runs-on: ubuntu-latest
@@ -23,3 +23,4 @@ jobs:
       - run: npm run verify:performance
       - run: npm run verify:courts
       - run: npm run verify:roofs
+      - run: npm run verify:about
