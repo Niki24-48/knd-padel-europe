@@ -122,6 +122,23 @@ try {
     await searchBox.clear()
     if(await page.locator('.unified-journal__card').count()!==12)errors.push('Journal search reset failed '+viewport.width)
     await overflow('/news')
+    // Native lazy images need scrolling in Chromium: verify every editorial
+    // card image actually loads, not just that the <img> element exists.
+    const journalPhotos=page.locator('.unified-journal img[loading="lazy"]')
+    for(let i=0;i<await journalPhotos.count();i++){
+      const photo=journalPhotos.nth(i)
+      await photo.scrollIntoViewIfNeeded()
+      const result=await photo.evaluate(img=>new Promise(resolve=>{
+        if(img.complete)return resolve({loaded:img.naturalWidth>0,src:img.getAttribute('src')})
+        const timeout=setTimeout(()=>resolve({loaded:false,src:img.getAttribute('src')}),6000)
+        const done=()=>{clearTimeout(timeout);resolve({loaded:img.naturalWidth>0,src:img.getAttribute('src')})}
+        img.addEventListener('load',done,{once:true})
+        img.addEventListener('error',done,{once:true})
+      }))
+      if(!result.loaded)errors.push('Journal image failed at '+viewport.width+': '+result.src)
+    }
+    await page.evaluate(()=>window.scrollTo({top:0,behavior:'instant'}))
+    await page.waitForFunction(()=>window.scrollY<5,{timeout:5000})
     await page.screenshot({path:`qa-screenshots/journal-${viewport.width}.png`,fullPage:true})
     await open('/en/news')
     if(!(await page.locator('.unified-journal h1').innerText()).includes('Ideas for building'))errors.push('Journal not in English '+viewport.width)
