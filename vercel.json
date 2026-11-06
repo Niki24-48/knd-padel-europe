@@ -3,11 +3,45 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "redirects": [
-    { "source": "/why", "destination": "/about", "permanent": true },
-    { "source": "/journal", "destination": "/news", "permanent": true },
-    { "source": "/blog", "destination": "/news", "permanent": true },
-    { "source": "/en/why", "destination": "/en/about", "permanent": true },
-    { "source": "/en/journal", "destination": "/en/news", "permanent": true },
-    { "source": "/en/blog", "destination": "/en/news", "permanent": true }
+    {
+      "source": "/why",
+      "destination": "/about",
+      "permanent": true
+    },
+    {
+      "source": "/journal",
+      "destination": "/news",
+      "permanent": true
+    },
+    {
+      "source": "/blog",
+      "destination": "/news",
+      "permanent": true
+    },
+    {
+      "source": "/en/why",
+      "destination": "/en/about",
+      "permanent": true
+    },
+    {
+      "source": "/en/journal",
+      "destination": "/en/news",
+      "permanent": true
+    },
+    {
+      "source": "/en/blog",
+      "destination": "/en/news",
+      "permanent": true
+    },
+    {
+      "source": "/guides",
+      "destination": "/news",
+      "permanent": true
+    },
+    {
+      "source": "/en/guides",
+      "destination": "/en/news",
+      "permanent": true
+    }
   ]
 }
