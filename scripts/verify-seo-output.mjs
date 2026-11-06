@@ -37,7 +37,7 @@ const REQUIRED_ES_ROUTES = [
   '/about',
   '/projects',
   '/faq',
-  '/news',
+  '/journal',
   '/contact',
 ]
 
@@ -262,7 +262,7 @@ for (const [pathname, location] of routes) {
     fail(`sitemap.xml: non-indexable configurator URL must be excluded (${pathname})`)
     continue
   }
-  if (pathname === '/why' || pathname === '/journal' || pathname === '/en/why' || pathname === '/en/journal') {
+  if (pathname === '/why' || pathname === '/news' || pathname === '/guides' || pathname === '/en/why' || pathname === '/en/news' || pathname === '/en/guides') {
     fail(`sitemap.xml: legacy alias must be excluded (${pathname})`)
     continue
   }
