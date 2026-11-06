@@ -233,7 +233,14 @@ function App({ initialPath = '/' } = {}) {
 
   // Keep each language on a discoverable URL instead of swapping the page
   // language only in React state. Existing Spanish URLs remain untouched.
-  const navigate = (to) => navigateBrowser(localizedPath(to, locale))
+  const navigate = (to) => {
+    if (splitLocalePath(to).basePath === '/contact') {
+      setProjectContext(locale === 'en' ? 'Contact enquiry' : 'Solicitud de contacto')
+      setProjectOpen(true)
+      return
+    }
+    navigateBrowser(localizedPath(to, locale))
+  }
   const setLocale = (nextLocale) => {
     const target = nextLocale === 'en' ? 'en' : 'es'
     navigateBrowser(localizedPath(`${canonicalBasePath(path)}${search}${hash}`, target))
@@ -256,6 +263,23 @@ function App({ initialPath = '/' } = {}) {
     setProjectContext(context)
     setProjectOpen(true)
   }
+
+  // All internal links to /contact open the complete contact experience
+  // without navigating away. Direct /contact URLs remain public and indexable.
+  useEffect(() => {
+    const openContactLink = (event) => {
+      if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return
+      const anchor = event.target instanceof Element ? event.target.closest('a[href]') : null
+      if (!anchor || anchor.hasAttribute('download') || anchor.target === '_blank') return
+      let target
+      try { target = new URL(anchor.href, window.location.href) } catch { return }
+      if (target.origin !== window.location.origin || splitLocalePath(target.pathname).basePath !== '/contact') return
+      event.preventDefault()
+      openProject(locale === 'en' ? 'Contact enquiry' : 'Solicitud de contacto')
+    }
+    document.addEventListener('click', openContactLink, true)
+    return () => document.removeEventListener('click', openContactLink, true)
+  }, [locale])
 
   const pageProps = { navigate, t, locale, setLocale, openProject, search, hash }
   let page
