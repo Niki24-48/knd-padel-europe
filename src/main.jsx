@@ -8,6 +8,7 @@ import './seo-enhancements.css'
 import './visual-pages.css'
 import './why-knd.css'
 import './editorial-hub.css'
+import './contact-modal.css'
 
 const root = document.getElementById('root')
 const tree = <StrictMode><App /></StrictMode>
