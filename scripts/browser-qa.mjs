@@ -74,8 +74,8 @@ try {
       }))
       if(!result.loaded)errors.push('Why KND photo did not load at '+viewport.width+': '+result.src)
     }
-    await page.evaluate(()=>window.scrollTo(0,0))
-    await page.waitForTimeout(180)
+    await page.evaluate(()=>window.scrollTo({top:0,behavior:'instant'}))
+    await page.waitForFunction(()=>window.scrollY<5,{timeout:5000})
     await page.screenshot({path:`qa-screenshots/why-knd-${viewport.width}.png`,fullPage:true})
     await open('/en/about')
     if(!(await page.locator('.why-knd__hero h1').innerText()).includes('More than a court'))
