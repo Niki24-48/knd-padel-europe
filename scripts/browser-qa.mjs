@@ -44,6 +44,31 @@ try {
     if(await page.locator('.unified-preview').count()!==1)errors.push('Home must show one merged editorial preview '+viewport.width)
     if(await page.locator('.unified-preview__cards article').count()!==3)errors.push('Home editorial preview should have 3 cards '+viewport.width)
     if(await page.locator('a[href="/guides"]').count()||await page.locator('a[href="/journal"]').count())errors.push('Home has old duplicate archive links '+viewport.width)
+    if(!mobile){
+      const expected=['Pistas','Césped','Cubiertas','Iluminación','Proyectos','Por qué KND','Journal','FAQ']
+      const names=(await page.locator('.desktop-nav > .nav-group > button, .desktop-nav > a').allTextContents()).map(x=>x.trim())
+      if(JSON.stringify(names)!==JSON.stringify(expected))errors.push('Navbar order is wrong at '+viewport.width+': '+JSON.stringify(names))
+    }
+    // Footer contact links open the same complete, validated Contact page as a
+    // modal without changing the current URL.
+    const existingUrl=page.url()
+    const footerContact=page.locator('footer a[href="/contact"]').first()
+    if(await footerContact.count()){
+      await footerContact.click()
+      const contactModal=page.locator('.project-dialog--contact[role="dialog"]')
+      if(!await contactModal.isVisible())errors.push('Footer Contact link does not open full popup '+viewport.width)
+      else{
+        if(!await contactModal.locator('.knd-contact--modal').count())errors.push('Contact popup is not the actual /contact experience '+viewport.width)
+        if(await contactModal.locator('.enquiry-form input[name="email"]').count()!==1)errors.push('Contact popup form missing email '+viewport.width)
+        if(await contactModal.locator('.enquiry-form textarea[name="message"]').count()!==1)errors.push('Contact popup form missing project description '+viewport.width)
+        if(page.url()!==existingUrl)errors.push('Contact popup changed the current URL '+viewport.width)
+        await contactModal.locator('button[type="submit"]').click()
+        if(!await contactModal.locator('.enquiry-form input[aria-invalid="true"]').count())errors.push('Contact popup validation missing '+viewport.width)
+        await page.screenshot({path:`qa-screenshots/contact-modal-${viewport.width}.png`})
+        await page.keyboard.press('Escape')
+        if(await contactModal.count())errors.push('Escape does not close contact popup '+viewport.width)
+      }
+    }else errors.push('Footer Contact URL missing '+viewport.width)
     await page.screenshot({path:`qa-screenshots/home-${viewport.width}.png`})
     await page.evaluate(()=>window.scrollTo(0,580))
     await page.waitForTimeout(350)
@@ -144,6 +169,36 @@ try {
     if(!(await page.locator('.unified-journal h1').innerText()).includes('Ideas for building'))errors.push('Journal not in English '+viewport.width)
     if(await page.locator('.unified-journal__card').count()!==12)errors.push('English Journal lost articles '+viewport.width)
     await overflow('/en/news')
+    await open('/roof')
+    const roofHero=page.locator('.knd-roof-index .roof-hero')
+    if(await roofHero.count()!==1)errors.push('Roof hero missing '+viewport.width)
+    else{
+      const imageName=await roofHero.evaluate(el=>getComputedStyle(el).backgroundImage)
+      if(!imageName.includes('knd-covered-padel-venue.webp'))errors.push('Roof hero does not use supplied photo '+viewport.width)
+      const photo=await page.request.get(url+'/media/knd/roofs/knd-covered-padel-venue.webp')
+      if(!photo.ok())errors.push('Supplied roof image not served '+viewport.width)
+    }
+    await overflow('/roof')
+    await page.screenshot({path:`qa-screenshots/roof-${viewport.width}.png`})
+    for(const turfId of ['x10-super-match','r9-control','s12-endurance','s9-standard','s7-training']){
+      await open('/turf/'+turfId)
+      const diagram=page.locator('.pd-turf-fibre .pd-technical-section__media img')
+      if(await diagram.count()!==1)errors.push('Missing image in '+turfId+' '+viewport.width)
+      else{
+        await diagram.scrollIntoViewIfNeeded()
+        await page.waitForTimeout(170)
+        const valid=await diagram.evaluate(img=>img.complete&&img.naturalWidth>0)
+        if(!valid)errors.push('Broken fibre photo '+turfId+' '+viewport.width)
+      }
+      await overflow('/turf/'+turfId)
+      if(turfId==='x10-super-match')
+        await page.screenshot({path:`qa-screenshots/turf-fibres-${viewport.width}.png`})
+    }
+    await open('/configurator')
+    const azul=page.locator('.knd-studio-turf-choice[aria-label="Azul"]')
+    await azul.waitFor({state:'attached',timeout:12000})
+    if(await azul.getAttribute('aria-pressed')!=='true')errors.push('Default configurator turf is not blue '+viewport.width)
+    await page.screenshot({path:`qa-screenshots/configurator-${viewport.width}.png`})
     await open('/contact')
     const labelSize=await page.locator('.knd-contact__panel .enquiry-form label').first().evaluate(el=>parseFloat(getComputedStyle(el).fontSize))
     if(labelSize<12)errors.push('Contact form labels too small '+viewport.width)
