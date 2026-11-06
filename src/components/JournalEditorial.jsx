@@ -1,6 +1,5 @@
 import { articles } from '../data/site.js'
 import { articleGuides } from '../data/articleGuides.js'
-import { commercialGuides } from '../data/commercialGuides.js'
 import { localizedPath } from '../seo/routes.js'
 
 const labels = {
@@ -26,47 +25,6 @@ const localized = (article, language) => ({
   title: language === 'en' ? article.titleEn || article.title : article.title,
   excerpt: language === 'en' ? article.excerptEn || article.excerpt : article.excerpt,
 })
-
-export function JournalIndex({ locale = 'es' }) {
-  const lang = locale === 'en' ? 'en' : 'es', t = labels[lang]
-  const [lead,...rest] = articles
-  const featured = localized(lead,lang)
-  return <div className="knd-journal">
-    <header className="knd-journal__masthead">
-      <div className="container"><span className="eyebrow">{t.eyebrow}</span><h1>{t.title}</h1>
-        <div className="knd-journal__masthead-bottom"><p>{t.lead}</p><a href="#journal-stories">{t.latest} <span aria-hidden="true">↓</span></a></div>
-      </div>
-    </header>
-    <section className="knd-journal__feature-section"><div className="container">
-      <span className="eyebrow">{t.featured} / 01</span>
-      <a href={localizedPath('/news/'+lead.slug,lang)} className="knd-journal__featured">
-        <div className="knd-journal__featured-visual"><img src={lead.image} alt={featured.title} width="960" height="720" loading="eager" decoding="async"/></div>
-        <div className="knd-journal__featured-body">
-          <span className="eyebrow">{lead.type} · {lead.date}</span><h2>{featured.title}</h2><p>{featured.excerpt}</p>
-          <span className="knd-journal__read">{t.read} <span aria-hidden="true">↗</span></span>
-        </div>
-      </a>
-    </div></section>
-    <section className="knd-journal__stories" id="journal-stories"><div className="container">
-      <div className="knd-journal__section-heading"><div><span className="eyebrow">{t.latest}</span><h2>{t.subtitle}</h2></div><span className="eyebrow">01 — {String(articles.length).padStart(2,'0')}</span></div>
-      <div className="knd-journal__story-grid">{rest.map((a,index)=> {
-        const entry = localized(a,lang)
-        return <article className="knd-journal__story" key={a.slug}>
-          <a href={localizedPath('/news/'+a.slug,lang)} aria-label={entry.title}>
-            <div className="knd-journal__story-image"><img src={a.image} alt="" loading="lazy" decoding="async"/></div>
-            <div className="knd-journal__story-meta"><span>0{index+2} / {a.type}</span><span>{a.date}</span></div>
-            <h3>{entry.title}</h3><p>{entry.excerpt}</p><span className="knd-journal__read">{t.read} ↗</span>
-          </a>
-        </article>
-      })}</div>
-    </div></section>
-    <section className="knd-journal__bridge"><div className="container">
-      <span className="eyebrow">{lang==='en'?'FROM IDEAS TO DECISIONS':'DE LAS IDEAS A LAS DECISIONES'}</span>
-      <div><h2>{lang==='en'?'Practical answers for your next court.':'Respuestas prácticas para tu próxima pista.'}</h2>
-      <a className="button accent" href={localizedPath('/news',lang)}>{t.explore} ↗</a></div>
-    </div></section>
-  </div>
-}
 
 export function JournalArticle({ article, locale = 'es', openProject }) {
   const lang = locale === 'en' ? 'en' : 'es', t = labels[lang]
