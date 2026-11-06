@@ -297,7 +297,7 @@ const makeTurfProduct = (p) => ({
 export const turfSystems = [
   {
     "id": "x10-super-match",
-    "fiberImage": "/media/knd/turf/fibres/x10-fyn-osso-arc.webp",
+    "fiberImage": "/media/knd/turf/fibres/x10-fyn-osso-arc.png",
     "fiberImageAlt": { "es": "Sistema de tres fibras FYN, OSSO y ARC", "en": "Tri-fibre structure FYN, OSSO and ARC" },
     "code": "OP X10",
     "name": "Super Match",
@@ -341,7 +341,7 @@ export const turfSystems = [
   },
   {
     "id": "r9-control",
-    "fiberImage": "/media/knd/turf/fibres/r9-axis-osso.webp",
+    "fiberImage": "/media/knd/turf/fibres/r9-axis-osso.png",
     "fiberImageAlt": { "es": "Construcción de fibras AXIS y OSSO", "en": "AXIS and OSSO fibre structure" },
     "code": "OP R9",
     "name": "Control",
@@ -386,7 +386,7 @@ export const turfSystems = [
   },
   {
     "id": "s12-endurance",
-    "fiberImage": "/media/knd/turf/fibres/s12-fibre.webp",
+    "fiberImage": "/media/knd/turf/fibres/s12-fibre.png",
     "fiberImageAlt": { "es": "Detalle técnico de fibra S12", "en": "S12 turf fibre detail" },
     "code": "OP S12",
     "name": "Endurance",
@@ -430,7 +430,7 @@ export const turfSystems = [
   },
   {
     "id": "s9-standard",
-    "fiberImage": "/media/knd/turf/fibres/s9-fibre.webp",
+    "fiberImage": "/media/knd/turf/fibres/s9-fibre.png",
     "fiberImageAlt": { "es": "Detalle técnico de fibra S9", "en": "S9 turf fibre detail" },
     "code": "OP S9",
     "name": "STD",
@@ -474,7 +474,7 @@ export const turfSystems = [
   },
   {
     "id": "s7-training",
-    "fiberImage": "/media/knd/turf/fibres/s7-fibre.webp",
+    "fiberImage": "/media/knd/turf/fibres/s7-fibre.png",
     "fiberImageAlt": { "es": "Detalle técnico de fibra S7", "en": "S7 turf fibre detail" },
     "code": "OP S7",
     "name": "Training",
