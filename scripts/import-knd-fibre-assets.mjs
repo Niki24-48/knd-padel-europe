@@ -31,7 +31,13 @@ async function retrieve(id,destination,pattern) {
    tag:m[0],alt:decode(attribute(m[0],'alt')),src:decode(attribute(m[0],'src'))
  }))
  console.log(id+' image candidates: '+JSON.stringify(imgs.filter(x=>/fibre|fiber|FYN|OSSO|AXIS|S12|S9|S7/i.test(x.alt+x.src))).slice(0,4000))
- const match=imgs.find(item=>pattern.test(item.alt) && item.src && !item.src.startsWith('data:'))
+ // The global mega-menu contains X10 imagery even on the S12/S9/S7
+ // pages. Match both the requested model prefix and the fibre image path.
+ // Never accidentally reuse the X10 graphic in another turf system.
+ const key=id.split('-')[0]
+ const candidates=imgs.filter(item=>item.src.toLowerCase().includes('/'+key+'-fibre-'))
+ console.log(id+' model-specific candidates: '+JSON.stringify(candidates.map(x=>({alt:x.alt,src:x.src}))).slice(0,2000))
+ const match=candidates.find(item=>item.src && !item.src.startsWith('data:'))
  if(!match)throw Error('No verified matching fibre diagram found in '+url)
  let imageURL=new URL(match.src,url)
  if(imageURL.pathname==='/_next/image'&&imageURL.searchParams.get('url'))
