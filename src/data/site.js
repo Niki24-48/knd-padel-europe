@@ -43,7 +43,7 @@ export const media = {
   },
   roofs: {
     r1: '/media/knd/roofs/r1-canopy-reference.png',
-    r2: '/media/knd/roofs/r2-semi-enclosed-reference.webp',
+    r2: '/media/knd/roofs/r2-semi-enclosed-reference.png',
     r3: '/media/knd/roofs/r3-enclosed-reference.png',
     r4: '/media/knd/roofs/R4-RETRACTIL.png',
     r5: '/media/knd/roofs/R5-RETRACTIL-COMPLETO.png',
