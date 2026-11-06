@@ -61,7 +61,7 @@ export function GuideDetail({ guide, locale = 'es', openProject }) {
       <div className="container">
         <nav aria-label={locale === 'en' ? 'Breadcrumb' : 'Ruta de navegación'} className="knd-guide-crumbs">
           <a href={localizedPath('/', locale)}>{t.home}</a><span aria-hidden="true">/</span>
-          <a href={localizedPath('/journal', locale)}>{t.back}</a>
+          <a href={localizedPath('/news', locale)}>{t.back}</a>
         </nav>
         <span className="eyebrow">{t.eyebrow}</span>
         <h1>{copy.h1}</h1><p>{copy.intro}</p>
