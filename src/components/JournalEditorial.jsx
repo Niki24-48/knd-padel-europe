@@ -63,7 +63,7 @@ export function JournalIndex({ locale = 'es' }) {
     <section className="knd-journal__bridge"><div className="container">
       <span className="eyebrow">{lang==='en'?'FROM IDEAS TO DECISIONS':'DE LAS IDEAS A LAS DECISIONES'}</span>
       <div><h2>{lang==='en'?'Practical answers for your next court.':'Respuestas prácticas para tu próxima pista.'}</h2>
-      <a className="button accent" href={localizedPath('/guides',lang)}>{t.explore} ↗</a></div>
+      <a className="button accent" href={localizedPath('/journal',lang)}>{t.explore} ↗</a></div>
     </div></section>
   </div>
 }
@@ -77,7 +77,7 @@ export function JournalArticle({ article, locale = 'es', openProject }) {
   return <article className="knd-journal-article">
     <header className="knd-journal-article__hero"><div className="container">
       <nav className="knd-journal-article__crumbs" aria-label={lang==='en'?'Breadcrumb':'Ruta de navegación'}>
-        <a href={localizedPath('/',lang)}>{t.home}</a><span>/</span><a href={localizedPath('/news',lang)}>Journal</a>
+        <a href={localizedPath('/',lang)}>{t.home}</a><span>/</span><a href={localizedPath('/journal',lang)}>Journal</a>
       </nav>
       <span className="eyebrow">{t.reading} / {article.type} · {article.date}</span><h1>{title}</h1><p>{excerpt}</p>
     </div></header>
@@ -85,7 +85,7 @@ export function JournalArticle({ article, locale = 'es', openProject }) {
     <div className="container knd-journal-article__layout">
       <aside className="knd-journal-article__sidebar">
         <span className="eyebrow">KND JOURNAL</span><p>{lang==='en'?'Explore perspectives on the design and operation of padel venues.':'Explora ideas sobre el diseño y la operación de instalaciones de pádel.'}</p>
-        <a href={localizedPath('/news',lang)}>{t.back} ↗</a>
+        <a href={localizedPath('/journal',lang)}>{t.back} ↗</a>
       </aside>
       <div className="knd-journal-article__text">
         <p className="knd-journal-article__lead">{guide?.lead || excerpt}</p>
