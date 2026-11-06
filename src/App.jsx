@@ -1,3 +1,4 @@
+import WhyKndExperience from './components/WhyKndExperience.jsx'
 import LightingShowcase from './components/LightingShowcase.jsx'
 import { JournalIndex, JournalArticle } from './components/JournalEditorial.jsx'
 import ContactExperience from './components/ContactExperience.jsx'
@@ -272,7 +273,7 @@ function App({ initialPath = '/' } = {}) {
   else if (path === '/roof') page = <RoofIndexPage {...pageProps} />
   else if (path.startsWith('/roof/')) page = <RoofDetailPage {...pageProps} item={roofSystems.find((item) => item.id === path.split('/').pop())} />
   else if (path === '/configurator') page = <Suspense fallback={<section className="configurator-loading" role="status"><span>3D</span><p>Cargando el estudio de configuración…</p></section>}><ConfiguratorPage {...pageProps} /></Suspense>
-  else if (path === '/why' || path === '/about') page = <WhyPage {...pageProps} />
+  else if (path === '/why' || path === '/about') page = <WhyKndExperience {...pageProps} />
   else if (path === '/projects') page = <ProjectsPortfolioPage {...pageProps} />
   else if (path.startsWith('/projects/')) page = <ProjectDetailPage {...pageProps} project={projects.find((project) => project.slug === path.split('/').pop())} />
   else if (path === '/guides') page = <GuidesIndex {...pageProps} />
@@ -681,33 +682,6 @@ function SystemDetail({ item, type, navigate, openProject }) {
     <section className="section configuration-band" id="personalisation"><div className="container"><Eyebrow>PERSONALIZACIÓN</Eyebrow><h2>La base es solo<br/><em>el comienzo.</em></h2><p>Color de estructura, superficie, iluminación, branding y protección se configuran para que el sistema se sienta propio.</p>{type === 'court' && <button className="button accent" onClick={() => navigate(`/configurator?model=${item.id}`)}>Abrir configurador <Arrow /></button>}</div></section>
   </>
 }
-
-function WhyPage({ openProject, locale = 'es' }) {
-  const en = locale === 'en'
-  const points = en ? [
-    ['01','Start with the site','The location, climate, audience and operating model shape the right court system.'],
-    ['02','Connect every component','Steel, glass, turf, lighting and weather protection need one coordinated specification.'],
-    ['03','Plan beyond delivery','Documents, responsibilities, maintenance access and installation planning belong in the initial brief.'],
-  ] : [
-    ['01','Empezar por el emplazamiento','La ubicación, el clima, los usuarios y el uso previsto determinan el sistema adecuado.'],
-    ['02','Coordinar cada componente','Estructura, vidrio, césped, iluminación y protección climática necesitan una especificación conjunta.'],
-    ['03','Planificar más allá de la entrega','La documentación, responsabilidades, mantenimiento e instalación forman parte del proyecto desde el inicio.'],
-  ]
-  return <>
-    <section className="about-hero"><div className="container"><span className="eyebrow">{en ? 'ABOUT KND PADEL' : 'POR QUÉ KND PADEL'}</span>
-      <h1>{en ? <>Padel projects.<br/><em>Planned as a whole.</em></> : <>Proyectos de pádel.<br/><em>Una visión completa.</em></>}</h1>
-      <p>{en ? 'KND Padel Europe helps clubs, hospitality venues and sporting projects define court, turf, lighting and roof solutions around the realities of each location.' : 'KND Padel Europe ayuda a clubes, hoteles e instalaciones deportivas a definir pistas, césped, iluminación y cubiertas según las condiciones de cada lugar.'}</p>
-    </div></section>
-    <section className="section belief-section"><div className="container"><div><span className="eyebrow">{en ? 'HOW WE WORK' : 'CÓMO TRABAJAMOS'}</span>
-      <h2>{en ? <>Decisions made<br/><em>for real projects.</em></> : <>Decisiones pensadas<br/><em>para proyectos reales.</em></>}</h2>
-      <p>{en ? 'Our starting point is a clear project brief and a documented scope. Every technical claim is confirmed against the agreed specification.' : 'Partimos de un planteamiento claro y un alcance documentado. Cada requisito técnico se confirma en la especificación acordada.'}</p></div>
-      <div className="belief-list">{points.map(([no,title,description]) => <article key={no}><span>{no}</span><h3>{title}</h3><p>{description}</p></article>)}</div>
-    </div></section>
-    <section className="full-bleed-image"><img src={images.projectOne} alt={en ? 'KND padel court project reference' : 'Referencia de proyecto de pista KND'} loading="lazy" decoding="async"/></section>
-    <ContactCta openProject={() => openProject('KND Padel')} locale={locale} />
-  </>
-}
-
 
 function FaqPage({ locale, navigate, openProject }) { return <><section className="plain-hero faq-hero"><div className="container"><Eyebrow>{locale === 'en' ? 'FREQUENTLY ASKED QUESTIONS' : 'PREGUNTAS FRECUENTES'}</Eyebrow><h1>{locale === 'en' ? <>Answers<br/><em>that move a project forward.</em></> : <>Las respuestas<br/><em>para mover el proyecto.</em></>}</h1><p>{locale === 'en' ? 'A practical starting point for choosing a system, requesting a proposal and understanding how KND works.' : 'El punto de partida para elegir sistema, plantear un presupuesto y entender cómo trabajamos.'}</p></div></section><FaqHub locale={locale} navigate={navigate} linkFor={(target) => localizedPath(target, locale)} onStartProject={() => openProject()} /><ContactCta openProject={() => openProject()} locale={locale} /></> }
 
