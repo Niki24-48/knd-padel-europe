@@ -13,6 +13,14 @@ const errors = []
 const fail = (msg) => errors.push(msg)
 const origins = ['','/en']
 const content = [...commercialGuides.map(x=>x.path),...articles.map(x=>'/news/'+x.slug)]
+const indexSource=readFileSync('src/components/EditorialHub.jsx','utf8')
+const artworkBlock=indexSource.slice(indexSource.indexOf('const guideArtwork = {'),indexSource.indexOf('const labels = {'))
+const guidePhotos=[...artworkBlock.matchAll(/:\s*'([^']+)'/g)].map(match=>match[1])
+if(guidePhotos.length!==commercialGuides.length)fail('Not all buying guides have editorial artwork')
+for(const path of [...guidePhotos,...articles.map(x=>x.image),'/media/knd/courts/newjersey.webp']){
+  const file=join('public',decodeURIComponent(path.slice(1)))
+  if(!existsSync(file))fail('Missing actual Journal image asset: '+file)
+}
 const routeList = getCanonicalRoutes().map(x=>x.basePath)
 if(routeList.filter(x=>x==='/news').length!==1)fail('There must be exactly one canonical Journal index')
 if(routeList.includes('/guides')||routeList.includes('/journal'))fail('Legacy archive included in canonical route list')
