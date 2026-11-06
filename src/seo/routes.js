@@ -17,8 +17,9 @@ export const SUPPORTED_LOCALES = ['es', 'en']
 
 export const HISTORICAL_REDIRECTS = Object.freeze({
   '/why': '/about',
-  '/journal': '/news',
-  '/blog': '/news',
+  '/news': '/journal',
+  '/guides': '/journal',
+  '/blog': '/journal',
 })
 
 const pageCopy = {
@@ -120,18 +121,18 @@ const pageCopy = {
       intro: 'A design philosophy connecting courts, components, playing experience and the surrounding venue.',
     },
   },
-  '/news': {
+  '/journal': {
     es: {
-      title: 'Guías para construir y planificar pistas de pádel',
-      description: 'Guías de KND Padel sobre planificación de pistas, clubes, cubiertas y decisiones de proyecto.',
-      h1: 'Guías para tomar mejores decisiones de pádel.',
-      intro: 'Contenido editorial para compradores y equipos que necesitan conectar producto, ubicación y operación.',
+      title: 'Journal de pádel | Guías de compra, diseño y proyectos',
+      description: 'Ideas y guías para comprar, construir y gestionar pistas de pádel. Precios, modelos, césped, iluminación, cubiertas, diseño e inspiración en un solo Journal KND.',
+      h1: 'Ideas para construir lo que viene.',
+      intro: 'Guías de compra, criterios técnicos, diseño y proyectos de pádel reunidos en una biblioteca editorial.',
     },
     en: {
-      title: 'Guides to build and plan padel courts',
-      description: 'KND Padel guides about court planning, clubs, roofs and project decisions.',
-      h1: 'Guides for better padel-project decisions.',
-      intro: 'Editorial content for buyers and teams connecting product, venue and operation.',
+      title: 'Padel Journal | Buying Guides, Design & Projects',
+      description: 'Padel buying guides, court costs, materials, roofing, lighting, venue design and practical project insights. Explore every KND article in one Journal.',
+      h1: 'Ideas for building what comes next.',
+      intro: 'Buying guides, technical decisions, design perspectives and padel projects in one editorial library.',
     },
   },
   '/faq': {
@@ -146,20 +147,6 @@ const pageCopy = {
       description: 'Answers about buying, budgeting, models, turf, roofs, installation, transport and the padel court configurator.',
       h1: 'Frequently asked questions for moving a padel project forward.',
       intro: 'Filter answers by topic and find the related product or project page.',
-    },
-  },
-  '/guides': {
-    es: {
-      title: 'Guías para comprar y construir pistas de pádel',
-      description: 'Guías prácticas de KND Padel sobre precios, construcción, modelos, césped, cubiertas, clubes, hoteles e iluminación de pistas de pádel.',
-      h1: 'Guías para comprar, instalar y gestionar pistas de pádel.',
-      intro: 'Información clara y orientada a proyectos para tomar decisiones antes de solicitar un presupuesto.',
-    },
-    en: {
-      title: 'Padel court buying and construction guides',
-      description: 'Practical KND Padel guides covering court costs, construction, models, turf, roofing, clubs, hospitality and lighting.',
-      h1: 'Guides to buying, building and running padel courts.',
-      intro: 'Project-focused information to make informed decisions before requesting a quotation.',
     },
   },
   '/contact': {
@@ -224,9 +211,8 @@ export function getCanonicalRoutes() {
     staticRoute('/projects', 'collection'),
     ...projects.map((item) => staticRoute(`/projects/${item.slug}`, 'project')),
     staticRoute('/about'),
-    staticRoute('/guides', 'collection'),
+    staticRoute('/journal', 'collection'),
     ...commercialGuides.map((guide) => staticRoute(guide.path, 'guide')),
-    staticRoute('/news', 'collection'),
     ...articles.map((item) => staticRoute(`/news/${item.slug}`, 'article')),
     staticRoute('/faq'),
     staticRoute('/contact'),
@@ -349,11 +335,11 @@ function breadcrumbSchema(info) {
     '/turf': info.locale === 'en' ? 'Turf' : 'Césped',
     '/roof': info.locale === 'en' ? 'Roofs' : 'Cubiertas',
     '/projects': info.locale === 'en' ? 'Projects' : 'Proyectos',
-    '/news': info.locale === 'en' ? 'Journal' : 'Artículos',
-    '/guides': info.locale === 'en' ? 'Buying guides' : 'Guías de compra',
+    '/news': 'Journal',
+    '/guides': 'Journal',
   }
   const parent = Object.keys(labels).find((candidate) => info.basePath.startsWith(`${candidate}/`))
-  if (parent) crumbs.push({ name: labels[parent], item: absoluteUrl(localizedPath(parent, info.locale)) })
+  if (parent) crumbs.push({ name: labels[parent], item: absoluteUrl(localizedPath('/journal', info.locale)) })
   if (info.basePath !== '/' && !parent) crumbs.push({ name: info.h1, item: absoluteUrl(info.path) })
   else if (parent) crumbs.push({ name: info.h1, item: absoluteUrl(info.path) })
   return {
